@@ -1,0 +1,147 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;700;800&display=swap');
+
+/* --- 1. BASE STYLES --- */
+html, body, #root {
+  background-color: #020202; 
+  color: #ffffff;
+  font-family: 'Poppins', sans-serif;
+  overflow-x: hidden;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+}
+
+/* --- 2. 3D RECTANGULAR TUNNEL --- */
+.rectangular-tunnel {
+  position: fixed;
+  top: 0; 
+  left: 0;
+  width: 100vw; 
+  height: 100vh;
+  z-index: 1; 
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  perspective: 800px; 
+}
+
+.rect-frame {
+  position: absolute;
+  width: 400px; 
+  height: 200px;
+  /* Shifted from bright cyan to a deeper, darker navy/neon blue */
+  border: 2px solid rgba(30, 90, 255, 0.85);
+  box-shadow: 0 0 25px rgba(30, 90, 255, 0.5), inset 0 0 25px rgba(30, 90, 255, 0.3);
+  opacity: 0;
+  animation: zoomOut 8s infinite linear;
+}
+
+
+
+/* Staggering 5 frames for continuous flow */
+.rect-frame:nth-child(1) { animation-delay: 0s; }
+.rect-frame:nth-child(2) { animation-delay: 1.6s; }
+.rect-frame:nth-child(3) { animation-delay: 3.2s; }
+.rect-frame:nth-child(4) { animation-delay: 4.8s; }
+.rect-frame:nth-child(5) { animation-delay: 6.4s; }
+
+@keyframes zoomOut {
+  0% { 
+    transform: translateZ(-2000px) scale(0.1); 
+    opacity: 0; 
+  }
+  15% { 
+    opacity: 0.7; 
+  }
+  80% { 
+    opacity: 0.7; 
+  }
+  100% { 
+    transform: translateZ(500px) scale(8); 
+    opacity: 0; 
+  }
+}
+
+/* --- 3. DARK PROTECTOR SHADOW --- */
+.ui-protector {
+  position: fixed;
+  top: 0; 
+  left: 0;
+  width: 100vw; 
+  height: 100vh;
+  background: radial-gradient(circle, rgba(2,2,2,0.3) 20%, rgba(2,2,2,0.95) 100%);
+  z-index: 2; 
+  pointer-events: none;
+}
+
+/* --- 4. UI COMPONENTS --- */
+.main-content {
+  position: relative;
+  z-index: 10; 
+  min-height: 100vh;
+}
+
+.floating-nav {
+  background: rgba(15, 15, 20, 0.7);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(30, 90, 255, 0.3);
+  border-radius: 50px;
+  padding: 12px 40px;
+  display: inline-flex;
+  gap: 30px;
+  align-items: center;
+  box-shadow: 0 0 20px rgba(30, 90, 255, 0.15);
+}
+
+.floating-nav a {
+  color: #a0a0a0;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 400;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.floating-nav a:hover, .floating-nav a.active {
+  color: #ffffff;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+.glass-card {
+  background: rgba(10, 10, 15, 0.8);
+  border: 1px solid rgba(30, 90, 255, 0.3);
+  border-radius: 12px;
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+}
+
+.glass-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 15px 30px rgba(30, 90, 255, 0.2);
+}
+
+.glow-text {
+  color: #fff;
+  text-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+}
+
+.btn-gradient {
+  background: linear-gradient(90deg, #1e3c72 0%, #2a5298 100%);
+  color: white;
+  border: none;
+  transition: 0.3s;
+}
+
+.btn-gradient:hover {
+  box-shadow: 0 0 20px rgba(42, 82, 152, 0.6);
+  transform: scale(1.05);
+}
+
+.fade-in {
+  animation: fadeInDown 1s ease-out forwards;
+}
+
+@keyframes fadeInDown {
+  0% { opacity: 0; transform: translateY(-20px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
