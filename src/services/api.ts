@@ -140,6 +140,16 @@ const mapTeam = (team: any): Team => ({
   'No. of Members': String(team?.numberOfMembers ?? '')
 });
 
+export const getTeamMembers = async (teamId: string): Promise<any[]> => {
+  const response = await fetch(`${API_BASE}/teams/${teamId}/members`, { method: 'GET', cache: 'no-store' });
+  if (!response.ok) {
+    throw new Error('Failed to fetch team members');
+  }
+  const data = await response.json();
+  return data;
+};
+
+
 export const getTeams = async (): Promise<Team[]> => {
   const response = await fetch(`${API_BASE}/teams`, { method: 'GET', cache: 'no-store' });
 

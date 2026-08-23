@@ -163,6 +163,18 @@ app.post('/api/teams/join', async (req, res) => {
   }
 });
 
+app.get('/api/teams/:teamId/members', async (req, res) => {
+  try {
+    const { teamId } = req.params;
+    const users = await getUsers();
+    const members = users.filter(u => String(u.Team_ID).trim() === String(teamId).trim());
+    res.json(members);
+  } catch (error) {
+    console.error('Error fetching team members:', error);
+    res.status(500).json({ error: 'Failed to fetch team members' });
+  }
+});
+
 // --- Submissions ---
 app.get('/api/submissions', async (req, res) => {
   try {

@@ -7,7 +7,9 @@ import {
   authTeam,
   joinTeam,
   getSubmissions,
-  addReview
+  addReview,
+  getTeamMembers,
+  getTeams
 } from "./services/api";
 import type { User } from "./types/database";
 import { AdminDashboard } from "./components/AdminDashboard";
@@ -117,6 +119,27 @@ const [joinTeamError, setJoinTeamError] =
 const joinPasswordRef =
   useRef<HTMLInputElement | null>(null);
 
+const [teamMembers, setTeamMembers] = useState<any[]>([]);
+const [teamDetails, setTeamDetails] = useState<any | null>(null);
+
+useEffect(() => {
+  if (teamLoggedIn && teamIdInput) {
+    getTeamMembers(teamIdInput)
+      .then(setTeamMembers)
+      .catch((e) => console.error("Failed to load team members:", e));
+
+    getTeams()
+      .then(teams => {
+        const current = teams.find(t => String(t.Team_ID).trim() === String(teamIdInput).trim());
+        if (current) setTeamDetails(current);
+      })
+      .catch((e) => console.error("Failed to load team details:", e));
+  } else {
+    setTeamMembers([]);
+    setTeamDetails(null);
+  }
+}, [teamLoggedIn, teamIdInput]);
+
   const filteredSubmissions = submissions.filter((submission) => {
   const teamId = String(submission?.Team_ID || '').trim().toLowerCase();
   const name = String(submission?.['Team_Name '] || '').trim().toLowerCase();
@@ -179,6 +202,13 @@ const selectedReviewSubmission =
       fetchSubmissions();
     }
   }, [adminLoggedIn]);
+
+  useEffect(() => {
+    if (window.location.pathname === '/admin') {
+      setShowAdminLogin(true);
+    }
+  }, []);
+
 
   const handleAdminScoreSubmit = async () => {
     // determine team id and selected submission
@@ -484,11 +514,15 @@ const handleParticipantLogin = async () => {
   }
 
   try {
-    await joinTeam(
+    const success = await joinTeam(
       joinTeamId.trim(),
       joinPassword,
       loggedInUser.User_ID
     );
+
+    if (!success) {
+      throw new Error("Failed to join team. Please check the Team ID and Password.");
+    }
 
     setLoggedInUser({
       ...loggedInUser,
@@ -699,24 +733,7 @@ const handleParticipantLogin = async () => {
 
       <div className="main-content position-relative z-3 min-vh-100 d-flex flex-column">
 
-        {!loggedInUser && !teamLoggedIn && !adminLoggedIn && (
-  <button
-    onClick={() => setShowAdminLogin(true)}
-    style={{
-      position: 'fixed',
-      top: '20px',
-      right: '20px',
-      left: 'auto',
-      width: 'auto',
-      zIndex: 99999,
-      padding: '10px 22px',
-      borderRadius: '6px',
-    }}
-    className="btn btn-gradient"
-  >
-    Admin Login
-  </button>
-)}
+        {/* Admin Login button removed */}
 
         {/* =================================================
             PARTICIPANT
@@ -1119,17 +1136,32 @@ const handleParticipantLogin = async () => {
                               </p>
 
                               <p className="text-light mb-3">
-                                {loggedInUser?.Name ||
-                                  "Team Leader"}
+                                {teamDetails?.Team_Leader || "Loading Leader..."}
                               </p>
 
                               <p className="text-secondary small mb-1">
                                 Team ID:
                               </p>
 
-                              <p className="text-info fw-bold">
+                              <p className="text-info fw-bold mb-3">
                                 {teamIdInput}
                               </p>
+
+                              <p className="text-secondary small mb-2">
+                                Team Members:
+                              </p>
+                              
+                              {teamMembers.length > 0 ? (
+                                <ul className="text-light small mb-3 ps-3">
+                                  {teamMembers.map((member, idx) => (
+                                    <li key={idx} className="mb-1">
+                                      {member.Name} 
+                                    </li>
+                                  ))}
+                                </ul>
+                              ) : (
+                                <p className="text-secondary small mb-3">Loading members...</p>
+                              )}
 
                             </div>
 
@@ -1944,11 +1976,13 @@ const handleParticipantLogin = async () => {
                 setAdminUsername("");
                 setAdminPassword("");
                 setAdminError(null);
+                if (window.location.pathname === '/admin') {
+                  window.history.pushState({}, '', '/');
+                }
               }}
             >
               Cancel
             </button>
-
           </div>
         </div>
       )}

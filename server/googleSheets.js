@@ -145,11 +145,29 @@ export async function linkUserToTeam(userId, teamId) {
   const rows = await usersSheet.getRows();
   const userRow = rows.find(r => r.get('User_ID') === userId);
   
+  console.log(`linkUserToTeam: userId=${userId}, teamId=${teamId}`);
   if (userRow) {
-    userRow.set('Team_ID', teamId);
+    console.log(`Found userRow for ${userId}. Current Team_ID: ${userRow.get('Team_ID')}`);
+    userRow.assign({ Team_ID: teamId });
     await userRow.save();
+    console.log(`Saved Team_ID to ${teamId} for ${userId}`);
+    
+    // Also increment No. of Members in the Team sheet!
+    const teamSheet = document.sheetsByTitle['Team'];
+    if (teamSheet) {
+      const teamRows = await teamSheet.getRows();
+      const teamRow = teamRows.find(r => String(r.get('Team_ID')).trim() === String(teamId).trim());
+      if (teamRow) {
+        let currentMembers = Number(teamRow.get('No. of Members')) || 0;
+        teamRow.assign({ 'No. of Members': String(currentMembers + 1) });
+        await teamRow.save();
+        console.log(`Updated No. of Members for team ${teamId} to ${currentMembers + 1}`);
+      }
+    }
+    
     return true;
   }
+  console.log(`User ${userId} not found`);
   return false;
 }
 
