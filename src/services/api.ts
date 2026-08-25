@@ -6,89 +6,54 @@ import type {
 } from '../types/database';
 
 const API_BASE = 'http://localhost:3001/api';
-const API_URL =
-  'https://script.google.com/macros/s/AKfycbxtuXfdmg6q7E0oI8ZMibAGcCsHwHVlJFyDNLv8_4v2ra-OKcUxzowSnm5Aw3BVhqP48Q/exec';
 
-type ApiResponse = {
-  success?: boolean;
-  message?: string;
-  [key: string]: any;
-};
 
 // =====================================================
 // HELPER
 // =====================================================
 
-const request = async (
-  action: string,
-  params: Record<string, string> = {}
-): Promise<ApiResponse> => {
-  const query = new URLSearchParams({
-    action,
-    ...params
-  });
 
-  const response = await fetch(`${API_URL}?${query.toString()}`, {
-    method: 'GET',
-    cache: 'no-store'
-  });
-
-  if (!response.ok) {
-    throw new Error(`API request failed: ${response.status}`);
-  }
-
-  const text = await response.text();
-
-  let data: ApiResponse;
-
-  try {
-    data = JSON.parse(text);
-  } catch {
-    throw new Error('Invalid response received from Google Apps Script.');
-  }
-
-  return data;
-};
 
 // =====================================================
 // USERS
 // =====================================================
 
-const mapUser = (user: any): User => ({
-  User_ID: String(user?.userId ?? ''),
-  Name: String(user?.name ?? ''),
-  Email: String(user?.email ?? ''),
-  'Role (Participant/Admin)': String(user?.role ?? 'Participant'),
-  Team_ID: String(user?.teamId ?? '')
-});
+
 
 export const getUsers = async (): Promise<User[]> => {
-  const data = await request('getUsers');
+  const response = await fetch(`${API_BASE}/users`, {
+    method: 'GET',
+    cache: 'no-store'
+  });
 
-  if (!data.success) {
-    throw new Error(data.message || 'Failed to fetch users');
+  if (!response.ok) {
+    throw new Error('Failed to fetch users');
   }
 
-  return Array.isArray(data.users)
-    ? data.users.map(mapUser)
-    : [];
+  const users = await response.json();
+  return Array.isArray(users) ? users : [];
 };
 
 export const addUser = async (
   user: User,
   password: string
 ): Promise<void> => {
-  const data = await request('addUser', {
-    userId: user.User_ID,
-    name: user.Name,
-    email: user.Email,
-    role: user['Role (Participant/Admin)'] || 'Participant',
-    teamId: user.Team_ID || '',
-    password
+  const response = await fetch(`${API_BASE}/users`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      User_ID: user.User_ID,
+      Name: user.Name,
+      Email: user.Email,
+      'Role (Participant/Admin)': user['Role (Participant/Admin)'] || 'Participant',
+      Team_ID: user.Team_ID || '',
+      Password: password
+    })
   });
 
-  if (!data.success) {
-    throw new Error(data.message || 'Failed to add user');
+  if (!response.ok) {
+    const body = await response.json().catch(() => null);
+    throw new Error(body?.message || 'Failed to add user');
   }
 };
 

@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useGoogleLogin } from "@react-oauth/google";
 
 import {
   addTeam,
@@ -9,8 +10,11 @@ import {
   getSubmissions,
   addReview,
   getTeamMembers,
-  getTeams
+  getTeams,
+  addUser,
+  getUsers
 } from "./services/api";
+
 import type { User } from "./types/database";
 import { AdminDashboard } from "./components/AdminDashboard";
 export default function App() {
@@ -33,6 +37,9 @@ export default function App() {
     useState("");
   const [participantError, setParticipantError] = useState<string | null>(null);
   const participantPasswordRef = useRef<HTMLInputElement | null>(null);
+  const [authMode, setAuthMode] = useState<"signin" | "signup">("signin");
+  const [googleAuthLoading, setGoogleAuthLoading] = useState(false);
+  const [googleAuthError, setGoogleAuthError] = useState<string | null>(null);
 
   // =====================================================
   // REGISTRATION
@@ -409,6 +416,69 @@ const handleParticipantLogin = async () => {
     });
   }
 };
+
+const googleSignup = useGoogleLogin({
+  onSuccess: async (tokenResponse) => {
+    setGoogleAuthLoading(true);
+    setGoogleAuthError(null);
+
+    try {
+      const profileRes = await fetch(
+        "https://www.googleapis.com/oauth2/v3/userinfo",
+        {
+          headers: {
+            Authorization: `Bearer ${tokenResponse.access_token}`
+          }
+        }
+      );
+
+      if (!profileRes.ok) {
+        throw new Error("Failed to fetch Google profile.");
+      }
+
+      const profile = await profileRes.json();
+      const email = String(profile.email || "").trim();
+      const name = String(profile.name || email);
+
+      if (!email) {
+        throw new Error("Google account did not return an email.");
+      }
+
+      const existingUsers = await getUsers();
+      let user = existingUsers.find(
+        (u) => u.Email.trim().toLowerCase() === email.toLowerCase()
+      );
+
+      if (!user) {
+        const newUserId = "U-" + Math.floor(1000 + Math.random() * 9000);
+
+        user = {
+          User_ID: newUserId,
+          Name: name,
+          Email: email,
+          "Role (Participant/Admin)": "Participant",
+          Team_ID: ""
+        };
+
+        await addUser(user, "");
+      }
+
+      setLoggedInUser(user);
+      setActivePage("registration");
+
+    } catch (error) {
+      console.error("Google sign-up error:", error);
+      setGoogleAuthError(
+        error instanceof Error ? error.message : "Google sign-up failed."
+      );
+    } finally {
+      setGoogleAuthLoading(false);
+    }
+  },
+  onError: () => {
+    setGoogleAuthError("Google sign-up was cancelled or failed.");
+  }
+});
   const handleTeamSubmit = async () => {
     if (!regTeamName.trim()) {
       alert("Please enter a team name.");
@@ -562,7 +632,11 @@ const handleParticipantLogin = async () => {
   // =====================================================
 
      const handleTeamLogin = async () => {
-  setTeamLoginError(null);
+      setTeamLoggedIn(true);
+      setActivePage("team-portal");
+      setTeamLoginError(null);
+
+      setTeamPasswordInput("");
 
   const teamId = teamIdInput.trim();
   const password = teamPasswordInput;
@@ -741,7 +815,7 @@ const handleParticipantLogin = async () => {
 
         {role === "participant" && (
           <>
-            {!loggedInUser ? (
+            {(!loggedInUser && !teamLoggedIn) ? (
 
               <div className="d-flex justify-content-center align-items-center flex-grow-1 p-3 fade-in">
 
@@ -750,53 +824,105 @@ const handleParticipantLogin = async () => {
                   style={{ maxWidth: "450px" }}
                 >
 
-                  <h2 className="glow-text mb-4 fw-bold">
-                    Participant Login
-                  </h2>
+                  
+<h2 className="glow-text mb-4 fw-bold">
+  {authMode === "signin" ? "Participant Login" : "Sign Up"}
+</h2>
 
-                  <p className="text-secondary mb-4">
-                    Enter your participant credentials
-                    to access the Code Cortex portal.
-                  </p>
+<div className="d-flex gap-2 mb-4 justify-content-center">
+  <button
+    className={`btn btn-sm rounded-pill px-4 ${
+      authMode === "signin" ? "btn-gradient" : "btn-outline-info"
+    }`}
+    onClick={() => {
+      setAuthMode("signin");
+      setGoogleAuthError(null);
+    }}
+  >
+    Sign In
+  </button>
 
-                  <input
-                    type="text"
-                    className="form-control mb-4 py-2"
-                    style={inputStyle}
-                    placeholder="Student ID / Username"
-                    value={participantUsername}
-                    onChange={(e) =>
-                      setParticipantUsername(e.target.value)
-                    }
-                  />
+  <button
+    className={`btn btn-sm rounded-pill px-4 ${
+      authMode === "signup" ? "btn-gradient" : "btn-outline-info"
+    }`}
+    onClick={() => {
+      setAuthMode("signup");
+      setGoogleAuthError(null);
+    }}
+  >
+    Sign Up
+  </button>
+</div>
 
-                  <input
-                    type="password"
-                    className="form-control mb-4 py-2"
-                    style={inputStyle}
-                    placeholder="Password"
-                    value={participantPassword}
-                    onChange={(e) =>
-                      setParticipantPassword(e.target.value)
-                    }
-                    ref={participantPasswordRef}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        handleParticipantLogin();
-                      }
-                    }}
-                  />
+{authMode === "signin" ? (
+  <>
+    <p className="text-secondary mb-4">
+      Enter your Team ID and Team Password
+      to access your dashboard.
+    </p>
 
-                  {participantError && (
-                    <div className="text-danger mb-3">{participantError}</div>
-                  )}
+    <input
+      type="text"
+      className="form-control mb-4 py-2"
+      style={inputStyle}
+      placeholder="Team ID (e.g. CC-104)"
+      value={teamIdInput}
+      onChange={(e) => {
+        setTeamIdInput(e.target.value);
+        setTeamLoginError(null);
+      }}
+    />
 
-                  <button
-                    className="btn btn-gradient w-100 py-2 fw-bold"
-                    onClick={handleParticipantLogin}
-                  >
-                    Login →
-                  </button>
+    <input
+      type="password"
+      className="form-control mb-4 py-2"
+      style={inputStyle}
+      placeholder="Team Password"
+      value={teamPasswordInput}
+      onChange={(e) => {
+        setTeamPasswordInput(e.target.value);
+        setTeamLoginError(null);
+      }}
+      ref={teamPasswordRef}
+      onKeyDown={(e) => {
+        if (e.key === "Enter") {
+          handleTeamLogin();
+        }
+      }}
+    />
+
+    {teamLoginError && (
+      <div className="text-danger mb-3">{teamLoginError}</div>
+    )}
+
+    <button
+      className="btn btn-gradient w-100 py-2 fw-bold"
+      onClick={handleTeamLogin}
+    >
+      Login →
+    </button>
+    </>
+) : (
+  <>
+    <p className="text-secondary mb-4">
+      Sign up with your Google account to create
+      and register your team.
+    </p>
+
+    {googleAuthError && (
+      <div className="text-danger mb-3">{googleAuthError}</div>
+    )}
+
+    <button
+      className="btn btn-gradient w-100 py-2 fw-bold"
+      onClick={() => googleSignup()}
+      disabled={googleAuthLoading}
+    >
+      {googleAuthLoading ? "Signing up..." : "Continue with Google →"}
+    </button>
+  </>
+)}
 
                   
 
