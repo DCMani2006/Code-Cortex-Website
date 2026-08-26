@@ -5,18 +5,18 @@ import fs from 'fs';
 let doc;
 
 export async function initGoogleSheets() {
-  if (doc) return doc;
+  if (!doc) {
+    const credentialsPath = './credentials.json';
+    const credentials = JSON.parse(fs.readFileSync(credentialsPath, 'utf-8'));
 
-  const credentialsPath = './credentials.json';
-  const credentials = JSON.parse(fs.readFileSync(credentialsPath, 'utf-8'));
+    const jwt = new JWT({
+      email: credentials.client_email,
+      key: credentials.private_key,
+      scopes: ['https://www.googleapis.com/auth/spreadsheets'],
+    });
 
-  const jwt = new JWT({
-    email: credentials.client_email,
-    key: credentials.private_key,
-    scopes: ['https://www.googleapis.com/auth/spreadsheets'],
-  });
-
-  doc = new GoogleSpreadsheet(process.env.GOOGLE_SHEET_ID, jwt);
+    doc = new GoogleSpreadsheet(process.env.GOOGLE_SHEET_ID, jwt);
+  }
   await doc.loadInfo(); // loads document properties and worksheets
   return doc;
 }
@@ -147,7 +147,12 @@ export async function linkUserToTeam(userId, teamId) {
   
   console.log(`linkUserToTeam: userId=${userId}, teamId=${teamId}`);
   if (userRow) {
-    console.log(`Found userRow for ${userId}. Current Team_ID: ${userRow.get('Team_ID')}`);
+    const existingTeamId = String(userRow.get('Team_ID') || '').trim();
+    if (existingTeamId && existingTeamId !== String(teamId).trim()) {
+      throw new Error("You are already a member of a team and cannot create or join another team.");
+    }
+    
+    console.log(`Found userRow for ${userId}. Current Team_ID: ${existingTeamId}`);
     userRow.assign({ Team_ID: teamId });
     await userRow.save();
     console.log(`Saved Team_ID to ${teamId} for ${userId}`);
@@ -171,13 +176,89 @@ export async function linkUserToTeam(userId, teamId) {
   return false;
 }
 
-export async function addTeam(data) {
+export async function addTeam(data, additionalMembers = []) {
   const document = await initGoogleSheets();
-  const sheet = document.sheetsByTitle['Team'];
-
+  const usersSheet = document.sheetsByTitle['Users'];
+  
   // Extract explicit _userId if provided
   const userId = data._userId;
   delete data._userId;
+
+  // --- STRICT MEMBERSHIP VALIDATION ---
+  if (usersSheet) {
+    const existingUserRows = await usersSheet.getRows();
+    
+    // 1. Check logged-in user creating the team
+    if (userId) {
+      const loggedUserRow = existingUserRows.find(r => r.get('User_ID') === userId);
+      if (loggedUserRow) {
+        const existingTeamId = String(loggedUserRow.get('Team_ID') || '').trim();
+        if (existingTeamId) {
+          throw new Error("You are already a member of a team and cannot create or join another team.");
+        }
+      }
+    }
+
+    // 2. Extract leader reg no from Team_Leader string if present
+    const leaderMatch = String(data.Team_Leader || '').match(/\b(\d{2}[a-zA-Z]{3}\d{4,5})\b/);
+    const incomingRegNos = new Set();
+    const incomingEmails = new Set();
+
+    if (leaderMatch) {
+      incomingRegNos.add(leaderMatch[1].toUpperCase());
+    }
+
+    // 3. Collect additional members details
+    if (additionalMembers && additionalMembers.length > 0) {
+      for (const m of additionalMembers) {
+        const reg = String(m.regNo || '').trim().toUpperCase();
+        const email = String(m.email || '').trim().toLowerCase();
+        
+        if (reg) {
+          if (incomingRegNos.has(reg)) {
+            throw new Error(`Duplicate Registration Number ${reg} in member submission.`);
+          }
+          incomingRegNos.add(reg);
+        }
+        if (email) {
+          if (incomingEmails.has(email)) {
+            throw new Error(`Duplicate Email ${email} in member submission.`);
+          }
+          incomingEmails.add(email);
+        }
+      }
+    }
+
+    // 4. Validate against existing database records
+    for (const r of existingUserRows) {
+      const dbRegNo = String(r.get('User_ID') || '').trim().toUpperCase();
+      const dbEmail = String(r.get('Email') || '').trim().toLowerCase();
+      const dbTeamId = String(r.get('Team_ID') || '').trim();
+
+      if (dbRegNo && incomingRegNos.has(dbRegNo) && dbTeamId) {
+        throw new Error(`Registration Number ${dbRegNo} is already a member of a team and cannot create or join another team.`);
+      }
+      if (dbEmail && incomingEmails.has(dbEmail) && dbTeamId) {
+        throw new Error(`Email ${dbEmail} is already a member of a team and cannot create or join another team.`);
+      }
+    }
+  }
+
+  const sheet = document.sheetsByTitle['Team'];
+
+  if (sheet) {
+    const existingTeamRows = await sheet.getRows();
+    const newTeamName = String(data['Team_ Name'] || data.Team_Name || data.Team_Name_ || data['Team Name'] || '').trim().toLowerCase();
+    
+    if (newTeamName) {
+      for (const row of existingTeamRows) {
+        const dbTeamName = String(row.get('Team_ Name') || row.get('Team_Name') || row.get('Team Name') || '').trim().toLowerCase();
+        if (dbTeamName === newTeamName) {
+          throw new Error("Team Name already exists. Please choose a different name.");
+        }
+      }
+    }
+  }
 
   const rowData = { ...data };
   const teamPassword = rowData.Team_Password || rowData.Password || rowData.teamPassword || rowData['Team Password'];
@@ -227,6 +308,70 @@ export async function addTeam(data) {
       console.error(`Failed to link user ${userId}:`, e);
     }
   }
+
+  if (additionalMembers && additionalMembers.length > 0) {
+    if (usersSheet) {
+      for (const m of additionalMembers) {
+        try {
+          await usersSheet.addRow({
+            'User_ID': String(m.regNo).toUpperCase(),
+            'Name': m.name,
+            'Email': m.email,
+            'Role (Participant/Admin)': 'Participant',
+            'Team_ID': rowData.Team_ID
+          });
+          console.log(`Successfully added additional member ${m.regNo} to Team ${rowData.Team_ID}`);
+        } catch (e) {
+          console.error(`Failed to add additional member ${m.regNo}:`, e);
+        }
+      }
+    }
+  }
+}
+
+export async function addMemberToTeam(teamId, memberData) {
+  const document = await initGoogleSheets();
+  
+  const teamSheet = document.sheetsByTitle['Team'];
+  const teamRows = await teamSheet.getRows();
+  const teamRow = teamRows.find(r => String(r.get('Team_ID')).trim() === String(teamId).trim());
+  if (!teamRow) {
+    throw new Error('Team not found');
+  }
+
+  const usersSheet = document.sheetsByTitle['Users'];
+  const userRows = await usersSheet.getRows();
+
+  // Check team size limit
+  const currentMembers = userRows.filter(u => String(u.get('Team_ID')).trim() === String(teamId).trim());
+  if (currentMembers.length >= 4) {
+    throw new Error('Team is already full (maximum 4 members).');
+  }
+
+  // Check if Reg No already exists globally
+  const regNo = String(memberData.regNo).toUpperCase();
+  const existingUser = userRows.find(u => String(u.get('User_ID')).trim().toUpperCase() === regNo);
+  if (existingUser) {
+    throw new Error(`Registration Number ${regNo} is already registered.`);
+  }
+
+  await usersSheet.addRow({
+    'User_ID': regNo,
+    'Name': memberData.name,
+    'Email': memberData.email,
+    'Role (Participant/Admin)': 'Participant',
+    'Team_ID': teamId
+  });
+
+  // Update Team member count (if it exists)
+  try {
+    teamRow.set('No. of Members', String(currentMembers.length + 1));
+    await teamRow.save();
+  } catch (e) {
+    console.error("Could not update team member count:", e);
+  }
+
+  return { success: true };
 }
 
 const getRowValue = (row, candidates) => {

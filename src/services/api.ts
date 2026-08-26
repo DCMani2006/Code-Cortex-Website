@@ -5,7 +5,7 @@ import type {
   ReviewScore
 } from '../types/database';
 
-const API_BASE = 'http://localhost:3001/api';
+const API_BASE = 'http://localhost:3000/api';
 
 
 // =====================================================
@@ -141,7 +141,8 @@ export const getTeams = async (): Promise<Team[]> => {
 export const addTeam = async (
   team: Team,
   password: string,
-  userId: string
+  userId: string,
+  additionalMembers: {name: string, regNo: string, email: string}[] = []
 ): Promise<void> => {
   const response = await fetch(`${API_BASE}/teams`, {
     method: 'POST',
@@ -153,7 +154,8 @@ export const addTeam = async (
       Team_Leader: team.Team_Leader,
       'No. of Members': team['No. of Members'],
       teamPassword: password,
-      _userId: userId
+      _userId: userId,
+      additionalMembers
     })
   });
 
@@ -162,6 +164,22 @@ export const addTeam = async (
     throw new Error(body?.message || 'Failed to create team');
   }
   
+};
+
+export const addTeamMember = async (
+  teamId: string,
+  memberData: { name: string, regNo: string, email: string }
+): Promise<void> => {
+  const response = await fetch(`${API_BASE}/teams/${teamId}/members`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(memberData)
+  });
+
+  if (!response.ok) {
+    const body = await response.json().catch(() => null);
+    throw new Error(body?.error || 'Failed to add team member');
+  }
 };
 
 

@@ -12,7 +12,8 @@ import {
   getTeamMembers,
   getTeams,
   addUser,
-  getUsers
+  getUsers,
+  addTeamMember
 } from "./services/api";
 
 import type { User } from "./types/database";
@@ -50,6 +51,32 @@ export default function App() {
   const [regLeaderName, setRegLeaderName] = useState("");
   const [regMembers, setRegMembers] = useState("");
   const [regPassword, setRegPassword] = useState("");
+  const [teamMembersList, setTeamMembersList] = useState<{name: string, regNo: string, email: string}[]>([]);
+
+  useEffect(() => {
+    const count = Number(regMembers);
+    if (Number.isInteger(count) && count >= 2 && count <= 4) {
+      setTeamMembersList(prev => {
+        const requiredMembers = count - 1;
+        if (prev.length === requiredMembers) return prev;
+        const newList = [...prev];
+        while (newList.length < requiredMembers) {
+          newList.push({ name: "", regNo: "", email: "" });
+        }
+        return newList.slice(0, requiredMembers);
+      });
+    } else {
+      setTeamMembersList([]);
+    }
+  }, [regMembers]);
+
+  const handleMemberChange = (index: number, field: keyof typeof teamMembersList[0], value: string) => {
+    setTeamMembersList(prev => {
+      const newList = [...prev];
+      newList[index] = { ...newList[index], [field]: value };
+      return newList;
+    });
+  };
 
   const [registrationSubmitted, setRegistrationSubmitted] =
     useState(false);
@@ -128,6 +155,19 @@ const joinPasswordRef =
 
 const [teamMembers, setTeamMembers] = useState<any[]>([]);
 const [teamDetails, setTeamDetails] = useState<any | null>(null);
+
+const [showAddMemberForm, setShowAddMemberForm] = useState(false);
+const [newMemberName, setNewMemberName] = useState("");
+const [newMemberRegNo, setNewMemberRegNo] = useState("");
+const [newMemberEmail, setNewMemberEmail] = useState("");
+const [isAddingMember, setIsAddingMember] = useState(false);
+
+useEffect(() => {
+  if (loggedInUser?.Team_ID) {
+    setTeamIdInput(loggedInUser.Team_ID);
+    setTeamLoggedIn(true);
+  }
+}, [loggedInUser]);
 
 useEffect(() => {
   if (teamLoggedIn && teamIdInput) {
@@ -444,17 +484,31 @@ const googleSignup = useGoogleLogin({
         throw new Error("Google account did not return an email.");
       }
 
+      if (!email.toLowerCase().endsWith("@vitstudent.ac.in")) {
+        throw new Error("Only @vitstudent.ac.in emails are allowed.");
+      }
+
       const existingUsers = await getUsers();
       let user = existingUsers.find(
         (u) => u.Email.trim().toLowerCase() === email.toLowerCase()
       );
 
       if (!user) {
-        const newUserId = "U-" + Math.floor(1000 + Math.random() * 9000);
+        // Extract registration number from the end of the name if present (e.g. 25BDS0055)
+        let actualName = name;
+        let newUserId = "";
+        
+        const regNoMatch = name.match(/\b(\d{2}[a-zA-Z]{3}\d{4,5})\b/i);
+        if (regNoMatch) {
+          newUserId = regNoMatch[1].toUpperCase();
+          actualName = name.replace(regNoMatch[0], "").trim();
+        } else {
+          newUserId = "U-" + Math.floor(1000 + Math.random() * 9000);
+        }
 
         user = {
           User_ID: newUserId,
-          Name: name,
+          Name: actualName,
           Email: email,
           "Role (Participant/Admin)": "Participant",
           Team_ID: ""
@@ -464,7 +518,7 @@ const googleSignup = useGoogleLogin({
       }
 
       setLoggedInUser(user);
-      setActivePage("registration");
+      setActivePage("team-portal");
 
     } catch (error) {
       console.error("Google sign-up error:", error);
@@ -521,6 +575,47 @@ const googleSignup = useGoogleLogin({
       return;
     }
 
+    if (loggedInUser?.Team_ID) {
+      alert("You are already a member of a team and cannot create or join another team.");
+      setActivePage("team-portal");
+      return;
+    }
+
+    // Validation for Team Members Details
+    const regNoRegex = /^\d{2}[a-zA-Z]{3}\d{4,5}$/;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    
+    const leaderMatch = regLeaderName.match(/\b(\d{2}[a-zA-Z]{3}\d{4,5})\b/) || loggedInUser.Name.match(/\b(\d{2}[a-zA-Z]{3}\d{4,5})\b/);
+    const leaderRegNo = leaderMatch ? leaderMatch[1].toUpperCase() : null;
+
+    const seenRegNos = new Set<string>();
+    
+    for (let i = 0; i < teamMembersList.length; i++) {
+      const m = teamMembersList[i];
+      if (!m.name.trim() || !m.regNo.trim() || !m.email.trim()) {
+        alert(`Please fill all details for Member ${i + 2}.`);
+        return;
+      }
+      const memberReg = m.regNo.trim().toUpperCase();
+      if (!regNoRegex.test(memberReg)) {
+        alert(`Invalid Registration Number for Member ${i + 2}. Expected format eg: 20ABC1234`);
+        return;
+      }
+      if (!emailRegex.test(m.email.trim())) {
+        alert(`Invalid Email Address for Member ${i + 2}.`);
+        return;
+      }
+      if (leaderRegNo && memberReg === leaderRegNo) {
+        alert(`Registration Number for Member ${i + 2} cannot be the same as the Team Leader's.`);
+        return;
+      }
+      if (seenRegNos.has(memberReg)) {
+        alert(`Duplicate Registration Number found: ${memberReg}.`);
+        return;
+      }
+      seenRegNos.add(memberReg);
+    }
+
     try {
       const teamId =
         "CC-" +
@@ -535,7 +630,8 @@ const googleSignup = useGoogleLogin({
     "No. of Members": String(memberCount)
   },
   regPassword,
-  loggedInUser.User_ID
+  loggedInUser.User_ID,
+  teamMembersList
 );
 
       setLoggedInUser({
@@ -580,6 +676,11 @@ const googleSignup = useGoogleLogin({
 
   if (!loggedInUser) {
     setJoinTeamError("Please log in first.");
+    return;
+  }
+
+  if (loggedInUser?.Team_ID) {
+    setJoinTeamError("You are already a member of a team and cannot create or join another team.");
     return;
   }
 
@@ -632,11 +733,7 @@ const googleSignup = useGoogleLogin({
   // =====================================================
 
      const handleTeamLogin = async () => {
-      setTeamLoggedIn(true);
-      setActivePage("team-portal");
       setTeamLoginError(null);
-
-      setTeamPasswordInput("");
 
   const teamId = teamIdInput.trim();
   const password = teamPasswordInput;
@@ -671,6 +768,7 @@ const googleSignup = useGoogleLogin({
     // Successful login
     setTeamLoggedIn(true);
     setTeamLoginError(null);
+    setActivePage("team-portal");
 
     // Keep the Team ID but clear the password
     setTeamPasswordInput("");
@@ -695,6 +793,46 @@ const googleSignup = useGoogleLogin({
 };
 
   
+
+  const handleAddMemberSubmit = async () => {
+    if (!newMemberName.trim() || !newMemberRegNo.trim() || !newMemberEmail.trim()) {
+      alert("Please fill in all member details.");
+      return;
+    }
+    const regNoRegex = /^\d{2}[a-zA-Z]{3}\d{4,5}$/;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!regNoRegex.test(newMemberRegNo.trim().toUpperCase())) {
+      alert("Invalid Registration Number format. Expected e.g. 20ABC1234");
+      return;
+    }
+    if (!emailRegex.test(newMemberEmail.trim())) {
+      alert("Invalid Email Address.");
+      return;
+    }
+
+    setIsAddingMember(true);
+    try {
+      await addTeamMember(teamIdInput.trim(), {
+        name: newMemberName.trim(),
+        regNo: newMemberRegNo.trim().toUpperCase(),
+        email: newMemberEmail.trim()
+      });
+      // refresh member list
+      const updatedMembers = await getTeamMembers(teamIdInput.trim());
+      setTeamMembers(updatedMembers);
+      
+      setNewMemberName("");
+      setNewMemberRegNo("");
+      setNewMemberEmail("");
+      setShowAddMemberForm(false);
+      alert("Member added successfully!");
+    } catch (error) {
+      console.error(error);
+      alert(error instanceof Error ? error.message : "Failed to add member.");
+    } finally {
+      setIsAddingMember(false);
+    }
+  };
 
   // =====================================================
   // PROJECT SUBMISSION
@@ -1122,84 +1260,43 @@ const googleSignup = useGoogleLogin({
                           className="glass-card p-4 p-md-5 text-center w-100"
                           style={{ maxWidth: "450px" }}
                         >
-
-                          <h2 className="fw-bold mb-2">
-                            Team Login
+                          <h2 className="fw-bold mb-3 text-info">
+                            Team Portal
                           </h2>
 
-                          <p className="text-secondary mb-4">
-                            Access your shared team dashboard.
-                          </p>
-
-                          <input
-  id="team-id-input"
-  type="text"
-  className="form-control mb-4 py-2"
-  style={inputStyle}
-  placeholder="Team ID (e.g. CC-104)"
-  value={teamIdInput}
-  onChange={(e) => {
-    setTeamIdInput(e.target.value);
-    setTeamLoginError(null);
-  }}
-/>
-
-                          <input
-  type="password"
-  className="form-control mb-4 py-2"
-  style={inputStyle}
-  placeholder="Team Password"
-  value={teamPasswordInput}
-  ref={teamPasswordRef}
-  onChange={(e) => {
-    setTeamPasswordInput(e.target.value);
-    setTeamLoginError(null);
-  }}
-  onKeyDown={(e) => {
-    if (e.key === "Enter") {
-      handleTeamLogin();
-    }
-  }}
-/>
-{teamLoginError && (
-  <div className="text-danger mb-3">
-    {teamLoginError}
-  </div>
-)}
-
-                          <button
-                            className="btn btn-gradient w-100 py-2 fw-bold"
-                            onClick={handleTeamLogin}
-                          >
-                            Access Portal →
-                          </button>
-
-                          <>
-  <hr className="border-secondary my-4" />
-
-  <p className="text-white mb-2 fw-bold">
-    Don't have a team yet?
-  </p>
-
-  <div className="d-flex gap-2">
-
-    <button
-      className="btn btn-outline-info btn-sm rounded-pill flex-grow-1"
-      onClick={() => setActivePage("registration")}
-    >
-      Create Team
-    </button>
-
-    <button
-      className="btn btn-outline-light btn-sm rounded-pill flex-grow-1"
-      onClick={() => setActivePage("join-team")}
-    >
-      Join Existing
-    </button>
-
-  </div>
-</>
-
+                          {!loggedInUser ? (
+                            <>
+                              <p className="text-secondary mb-4">
+                                Please sign in with your student Google account to access the Team Portal.
+                              </p>
+                              <button
+                                className="btn btn-gradient w-100 py-2 fw-bold"
+                                onClick={() => login()}
+                              >
+                                Sign in with Google
+                              </button>
+                            </>
+                          ) : (
+                            <>
+                              <p className="text-secondary mb-4">
+                                You are not currently a member of any team.
+                              </p>
+                              <div className="d-flex gap-2">
+                                <button
+                                  className="btn btn-gradient flex-grow-1 py-2 fw-bold"
+                                  onClick={() => setActivePage("registration")}
+                                >
+                                  Create Team
+                                </button>
+                                <button
+                                  className="btn btn-outline-light flex-grow-1 py-2 fw-bold"
+                                  onClick={() => setActivePage("join-team")}
+                                >
+                                  Join Existing
+                                </button>
+                              </div>
+                            </>
+                          )}
                         </div>
 
                       ) : (
@@ -1281,12 +1378,69 @@ const googleSignup = useGoogleLogin({
                                 <ul className="text-light small mb-3 ps-3">
                                   {teamMembers.map((member, idx) => (
                                     <li key={idx} className="mb-1">
-                                      {member.Name} 
+                                      {member.Name} {member.User_ID && member.User_ID !== member.Name ? `(${member.User_ID})` : ''}
                                     </li>
                                   ))}
                                 </ul>
                               ) : (
                                 <p className="text-secondary small mb-3">Loading members...</p>
+                              )}
+
+                              {teamMembers.length > 0 && teamMembers.length < 4 && (
+                                <div className="mt-2 mb-4">
+                                  {!showAddMemberForm ? (
+                                    <button 
+                                      className="btn btn-sm btn-outline-info rounded-pill"
+                                      onClick={() => setShowAddMemberForm(true)}
+                                    >
+                                      + Add Member
+                                    </button>
+                                  ) : (
+                                    <div className="p-3 rounded border border-info mt-2" style={{ backgroundColor: "rgba(0,0,0,0.2)" }}>
+                                      <h6 className="text-info mb-3">Add New Member</h6>
+                                      <input 
+                                        type="text" 
+                                        className="form-control form-control-sm mb-2" 
+                                        style={inputStyle} 
+                                        placeholder="Full Name" 
+                                        value={newMemberName} 
+                                        onChange={e => setNewMemberName(e.target.value)} 
+                                      />
+                                      <input 
+                                        type="text" 
+                                        className="form-control form-control-sm mb-2" 
+                                        style={inputStyle} 
+                                        placeholder="Reg No (e.g. 20ABC1234)" 
+                                        value={newMemberRegNo} 
+                                        onChange={e => setNewMemberRegNo(e.target.value)} 
+                                      />
+                                      <input 
+                                        type="email" 
+                                        className="form-control form-control-sm mb-3" 
+                                        style={inputStyle} 
+                                        placeholder="Email Address" 
+                                        value={newMemberEmail} 
+                                        onChange={e => setNewMemberEmail(e.target.value)} 
+                                      />
+                                      <div className="d-flex gap-2">
+                                        <button 
+                                          className="btn btn-sm btn-info flex-grow-1" 
+                                          onClick={handleAddMemberSubmit}
+                                          disabled={isAddingMember}
+                                        >
+                                          {isAddingMember ? "Adding..." : "Add Member"}
+                                        </button>
+                                        <button 
+                                          className="btn btn-sm btn-outline-secondary flex-grow-1"
+                                          onClick={() => setShowAddMemberForm(false)}
+                                          disabled={isAddingMember}
+                                        >
+                                          Cancel
+                                        </button>
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
                               )}
 
                             </div>
@@ -1667,6 +1821,51 @@ const googleSignup = useGoogleLogin({
                               </div>
 
                             </div>
+
+                            {teamMembersList.length > 0 && (
+                              <>
+                                <h5 className="text-info mt-5 mb-4">
+                                  3. Team Members Details
+                                </h5>
+                                {teamMembersList.map((member, index) => (
+                                  <div key={index} className="row g-4 mb-4">
+                                    <div className="col-12 text-secondary mb-1">
+                                      Member {index + 2}
+                                    </div>
+                                    <div className="col-md-4">
+                                      <input
+                                        type="text"
+                                        className="form-control"
+                                        style={inputStyle}
+                                        placeholder="Full Name"
+                                        value={member.name}
+                                        onChange={(e) => handleMemberChange(index, 'name', e.target.value)}
+                                      />
+                                    </div>
+                                    <div className="col-md-4">
+                                      <input
+                                        type="text"
+                                        className="form-control"
+                                        style={inputStyle}
+                                        placeholder="Reg No (e.g. 20ABC1234)"
+                                        value={member.regNo}
+                                        onChange={(e) => handleMemberChange(index, 'regNo', e.target.value)}
+                                      />
+                                    </div>
+                                    <div className="col-md-4">
+                                      <input
+                                        type="email"
+                                        className="form-control"
+                                        style={inputStyle}
+                                        placeholder="Email Address"
+                                        value={member.email}
+                                        onChange={(e) => handleMemberChange(index, 'email', e.target.value)}
+                                      />
+                                    </div>
+                                  </div>
+                                ))}
+                              </>
+                            )}
 
                             <div className="d-flex flex-column flex-md-row justify-content-between mt-4 gap-3">
 

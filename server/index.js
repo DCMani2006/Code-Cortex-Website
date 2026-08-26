@@ -12,14 +12,15 @@ import {
   addSubmission,
   getReviews,
   addReview,
-  linkUserToTeam
+  linkUserToTeam,
+  addMemberToTeam
 } from './googleSheets.js';
 import { saveTeamPassword, verifyTeamPassword } from './teamPasswords.js';
 
 dotenv.config();
 
 const app = express();
-const port = process.env.PORT || 3001;
+const port = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
@@ -90,7 +91,7 @@ app.get('/api/teams', async (req, res) => {
 app.post('/api/teams', async (req, res) => {
   try {
     console.log('Create team request body:', req.body);
-    const { teamPassword, ...teamData } = req.body;
+    const { teamPassword, additionalMembers, ...teamData } = req.body;
 
     // If a teamPassword was provided, also include it in the row data so it appears in the sheet
     if (teamPassword) {
@@ -114,7 +115,7 @@ app.post('/api/teams', async (req, res) => {
       }
     }
 
-    await addTeam(teamData);
+    await addTeam(teamData, additionalMembers);
 
     if (teamPassword && teamData.Team_ID) {
       saveTeamPassword(teamData.Team_ID, teamPassword);
@@ -125,7 +126,7 @@ app.post('/api/teams', async (req, res) => {
     res.status(201).json({ message: 'Team added successfully', team: teamData });
   } catch (error) {
     console.error('Error adding team:', error);
-    res.status(500).json({ error: 'Failed to add team' });
+    res.status(400).json({ error: error.message || 'Failed to add team', message: error.message || 'Failed to add team' });
   }
 });
 
@@ -159,7 +160,7 @@ app.post('/api/teams/join', async (req, res) => {
     }
   } catch (error) {
     console.error('Error joining team:', error);
-    res.status(500).json({ error: 'Failed to join team' });
+    res.status(400).json({ error: error.message || 'Failed to join team', message: error.message || 'Failed to join team' });
   }
 });
 
@@ -172,6 +173,18 @@ app.get('/api/teams/:teamId/members', async (req, res) => {
   } catch (error) {
     console.error('Error fetching team members:', error);
     res.status(500).json({ error: 'Failed to fetch team members' });
+  }
+});
+
+app.post('/api/teams/:teamId/members', async (req, res) => {
+  try {
+    const { teamId } = req.params;
+    const memberData = req.body;
+    await addMemberToTeam(teamId, memberData);
+    res.status(201).json({ success: true, message: 'Member added successfully' });
+  } catch (error) {
+    console.error('Error adding team member:', error);
+    res.status(400).json({ error: error.message || 'Failed to add team member' });
   }
 });
 
