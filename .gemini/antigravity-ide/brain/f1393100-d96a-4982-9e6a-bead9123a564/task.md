@@ -1,4 +1,0 @@
-- `[x]` Update Google signup logic in `src/App.tsx` to redirect to `team-portal` instead of `registration`.
-- `[x]` Update Google signup logic in `src/App.tsx` to extract Reg No from profile name and use it as `User_ID`.
-- `[x]` Update `addTeam` in `server/googleSheets.js` to enforce unique team names.
-- `[x]` Restart backend and verify changes.
