@@ -1,3 +1,0 @@
-- `[x]` Replace "Participant Login" UI block in `App.tsx` with a simplified Google OAuth login card.
-- `[x]` Remove the manual team login UI (Sign In/Sign Up tabs, Team ID/Password fields).
-- `[x]` Remove or leave unused `authMode` related code in `App.tsx`.
