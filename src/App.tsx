@@ -38,7 +38,7 @@ export default function App() {
     useState("");
   const [participantError, setParticipantError] = useState<string | null>(null);
   const participantPasswordRef = useRef<HTMLInputElement | null>(null);
-  const [authMode, setAuthMode] = useState<"signin" | "signup">("signin");
+
   const [googleAuthLoading, setGoogleAuthLoading] = useState(false);
   const [googleAuthError, setGoogleAuthError] = useState<string | null>(null);
 
@@ -141,11 +141,7 @@ export default function App() {
   const [teamLoggedIn, setTeamLoggedIn] = useState(false);
 const [teamIdInput, setTeamIdInput] = useState("");
 
-const [teamLoginError, setTeamLoginError] =
-  useState<string | null>(null);
 
-const teamPasswordRef =
-  useRef<HTMLInputElement | null>(null);
 
 const [joinTeamError, setJoinTeamError] =
   useState<string | null>(null);
@@ -732,66 +728,6 @@ const googleSignup = useGoogleLogin({
   // TEAM LOGIN
   // =====================================================
 
-     const handleTeamLogin = async () => {
-      setTeamLoginError(null);
-
-  const teamId = teamIdInput.trim();
-  const password = teamPasswordInput;
-
-  if (!teamId) {
-    setTeamLoginError("Please enter your Team ID.");
-
-    setTimeout(() => {
-      document.getElementById("team-id-input")?.focus();
-    }, 50);
-
-    return;
-  }
-
-  if (!password) {
-    setTeamLoginError("Please enter your Team Password.");
-
-    setTimeout(() => {
-      teamPasswordRef.current?.focus();
-    }, 50);
-
-    return;
-  }
-
-  try {
-    const success = await authTeam(teamId, password);
-
-    if (!success) {
-      throw new Error("Invalid credentials");
-    }
-
-    // Successful login
-    setTeamLoggedIn(true);
-    setTeamLoginError(null);
-    setActivePage("team-portal");
-
-    // Keep the Team ID but clear the password
-    setTeamPasswordInput("");
-
-  } catch (error) {
-    console.error("Team login error:", error);
-
-    setTeamLoginError(
-      error instanceof Error
-        ? error.message
-        : "Invalid credentials"
-    );
-
-    // Remove the incorrect password
-    setTeamPasswordInput("");
-
-    // Put cursor back into password field
-    requestAnimationFrame(() => {
-      teamPasswordRef.current?.focus();
-    });
-  }
-};
-
   
 
   const handleAddMemberSubmit = async () => {
@@ -964,103 +900,24 @@ const googleSignup = useGoogleLogin({
 
                   
 <h2 className="glow-text mb-4 fw-bold">
-  {authMode === "signin" ? "Participant Login" : "Sign Up"}
+  Participant Login
 </h2>
 
-<div className="d-flex gap-2 mb-4 justify-content-center">
-  <button
-    className={`btn btn-sm rounded-pill px-4 ${
-      authMode === "signin" ? "btn-gradient" : "btn-outline-info"
-    }`}
-    onClick={() => {
-      setAuthMode("signin");
-      setGoogleAuthError(null);
-    }}
-  >
-    Sign In
-  </button>
+<p className="text-secondary mb-4">
+  Sign in with your Google account to access your dashboard or register a team.
+</p>
 
-  <button
-    className={`btn btn-sm rounded-pill px-4 ${
-      authMode === "signup" ? "btn-gradient" : "btn-outline-info"
-    }`}
-    onClick={() => {
-      setAuthMode("signup");
-      setGoogleAuthError(null);
-    }}
-  >
-    Sign Up
-  </button>
-</div>
-
-{authMode === "signin" ? (
-  <>
-    <p className="text-secondary mb-4">
-      Enter your Team ID and Team Password
-      to access your dashboard.
-    </p>
-
-    <input
-      type="text"
-      className="form-control mb-4 py-2"
-      style={inputStyle}
-      placeholder="Team ID (e.g. CC-104)"
-      value={teamIdInput}
-      onChange={(e) => {
-        setTeamIdInput(e.target.value);
-        setTeamLoginError(null);
-      }}
-    />
-
-    <input
-      type="password"
-      className="form-control mb-4 py-2"
-      style={inputStyle}
-      placeholder="Team Password"
-      value={teamPasswordInput}
-      onChange={(e) => {
-        setTeamPasswordInput(e.target.value);
-        setTeamLoginError(null);
-      }}
-      ref={teamPasswordRef}
-      onKeyDown={(e) => {
-        if (e.key === "Enter") {
-          handleTeamLogin();
-        }
-      }}
-    />
-
-    {teamLoginError && (
-      <div className="text-danger mb-3">{teamLoginError}</div>
-    )}
-
-    <button
-      className="btn btn-gradient w-100 py-2 fw-bold"
-      onClick={handleTeamLogin}
-    >
-      Login →
-    </button>
-    </>
-) : (
-  <>
-    <p className="text-secondary mb-4">
-      Sign up with your Google account to create
-      and register your team.
-    </p>
-
-    {googleAuthError && (
-      <div className="text-danger mb-3">{googleAuthError}</div>
-    )}
-
-    <button
-      className="btn btn-gradient w-100 py-2 fw-bold"
-      onClick={() => googleSignup()}
-      disabled={googleAuthLoading}
-    >
-      {googleAuthLoading ? "Signing up..." : "Continue with Google →"}
-    </button>
-  </>
+{googleAuthError && (
+  <div className="text-danger mb-3">{googleAuthError}</div>
 )}
+
+<button
+  className="btn btn-gradient w-100 py-2 fw-bold"
+  onClick={() => googleSignup()}
+  disabled={googleAuthLoading}
+>
+  {googleAuthLoading ? "Signing in..." : "Continue with Google →"}
+</button>
 
                   
 
@@ -1315,16 +1172,6 @@ const googleSignup = useGoogleLogin({
                                 {teamIdInput}
                               </span>
                             </h2>
-
-                            <button
-                              className="btn btn-sm btn-outline-danger rounded-pill"
-                              onClick={() => {
-                                setTeamLoggedIn(false);
-                                setTeamPasswordInput("");
-                              }}
-                            >
-                              Sign Out
-                            </button>
 
                           </div>
 
