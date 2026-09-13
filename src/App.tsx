@@ -82,6 +82,7 @@ export default function App() {
     useState(false);
 
   const [newTeamId, setNewTeamId] = useState("");
+  const [isSubmittingTeam, setIsSubmittingTeam] = useState(false);
 
   // =====================================================
   // JOIN TEAM
@@ -530,6 +531,8 @@ const googleSignup = useGoogleLogin({
   }
 });
   const handleTeamSubmit = async () => {
+    if (isSubmittingTeam) return;
+
     if (!regTeamName.trim()) {
       alert("Please enter a team name.");
       return;
@@ -612,6 +615,7 @@ const googleSignup = useGoogleLogin({
       seenRegNos.add(memberReg);
     }
 
+    setIsSubmittingTeam(true);
     try {
       const teamId =
         "CC-" +
@@ -646,6 +650,8 @@ const googleSignup = useGoogleLogin({
           ? error.message
           : "Failed to submit registration."
       );
+    } finally {
+      setIsSubmittingTeam(false);
     }
   };
 
@@ -1128,7 +1134,7 @@ const googleSignup = useGoogleLogin({
                               </p>
                               <button
                                 className="btn btn-gradient w-100 py-2 fw-bold"
-                                onClick={() => login()}
+                                onClick={() => googleSignup()}
                               >
                                 Sign in with Google
                               </button>
@@ -1728,8 +1734,9 @@ const googleSignup = useGoogleLogin({
                               <button
                                 className="btn btn-gradient px-4 py-2"
                                 onClick={handleTeamSubmit}
+                                disabled={isSubmittingTeam}
                               >
-                                Register
+                                {isSubmittingTeam ? "Registering..." : "Register"}
                               </button>
 
                             </div>
