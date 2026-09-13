@@ -5,7 +5,7 @@ import type {
   ReviewScore
 } from '../types/database';
 
-const API_BASE = 'http://localhost:3000/api';
+const API_BASE = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:3000/api';
 
 
 // =====================================================
@@ -310,15 +310,16 @@ export const addSubmission = async (
 // =====================================================
 
 const mapReview = (review: any): ReviewScore => ({
-  Team_ID: String(review?.teamId ?? ''),
-  Team_Name: String(review?.teamName ?? ''),
-  Admin_Name: String(review?.adminName ?? ''),
-  'Approach (20)': String(review?.approach ?? ''),
-  'Scalability (10)': String(review?.scalability ?? ''),
-  'Design (20)': String(review?.design ?? ''),
-  'Tech (30)': String(review?.tech ?? ''),
-  'USP (20)': String(review?.usp ?? ''),
-  Total_Score: String(review?.totalScore ?? '')
+  Team_ID: String(review?.Team_ID ?? ''),
+  Team_Name: String(review?.Team_Name ?? ''),
+  Admin_Name: String(review?.Admin_Name ?? ''),
+  'Approach (20)': String(review?.['Approach (20)'] ?? ''),
+  'Scalability (10)': String(review?.['Scalability (10)'] ?? ''),
+  'Design (20)': String(review?.['Design (20)'] ?? ''),
+  'Tech (30)': String(review?.['Tech (30)'] ?? ''),
+  'USP (20)': String(review?.['USP (20)'] ?? ''),
+  Total_Score: String(review?.Total_Score ?? ''),
+  Review_Round: String(review?.Review_Round ?? '')
 });
 
 export const getReviews = async (
@@ -353,7 +354,8 @@ export const addReview = async (
       'Design (20)': review['Design (20)'],
       'Tech (30)': review['Tech (30)'],
       'USP (20)': review['USP (20)'],
-      Total_Score: review.Total_Score
+      Total_Score: review.Total_Score,
+      Review_Round: review.Review_Round
     })
   });
 

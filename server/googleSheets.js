@@ -6,8 +6,12 @@ let doc;
 
 export async function initGoogleSheets() {
   if (!doc) {
-    const credentialsPath = './credentials.json';
-    const credentials = JSON.parse(fs.readFileSync(credentialsPath, 'utf-8'));
+    // credentials.json is gitignored (it's a private key), so a deploy built
+    // from git won't have the file — fall back to pasting the same JSON into
+    // a GOOGLE_CREDENTIALS_JSON env var on whatever host runs this.
+    const credentials = process.env.GOOGLE_CREDENTIALS_JSON
+      ? JSON.parse(process.env.GOOGLE_CREDENTIALS_JSON)
+      : JSON.parse(fs.readFileSync('./credentials.json', 'utf-8'));
 
     const jwt = new JWT({
       email: credentials.client_email,
@@ -458,6 +462,7 @@ export async function getReviews() {
     'Tech (30)': row.get('Tech (30)'),
     'USP (20)': row.get('USP (20)'),
     Total_Score: row.get('Total_Score'),
+    Review_Round: row.get('Review_Round'),
   }));
 }
 
@@ -477,12 +482,46 @@ export async function addReview(data) {
   }
   
   const sheet = document.sheetsByTitle['Reviews_Scores'];
-  
+
+  // Ensure the Review_Round column exists — addRow silently drops any key
+  // that isn't already a header, so without this every Review_Round value
+  // gets lost on write.
+  try {
+    await sheet.loadHeaderRow();
+    const headers = sheet.headerValues.map(h => String(h).trim());
+    if (!headers.includes('Review_Round')) {
+      await sheet.setHeaderRow([...headers, 'Review_Round']);
+    }
+  } catch (e) {
+    console.error('Warning: could not load/set header row for Reviews_Scores sheet', e);
+  }
+
   const rowData = {
     ...data,
     Team_Name: actualTeamName,
     Review_Round: data.Review_Round || 'Review 1'
   };
-  
-  await sheet.addRow(rowData);
+
+  // Upsert: a re-scored (Team_ID, Review_Round) updates the existing row
+  // instead of appending a duplicate. Prefer an explicit Review_Round match;
+  // only treat a blank Review_Round as legacy "Review 1" data if nothing
+  // explicitly tagged "Review 1" exists yet, so the two never collide.
+  const existingRows = await sheet.getRows();
+  const targetTeamId = String(rowData.Team_ID || '').trim();
+  const targetRound = String(rowData.Review_Round || '').trim();
+  const matchesTeam = row => String(row.get('Team_ID') || '').trim() === targetTeamId;
+
+  let existingRow = existingRows.find(
+    row => matchesTeam(row) && String(row.get('Review_Round') || '').trim() === targetRound
+  );
+  if (!existingRow && targetRound === 'Review 1') {
+    existingRow = existingRows.find(row => matchesTeam(row) && !String(row.get('Review_Round') || '').trim());
+  }
+
+  if (existingRow) {
+    existingRow.assign(rowData);
+    await existingRow.save();
+  } else {
+    await sheet.addRow(rowData);
+  }
 }

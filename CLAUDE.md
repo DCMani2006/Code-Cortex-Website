@@ -8,7 +8,7 @@ one you are in before changing anything.
 |---|---|---|---|
 | `/` (root: `src/`, `index.html`) | Registration + dashboards SPA. React 19, Vite 8, Google OAuth. | `npm run dev` | 5173 |
 | `/server` | REST API. Express 5, **Google Sheets as the database**. | `node index.js` | 3000 |
-| `/frontend` | The public event website. Manus-generated: React 19 + Vite 7, Express + tRPC, Drizzle/MySQL. Self-contained. | `npm run dev` | 3000 |
+| `/frontend` | The public event website. Started as a Manus-generated scaffold; Manus infra (asset proxy, OAuth, MySQL/Drizzle) has since been stripped out. React 19 + Vite 7, Express + tRPC, no database. Self-contained. | `npm run dev` | 3000 |
 
 `server/` and `frontend/` both want port 3000. `frontend`'s server auto-increments to
 the next free port, so if you start the backend first the site lands on 3001 — but
@@ -57,64 +57,82 @@ must be shared on the spreadsheet or every call 403s.
 
 ## Event website (`frontend/`)
 
-Generated on the Manus WebDev platform, so it assumes infrastructure that does not
-exist locally. Its own `package.json`, pnpm lockfile, tsconfig and Vite config —
-treat it as a nested project.
+Started as a Manus WebDev scaffold. That infrastructure has been removed: no more
+`storageProxy.ts` (the `/manus-storage/` asset proxy), no OAuth, no MySQL/Drizzle —
+there is no database in this app at all. What's left is a self-contained
+Express + tRPC app with its own `package.json`, pnpm lockfile, tsconfig and Vite
+config — still treat it as a nested project.
 
 - `frontend/client/` is the Vite root; `frontend/client/public/` is `publicDir`, served from `/`.
-- Nearly all site copy is hardcoded JSX in `client/src/pages/Home.tsx` (~707 lines). Extracted data is limited to the top-of-file `navItems`, `tracks`, `nominationOptions`, `faqs` arrays. Styling is one `client/src/index.css`.
-- `frontend/server/_core/` is vendor code. Prefer editing `server/routers.ts`, `server/db.ts`, `server/teamAuth.ts`.
+- Nearly all site copy is hardcoded JSX in `client/src/pages/Home.tsx` (~707 lines). Extracted data is limited to the top-of-file `navItems`, `tracks`, `nominationOptions`, `faqs` arrays. Styling is one `client/src/index.css`. The "dataset" links point straight at Google Drive file/folder URLs (`driveFileDownloadUrl` for files; folder links just open Drive's folder view).
+- `frontend/server/_core/` is vendor/framework code (trpc, vite dev/prod wiring). App logic lives in `server/routers.ts`, `server/spotifyRouter.ts`, `server/spotify.ts`, `server/votes.ts`.
 - Aliases: `@/*` → `client/src/*`, `@shared/*` → `shared/*`.
+- Port: `_core/index.ts` tries `PORT` (default 3000) and auto-increments up to 20 times if busy — this is where the "server/ must claim 3000 first" rule in the table above comes from.
 
-### The `/manus-storage/` asset path
+### Song-vote feature (Spotify + flat-file storage)
 
-Assets referenced as `/manus-storage/<name>` are not files in the repo. `storageProxy.ts`
-resolves them by asking a Manus "Forge" API for a presigned URL using
-`BUILT_IN_FORGE_API_URL` / `BUILT_IN_FORGE_API_KEY`, which only exist inside the Manus
-sandbox. Without them the route returns **500**, which surfaces as
-`Could not load /manus-storage/....glb`.
+`server/spotify.ts` calls the Spotify Web API with the Client Credentials flow
+(catalog search only — no user login, no playback/queue control). `server/votes.ts`
+implements a "pick the next track" poll: one vote per browser, tracked via an
+anonymous, non-sensitive cookie (`cc_voter_id`), stored in
+`frontend/server/data/song-votes.json` — a flat JSON file, gitignored, the same
+pattern as `server/teamPasswords.json` in the root server. No database.
 
-`storageProxy.ts` has been patched to check disk first — `frontend/public/assets/`
-(note: NOT a Vite folder, only the proxy reads it) and `frontend/client/public/manus-storage/`.
-Present in `public/assets/`: the mascot `.glb`, Code Cortex logo, data-alchemy cover,
-team photo, TAM white logo. **Still missing:** `devjams-orbit-sphere_1b14088e.png`,
-`devjams-track-objects_36355203.png`, `code-cortex-siren-ambience_89aed583.wav`,
-`polyfab-logo_54e76553.png`.
+### frontend env (`frontend/.env`, gitignored — `.env.example` exists, copy it)
 
-New assets go in `frontend/client/public/` with a plain path (`/codecortex-3.0.svg`).
-Do not add new `/manus-storage/` references.
-
-### frontend env (`frontend/.env`, gitignored)
-
-`JWT_SECRET` (HS256 session key — empty by default, which breaks signing),
-`DATABASE_URL` (MySQL; `db.ts` no-ops without it, drizzle-kit throws),
-`OAUTH_SERVER_URL` + `VITE_APP_ID` (Manus-issued; absent = OAuth errors at boot, non-fatal),
-`OWNER_OPEN_ID` (gates `adminProcedure`).
-
-Expected noise on boot without them: `[OAuth] ERROR: OAUTH_SERVER_URL is not configured`,
-`[Auth] Missing session cookie` once per request, and a `baseline-browser-mapping`
-staleness warning from a browserslist transitive dep. All harmless.
-
-### Known bug, not yet fixed
-
-`frontend/server/_core/cookies.ts` returns `sameSite: "none"` with `secure: false` on
-http://localhost. Browsers silently discard that combination, so no login cookie ever
-persists locally and team login appears to succeed but never sticks. Fix: fall back to
-`sameSite: "lax"` when the host is local and the request is not HTTPS.
+`VITE_MAIN_APP_URL` (points at the root SPA — "TEAM LOGIN"/"ADMIN" header links go
+here), `VITE_ANALYTICS_ENDPOINT` + `VITE_ANALYTICS_WEBSITE_ID` (optional, both must be
+set to inject the analytics script), `SPOTIFY_CLIENT_ID` + `SPOTIFY_CLIENT_SECRET`
+(from developer.spotify.com/dashboard, needed for song search to work).
 
 ---
 
 ## Security
 
 `server/teamPasswords.json` is **committed and contains 27 team passwords in plaintext**
-in a public repository. `.gitignore` covers `.env` and `credentials.json` but not this
-file. It needs to be removed from tracking, purged from history, and replaced with
-hashed storage — `frontend/server/teamAuth.ts` already has a scrypt hash/verify pair
-worth copying. Until then, treat every password in it as public.
+in a public repository. `.gitignore` covers `.env` and `credentials.json` (and, more
+recently, `frontend/server/data/`) but not this file. It needs to be removed from
+tracking, purged from history, and replaced with hashed storage — Node's built-in
+`crypto.scrypt`/`scryptSync` is enough, no dependency needed. Until then, treat every
+password in it as public.
+
+## Deployment
+
+Three deployables, two hosts:
+
+- **Root SPA (`/`) → Vercel.** Pure static Vite build (`npm run build` → `dist/`),
+  no persistence needed — Vercel's free tier and CDN are the right fit. Set
+  `VITE_API_BASE_URL` (the `server/` deployment's URL + `/api`) and
+  `VITE_GOOGLE_CLIENT_ID` as Vercel project env vars.
+- **`server/` → Railway.** `npm start` runs `node index.js`. Needs a mounted
+  persistent volume, because two things write to local disk at runtime:
+  - `TEAM_PASSWORDS_DIR` → volume path (else `server/teamPasswords.json` resets
+    on every redeploy, silently invalidating every team's password).
+  - `GOOGLE_CREDENTIALS_JSON` → paste the service-account key JSON here instead
+    of `credentials.json` (gitignored, so it isn't in the git-built image).
+  - Also set `GOOGLE_SHEET_ID`.
+- **`frontend/` → Railway**, second service, same project. `npm run build` then
+  `npm start`. Also needs a volume:
+  - `VOTES_DATA_DIR` → volume path (else the song-vote leaderboard resets on
+    every redeploy).
+  - Also set `SPOTIFY_CLIENT_ID`, `SPOTIFY_CLIENT_SECRET`, `VITE_MAIN_APP_URL`
+    (the root SPA's public URL).
+
+Why two providers instead of one: the root SPA is stateless and static, so a
+CDN-first host (Vercel) beats a container host for it; the other two are
+long-running Node processes with local file state, which Railway's persistent
+volumes handle and serverless platforms don't. Why not a third provider per
+app: keeping the two stateful services on one Railway project means one
+dashboard for both sets of secrets and volumes.
+
+DNS, once each service has a custom domain attached in its provider dashboard:
+point the root domain (or a subdomain) at Vercel per its instructions (usually
+an `A`/`ALIAS` record or `CNAME`), and point separate subdomains (e.g.
+`api.` and `live.` or similar) at each Railway service via `CNAME`.
 
 ## Conventions
 
 - Two `npm install`s minimum (root and `server/`), three if you work on `frontend/` (pnpm there).
 - Root app: eslint flat config, `npm run lint` before committing.
 - `frontend/`: prettier (`npm run format`), Radix primitives under `client/src/components/ui/`, wouter for routing, tRPC + TanStack Query for data. Reuse rather than adding dependencies.
-- There is no `.env.example` anywhere. Adding one would save the next person a lot of time.
+- `.env.example` exists at the root and in `frontend/`; `server/.env.example` was the last gap and has been added.

@@ -4,11 +4,10 @@ import { useGoogleLogin } from "@react-oauth/google";
 import {
   addTeam,
   addSubmission,
-  syncAuth,
-  authTeam,
   joinTeam,
   getSubmissions,
   addReview,
+  getReviews,
   getTeamMembers,
   getTeams,
   addUser,
@@ -18,6 +17,19 @@ import {
 
 import type { User } from "./types/database";
 import { AdminDashboard } from "./components/AdminDashboard";
+
+// Hardcoded review-panel admin accounts (not stored in the Sheet). Anyone on
+// this list gets admin access with the shared passcode below.
+const ADMIN_EMAILS = [
+  "aman.golani2024@vitstudent.ac.in",
+  "rakshitsinha1444@gmail.com",
+  "sahil.sadhwani2024@vitstudent.ac.in",
+  "vansh.arya2024@vitstudent.ac.in",
+  "parth.garg2024@vitstudent.ac.in",
+  "phoenixknight18012007@gmail.com",
+].map((email) => email.toLowerCase());
+const ADMIN_PASSCODE = "tamreviewpanel_cc";
+
 export default function App() {
   // =====================================================
   // APPLICATION STATE
@@ -30,14 +42,6 @@ export default function App() {
 
   const [loggedInUser, setLoggedInUser] =
     useState<User | null>(null);
-
-  const [participantUsername, setParticipantUsername] =
-    useState("");
-
-  const [participantPassword, setParticipantPassword] =
-    useState("");
-  const [participantError, setParticipantError] = useState<string | null>(null);
-  const participantPasswordRef = useRef<HTMLInputElement | null>(null);
 
   const [googleAuthLoading, setGoogleAuthLoading] = useState(false);
   const [googleAuthError, setGoogleAuthError] = useState<string | null>(null);
@@ -90,9 +94,6 @@ export default function App() {
 
   const [joinTeamId, setJoinTeamId] = useState("");
   const [joinPassword, setJoinPassword] = useState("");
-
-  const [teamPasswordInput, setTeamPasswordInput] =
-    useState("");
 
   // =====================================================
   // SUBMISSION
@@ -246,6 +247,40 @@ const selectedReviewSubmission =
       fetchSubmissions();
     }
   }, [adminLoggedIn]);
+
+  // Load any existing score for the selected team + review round, so the
+  // board can see/edit a prior review instead of always starting blank.
+  useEffect(() => {
+    if (!adminTeamId.trim()) return;
+
+    let cancelled = false;
+
+    (async () => {
+      try {
+        const existingReviews = await getReviews(adminTeamId);
+        if (cancelled) return;
+
+        const targetTeamId = adminTeamId.trim();
+        const existing = existingReviews.find(
+          (r) =>
+            r.Team_ID.trim() === targetTeamId &&
+            (r.Review_Round || 'Review 1') === scoreReviewRound
+        );
+
+        setScoreApproach(existing?.['Approach (20)'] || '');
+        setScoreScalability(existing?.['Scalability (10)'] || '');
+        setScoreDesign(existing?.['Design (20)'] || '');
+        setScoreTech(existing?.['Tech (30)'] || '');
+        setScoreUsp(existing?.['USP (20)'] || '');
+      } catch (e) {
+        console.error('Failed to fetch existing review scores:', e);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [adminTeamId, scoreReviewRound]);
 
   useEffect(() => {
     if (window.location.pathname === '/admin') {
@@ -401,58 +436,6 @@ const selectedReviewSubmission =
   // =====================================================
   // TEAM REGISTRATION
   // =====================================================
-const handleParticipantLogin = async () => {
-  setParticipantError(null);
-
-  const username = participantUsername.trim();
-  const password = participantPassword;
-
-  if (!username) {
-    setParticipantError("Please enter your Student ID / Username.");
-
-    return;
-  }
-
-  if (!password) {
-    setParticipantError("Please enter your password.");
-
-    requestAnimationFrame(() => {
-      participantPasswordRef.current?.focus();
-    });
-
-    return;
-  }
-
-  try {
-    const user = await syncAuth(username, password);
-
-    if (!user) {
-      throw new Error("Invalid credentials");
-    }
-
-    setLoggedInUser(user);
-    setParticipantError(null);
-
-    setParticipantPassword("");
-
-  } catch (error) {
-    console.error("Participant login error:", error);
-
-    setParticipantError(
-      error instanceof Error
-        ? error.message
-        : "Invalid credentials"
-    );
-
-    // Clear wrong password
-    setParticipantPassword("");
-
-    // Let user immediately type a new password
-    requestAnimationFrame(() => {
-      participantPasswordRef.current?.focus();
-    });
-  }
-};
 
 const googleSignup = useGoogleLogin({
   onSuccess: async (tokenResponse) => {
@@ -703,7 +686,6 @@ const googleSignup = useGoogleLogin({
     });
 
     setTeamIdInput(joinTeamId.trim());
-    setTeamPasswordInput(joinPassword);
     setTeamLoggedIn(true);
 
     setJoinTeamError(null);
@@ -824,8 +806,8 @@ const googleSignup = useGoogleLogin({
   // ADMIN LOGIN
   // =====================================================
 
-  const handleAdminLogin = async () => {
-    const email = String(adminUsername ?? '').trim();
+  const handleAdminLogin = () => {
+    const email = String(adminUsername ?? '').trim().toLowerCase();
     const password = String(adminPassword ?? '').trim();
 
     if (!email || !password) {
@@ -833,29 +815,17 @@ const googleSignup = useGoogleLogin({
       return;
     }
 
-    try {
-      const user = await syncAuth(email, password);
-      const role = String(user['Role (Participant/Admin)'] || '').trim();
-
-      if (role.toLowerCase() === 'admin') {
-        setAdminLoggedIn(true);
-        setShowAdminLogin(false);
-        setRole('admin');
-        setLoggedInUser(null);
-        setActivePage('home');
-        setAdminError(null);
-        setAdminUsername('');
-        setAdminPassword('');
-      } else {
-        setAdminError('Invalid Admin Email or Passcode!');
-        setAdminPassword('');
-        setTimeout(() => adminPasswordRef.current?.focus(), 0);
-      }
-    } catch (error) {
-      const msg = error instanceof Error
-        ? error.message
-        : 'Invalid Admin Email or Passcode!';
-      setAdminError(msg);
+    if (ADMIN_EMAILS.includes(email) && password === ADMIN_PASSCODE) {
+      setAdminLoggedIn(true);
+      setShowAdminLogin(false);
+      setRole('admin');
+      setLoggedInUser(null);
+      setActivePage('home');
+      setAdminError(null);
+      setAdminUsername('');
+      setAdminPassword('');
+    } else {
+      setAdminError('Invalid Admin Email or Passcode!');
       setAdminPassword('');
       setTimeout(() => adminPasswordRef.current?.focus(), 0);
     }

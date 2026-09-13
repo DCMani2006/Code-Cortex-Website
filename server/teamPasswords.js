@@ -4,7 +4,9 @@ import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const PASSWORDS_FILE = path.join(__dirname, 'teamPasswords.json');
+// TEAM_PASSWORDS_DIR lets a deploy point this at a mounted persistent volume —
+// without it, a container redeploy wipes every password teams set at registration.
+const PASSWORDS_FILE = path.join(process.env.TEAM_PASSWORDS_DIR || __dirname, 'teamPasswords.json');
 
 export function getTeamPasswords() {
   if (!fs.existsSync(PASSWORDS_FILE)) {

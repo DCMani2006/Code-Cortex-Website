@@ -10,7 +10,9 @@ import type { Request, Response } from "express";
 import type { SpotifyTrack } from "./spotify";
 
 const VOTER_COOKIE = "cc_voter_id";
-const DATA_DIR = path.resolve(import.meta.dirname, "data");
+// VOTES_DATA_DIR lets a deploy point this at a mounted persistent volume —
+// without it, a container redeploy wipes the leaderboard and everyone's vote.
+const DATA_DIR = process.env.VOTES_DATA_DIR || path.resolve(import.meta.dirname, "data");
 const VOTES_FILE = path.join(DATA_DIR, "song-votes.json");
 
 type VotesData = {
