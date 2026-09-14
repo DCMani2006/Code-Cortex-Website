@@ -25,6 +25,14 @@ const port = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
+// This is a pure REST API with no root page of its own — a plain GET / (from
+// a health checker, monitoring, or someone hitting the API's bare domain)
+// used to 404 with no route defined. Answer it so nothing mistakes that for
+// the service being down.
+app.get('/', (req, res) => {
+  res.json({ status: 'ok', service: 'codecortex3.0 api' });
+});
+
 // --- Users ---
 app.get('/api/users', async (req, res) => {
   try {

@@ -32,9 +32,13 @@ const ADMIN_PASSCODE = "tamreviewpanel_cc";
 
 // The public event website (frontend/, a separate app) — "Home" and "Tracks" in
 // the nav send visitors there instead of duplicating its content here.
+// Local dev note: per CLAUDE.md, server/ and frontend/ both default to port
+// 3000 — the convention is to start server/ first so it claims 3000, which
+// bumps frontend/ to 3001. That's what this fallback assumes; override with
+// VITE_EVENT_SITE_URL if your local setup differs.
 const eventSiteUrl =
   import.meta.env.VITE_EVENT_SITE_URL ||
-  (import.meta.env.DEV ? "http://localhost:3000" : "https://codecortex.tamvit.in");
+  (import.meta.env.DEV ? "http://localhost:3001" : "https://codecortex.tamvit.in");
 
 export default function App() {
   // =====================================================

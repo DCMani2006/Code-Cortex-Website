@@ -604,6 +604,29 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
+    // A URL hash (e.g. "#tracks" from the root SPA's nav, or from the "View
+    // track brief" dashboard link) only auto-scrolls on load for static HTML
+    // — this is a client-rendered SPA, so the browser tries to jump to it
+    // before React has even mounted the section, finds nothing, and gives
+    // up. Do it ourselves once the target exists — as an instant jump, not
+    // smooth, since the hero's images/3D model are still loading and
+    // reflowing the page at this point, which fights a mid-animation smooth
+    // scroll and leaves it short. Re-run once on "load" too, to correct for
+    // any layout shift from assets that finish after the first attempt.
+    const hash = window.location.hash;
+    if (!hash) return;
+    const scrollToHash = () => {
+      document.querySelector(hash)?.scrollIntoView({ behavior: "instant" });
+    };
+    const timer = window.setTimeout(scrollToHash, 300);
+    window.addEventListener("load", scrollToHash);
+    return () => {
+      window.clearTimeout(timer);
+      window.removeEventListener("load", scrollToHash);
+    };
+  }, []);
+
+  useEffect(() => {
     try {
       if (window.sessionStorage.getItem("cc-mobile-notice-seen") === "1") {
         setMobileNoticeDismissed(true);
@@ -1158,8 +1181,24 @@ export default function Home() {
             </p>
           </div>
           <div className="tracks__canvas">
-            <div className="tracks__object-image">
-              <WireframeStamp words={["MAKE", "IT", "FUN"]} size="small" />
+            <div
+              className="tracks__rail"
+              role="tablist"
+              aria-label="Hackathon tracks"
+            >
+              {tracks.map((track, index) => (
+                <button
+                  key={track.name}
+                  className={`track-tab track-tab--${track.color} ${index === trackIndex ? "track-tab--active" : ""}`}
+                  onClick={() => setTrackIndex(index)}
+                  role="tab"
+                  aria-selected={index === trackIndex}
+                >
+                  <span className="track-tab__number">0{index + 1}</span>
+                  <span>{track.name}</span>
+                  <ArrowUpRight size={20} />
+                </button>
+              ))}
             </div>
             <div className="tracks__active-card">
               <div className="tracks__active-card-top">
@@ -1219,25 +1258,6 @@ export default function Home() {
                 )}
               </div>
             </div>
-          </div>
-          <div
-            className="tracks__rail"
-            role="tablist"
-            aria-label="Hackathon tracks"
-          >
-            {tracks.map((track, index) => (
-              <button
-                key={track.name}
-                className={`track-tab track-tab--${track.color} ${index === trackIndex ? "track-tab--active" : ""}`}
-                onClick={() => setTrackIndex(index)}
-                role="tab"
-                aria-selected={index === trackIndex}
-              >
-                <span className="track-tab__number">0{index + 1}</span>
-                <span>{track.name}</span>
-                <ArrowUpRight size={17} />
-              </button>
-            ))}
           </div>
           <div className="tracks__dots">
             {tracks.map((track, index) => (
