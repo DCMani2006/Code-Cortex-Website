@@ -91,6 +91,33 @@ export default function App() {
     }
   };
 
+  const isGoogleConfigured = Boolean(
+    import.meta.env.VITE_GOOGLE_CLIENT_ID &&
+    import.meta.env.VITE_GOOGLE_CLIENT_ID !== "CLIENT_ID_MISSING" &&
+    !import.meta.env.VITE_GOOGLE_CLIENT_ID.includes("your_google_oauth")
+  );
+  const [showDevLogin, setShowDevLogin] = useState(!isGoogleConfigured);
+  const [devName, setDevName] = useState("Demo Student 21BCE1234");
+  const [devEmail, setDevEmail] = useState("demo.student2021@vitstudent.ac.in");
+
+  const handleDevLogin = () => {
+    const regNoRegex = /\b(\d{2}[a-zA-Z]{3}\d{4,5})\b/i;
+    const match = devName.match(regNoRegex) || devEmail.match(regNoRegex);
+    const userId = match ? match[1].toUpperCase() : "21BCE1234";
+    const user: User = {
+      User_ID: userId,
+      Name: devName.trim(),
+      Email: devEmail.trim(),
+      "Role (Participant/Admin)": "Participant",
+      Team_ID: ""
+    };
+    updateLoggedInUser(user);
+    if (user.Name) setRegLeaderName(user.Name);
+    setRegLeaderRegNo(userId);
+    setActivePage("team-portal");
+    showToast(`Logged in as ${user.Name}`, "success");
+  };
+
   // =====================================================
   // REGISTRATION
   // =====================================================
@@ -975,17 +1002,86 @@ const googleSignup = useGoogleLogin({
   Sign in with your Google account to access your dashboard or register a team.
 </p>
 
+{!isGoogleConfigured && (
+  <div className="alert alert-warning py-2 px-3 small mb-3 text-start" style={{ backgroundColor: "rgba(255, 193, 7, 0.12)", borderColor: "rgba(255, 193, 7, 0.35)", color: "#ffe082" }}>
+    <div className="fw-bold mb-1">⚠️ Google OAuth Client ID Not Set</div>
+    <div style={{ fontSize: "12px", opacity: 0.9 }}>
+      Add <code>VITE_GOOGLE_CLIENT_ID</code> to your <code>.env</code> file for live Google Sign-In. Use <strong>Quick Dev Login</strong> below to test locally.
+    </div>
+  </div>
+)}
+
 {googleAuthError && (
-  <div className="text-danger mb-3">{googleAuthError}</div>
+  <div className="text-danger mb-3 small">{googleAuthError}</div>
 )}
 
 <button
-  className="btn btn-gradient w-100 py-2 fw-bold"
-  onClick={() => googleSignup()}
+  className="btn btn-gradient w-100 py-2 fw-bold mb-3"
+  onClick={() => {
+    if (!isGoogleConfigured) {
+      showToast("VITE_GOOGLE_CLIENT_ID is not configured in .env. Use Quick Dev Login below to test.", "danger");
+      setShowDevLogin(true);
+    } else {
+      googleSignup();
+    }
+  }}
   disabled={googleAuthLoading}
 >
   {googleAuthLoading ? "Signing in..." : "Continue with Google →"}
 </button>
+
+<div className="pt-3 border-top border-secondary mt-2">
+  {!showDevLogin ? (
+    <button
+      type="button"
+      className="btn btn-sm btn-outline-info w-100"
+      onClick={() => setShowDevLogin(true)}
+    >
+      ⚡ Quick Dev Login (Local Test)
+    </button>
+  ) : (
+    <div className="text-start p-3 rounded border border-info" style={{ backgroundColor: "rgba(0, 150, 255, 0.08)" }}>
+      <div className="d-flex justify-content-between align-items-center mb-2">
+        <span className="small fw-bold text-info">⚡ Quick Dev Login</span>
+        {isGoogleConfigured && (
+          <button
+            type="button"
+            className="btn btn-sm text-secondary p-0 border-0 bg-transparent"
+            onClick={() => setShowDevLogin(false)}
+          >
+            Cancel
+          </button>
+        )}
+      </div>
+      <div className="small text-secondary mb-2" style={{ fontSize: "12px" }}>
+        Simulates signing in with a student identity without requiring Google Cloud setup:
+      </div>
+      <input
+        type="text"
+        className="form-control form-control-sm mb-2"
+        style={inputStyle}
+        placeholder="Name (e.g. John Doe 21BCE1234)"
+        value={devName}
+        onChange={(e) => setDevName(e.target.value)}
+      />
+      <input
+        type="email"
+        className="form-control form-control-sm mb-3"
+        style={inputStyle}
+        placeholder="Student Email (@vitstudent.ac.in)"
+        value={devEmail}
+        onChange={(e) => setDevEmail(e.target.value)}
+      />
+      <button
+        type="button"
+        className="btn btn-sm btn-info w-100 fw-bold"
+        onClick={handleDevLogin}
+      >
+        Sign In as Test Student →
+      </button>
+    </div>
+  )}
+</div>
 
                   
 
