@@ -1,10 +1,47 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+/*
+ * Palette matches frontend/'s design language (frontend/client/src/index.css)
+ * so the registration/dashboard app and the public event site read as one
+ * product instead of two unrelated skins.
+ */
+:root {
+  --navy: #040b1d;
+  --navy-2: #09152c;
+  --cream: #f6f0dc;
+  --cyan: #48d9ff;
+  --coral: #ff725c;
+  --cobalt: #3158ff;
+  --lime: #d9f45b;
+  --muted-foreground: #93a4bd;
+  --mono: 'IBM Plex Mono', monospace;
+  --display: 'Space Grotesk', sans-serif;
+
+  /* Re-theme Bootstrap's own semantic colors so every text-, border-, and
+     btn-outline- utility class picks this palette up automatically, without
+     touching every className across App.tsx. */
+  --bs-info: var(--cyan);
+  --bs-info-rgb: 72, 217, 255;
+  --bs-secondary: var(--muted-foreground);
+  --bs-secondary-rgb: 147, 164, 189;
+  --bs-danger: var(--coral);
+  --bs-danger-rgb: 255, 114, 92;
+  --bs-success: var(--lime);
+  --bs-success-rgb: 217, 244, 91;
+  --bs-dark: var(--navy);
+  --bs-dark-rgb: 4, 11, 29;
+  --bs-light: var(--cream);
+  --bs-light-rgb: 246, 240, 220;
+  --bs-white: var(--cream);
+  --bs-white-rgb: 246, 240, 220;
+  --bs-border-color: rgba(246, 240, 220, 0.18);
+}
 
 /* --- 1. BASE STYLES --- */
 html, body, #root {
-  background-color: #020202; 
-  color: #ffffff;
-  font-family: 'Poppins', sans-serif;
+  background-color: var(--navy);
+  color: var(--cream);
+  font-family: var(--display);
   overflow-x: hidden;
   margin: 0;
   padding: 0;
@@ -28,11 +65,10 @@ html, body, #root {
 
 .rect-frame {
   position: absolute;
-  width: 400px; 
+  width: 400px;
   height: 200px;
-  /* Shifted from bright cyan to a deeper, darker navy/neon blue */
-  border: 2px solid rgba(30, 90, 255, 0.85);
-  box-shadow: 0 0 25px rgba(30, 90, 255, 0.5), inset 0 0 25px rgba(30, 90, 255, 0.3);
+  border: 2px solid rgba(72, 217, 255, 0.75);
+  box-shadow: 0 0 25px rgba(72, 217, 255, 0.4), inset 0 0 25px rgba(72, 217, 255, 0.25);
   opacity: 0;
   animation: zoomOut 8s infinite linear;
 }
@@ -83,20 +119,21 @@ html, body, #root {
 }
 
 .floating-nav {
-  background: rgba(15, 15, 20, 0.7);
+  background: rgba(9, 21, 44, 0.85);
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(30, 90, 255, 0.3);
+  border: 1px solid rgba(72, 217, 255, 0.32);
   border-radius: 50px;
   padding: 12px 40px;
   display: inline-flex;
   gap: 30px;
   align-items: center;
-  box-shadow: 0 0 20px rgba(30, 90, 255, 0.15);
+  box-shadow: 0 0 20px rgba(72, 217, 255, 0.12);
 }
 
 .floating-nav a {
-  color: #a0a0a0;
+  color: var(--muted-foreground);
   text-decoration: none;
+  font-family: var(--mono);
   font-size: 14px;
   font-weight: 400;
   cursor: pointer;
@@ -104,36 +141,37 @@ html, body, #root {
 }
 
 .floating-nav a:hover, .floating-nav a.active {
-  color: #ffffff;
-  text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+  color: var(--cyan);
+  text-shadow: 0 0 10px rgba(72, 217, 255, 0.5);
 }
 
 .glass-card {
-  background: rgba(10, 10, 15, 0.8);
-  border: 1px solid rgba(30, 90, 255, 0.3);
+  background: rgba(9, 21, 44, 0.8);
+  border: 1px solid rgba(72, 217, 255, 0.25);
   border-radius: 12px;
   transition: transform 0.4s ease, box-shadow 0.4s ease;
 }
 
 .glass-card:hover {
   transform: translateY(-10px);
-  box-shadow: 0 15px 30px rgba(30, 90, 255, 0.2);
+  box-shadow: 0 15px 30px rgba(72, 217, 255, 0.18);
 }
 
 .glow-text {
-  color: #fff;
-  text-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+  color: var(--cream);
+  text-shadow: 0 0 15px rgba(72, 217, 255, 0.35);
 }
 
 .btn-gradient {
-  background: linear-gradient(90deg, #1e3c72 0%, #2a5298 100%);
-  color: white;
+  background: linear-gradient(90deg, var(--cobalt) 0%, var(--cyan) 100%);
+  color: var(--navy);
+  font-weight: 600;
   border: none;
   transition: 0.3s;
 }
 
 .btn-gradient:hover {
-  box-shadow: 0 0 20px rgba(42, 82, 152, 0.6);
+  box-shadow: 0 0 20px rgba(72, 217, 255, 0.5);
   transform: scale(1.05);
 }
 

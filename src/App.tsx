@@ -30,13 +30,19 @@ const ADMIN_EMAILS = [
 ].map((email) => email.toLowerCase());
 const ADMIN_PASSCODE = "tamreviewpanel_cc";
 
+// The public event website (frontend/, a separate app) — "Home" and "Tracks" in
+// the nav send visitors there instead of duplicating its content here.
+const eventSiteUrl =
+  import.meta.env.VITE_EVENT_SITE_URL ||
+  (import.meta.env.DEV ? "http://localhost:3000" : "https://codecortex.tamvit.in");
+
 export default function App() {
   // =====================================================
   // APPLICATION STATE
   // =====================================================
 
   const [role, setRole] = useState<string | null>(null);
-  const [activePage, setActivePage] = useState("home");
+  const [activePage, setActivePage] = useState("team-portal");
 
   const [showModal, setShowModal] = useState(false);
 
@@ -395,43 +401,6 @@ const selectedReviewSubmission =
     paddingLeft: "5px",
     boxShadow: "none"
   };
-
-  // =====================================================
-  // TRACKS
-  // =====================================================
-
-  const tracks = [
-    {
-      title: "Finance",
-      desc:
-        "Build AI/ML solutions that address challenges in the financial sector such as fraud detection, forecasting, and risk assessment.",
-      file: "finance_dataset.zip"
-    },
-    {
-      title: "Medicine and Healthcare",
-      desc:
-        "Develop AI/ML solutions that improve healthcare through intelligent analysis of medical data, imaging, and patient monitoring.",
-      file: "healthcare_dataset.zip"
-    },
-    {
-      title: "Drone tech and aviation",
-      desc:
-        "Develop AI/ML solutions for drone technology and aviation in the areas of autonomous systems, aerial analytics, and flight intelligence.",
-      file: "aviation_dataset.zip"
-    },
-    {
-      title: "Security",
-      desc:
-        "Build AI/ML solutions that enhance security across physical and digital environments including cybersecurity and anomaly detection.",
-      file: "security_dataset.zip"
-    },
-    {
-      title: "Open Innovation",
-      desc:
-        "Tackle any real-world problem using AI and ML. Participants are free to select their own dataset and build a unique AI/ML solution.",
-      file: null
-    }
-  ];
 
   // =====================================================
   // TEAM REGISTRATION
@@ -820,7 +789,7 @@ const googleSignup = useGoogleLogin({
       setShowAdminLogin(false);
       setRole('admin');
       setLoggedInUser(null);
-      setActivePage('home');
+      setActivePage('team-portal');
       setAdminError(null);
       setAdminUsername('');
       setAdminPassword('');
@@ -925,25 +894,11 @@ const googleSignup = useGoogleLogin({
 
                   <div className="floating-nav flex-wrap justify-content-center px-3 px-md-5 py-2 position-relative z-3">
 
-                    <a
-                      onClick={() => setActivePage("home")}
-                      className={
-                        activePage === "home"
-                          ? "active"
-                          : ""
-                      }
-                    >
+                    <a href={eventSiteUrl}>
                       Home
                     </a>
 
-                    <a
-                      onClick={() => setActivePage("tracks")}
-                      className={
-                        activePage === "tracks"
-                          ? "active"
-                          : ""
-                      }
-                    >
+                    <a href={`${eventSiteUrl}/#tracks`}>
                       Tracks
                     </a>
 
@@ -983,104 +938,6 @@ const googleSignup = useGoogleLogin({
                 ================================================= */}
 
                 <div className="flex-grow-1 d-flex flex-column justify-content-center align-items-center mt-4 p-3">
-
-                  {/* HOME */}
-
-                  {activePage === "home" && (
-                    <div className="text-center fade-in w-100">
-
-                      <h3 className="fw-bold text-info tracking-wide mb-2">
-                        graVITas'26
-                      </h3>
-
-                      <h2 className="fw-bold tracking-wide">
-                        TAM-VIT
-                      </h2>
-
-                      <h4 className="fw-light mb-3 text-secondary">
-                        welcomes you to
-                      </h4>
-
-                      <h1
-                        className="display-4 display-md-1 fw-bold glow-text mb-5"
-                        style={{ fontSize: "6rem" }}
-                      >
-                        Code Cortex 3.0
-                      </h1>
-
-                      <button
-                        className="btn btn-gradient rounded-pill px-5 py-3 fs-5 mt-4 fw-bold"
-                        onClick={() =>
-                          setActivePage("tracks")
-                        }
-                      >
-                        Discover Tracks
-                      </button>
-
-                      <div className="mt-5 pt-5">
-                        <h3 className="fw-bold tracking-wide fs-5 fs-md-3">
-                          SPONSORED BY
-                        </h3>
-                      </div>
-
-                    </div>
-                  )}
-
-                  {/* TRACKS */}
-
-                  {activePage === "tracks" && (
-                    <div
-                      className="text-center fade-in w-100"
-                      style={{ maxWidth: "1200px" }}
-                    >
-
-                      <h1 className="fw-bold mb-4 mb-md-5 tracking-wide">
-                        CODE CORTEX TRACKS
-                      </h1>
-
-                      <div className="row g-4 justify-content-center">
-
-                        {tracks.map((track, idx) => (
-                          <div
-                            className="col-md-6 col-lg-4"
-                            key={idx}
-                          >
-
-                            <div className="glass-card p-4 d-flex flex-column h-100">
-
-                              <h4 className="glow-text my-3">
-                                {track.title}
-                              </h4>
-
-                              <p className="text-secondary small mb-4 text-start lh-lg flex-grow-1">
-                                {track.desc}
-                              </p>
-
-                              {track.file ? (
-                                <a
-                                  href={`/${track.file}`}
-                                  download
-                                  className="btn btn-outline-info btn-sm w-100 mt-3 rounded-pill"
-                                >
-                                  Download Dataset (.zip)
-                                </a>
-                              ) : (
-                                <button
-                                  className="btn btn-outline-secondary btn-sm w-100 mt-3 rounded-pill"
-                                  disabled
-                                >
-                                  No Dataset Required
-                                </button>
-                              )}
-
-                            </div>
-
-                          </div>
-                        ))}
-
-                      </div>
-                    </div>
-                  )}
 
                   {/* TEAM PORTAL */}
 
@@ -1192,6 +1049,27 @@ const googleSignup = useGoogleLogin({
                               <p className="text-info fw-bold mb-3">
                                 {teamIdInput}
                               </p>
+
+                              {teamDetails?.Track && (
+                                <>
+                                  <p className="text-secondary small mb-1">
+                                    Track:
+                                  </p>
+
+                                  <p className="text-light mb-3">
+                                    {teamDetails.Track}
+                                    {" "}
+                                    <a
+                                      href={`${eventSiteUrl}/?track=${encodeURIComponent(teamDetails.Track)}#tracks`}
+                                      target="_blank"
+                                      rel="noreferrer"
+                                      className="text-info text-decoration-none"
+                                    >
+                                      View track brief ↗
+                                    </a>
+                                  </p>
+                                </>
+                              )}
 
                               <p className="text-secondary small mb-2">
                                 Team Members:
@@ -1952,7 +1830,7 @@ const googleSignup = useGoogleLogin({
                   setAdminPassword('');
                   setAdminError(null);
                   setShowAdminLogin(false);
-                  setActivePage('home');
+                  setActivePage('team-portal');
                 }}
               >
                 Logout

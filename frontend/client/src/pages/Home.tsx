@@ -6,6 +6,14 @@ import type { LucideIcon } from "lucide-react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Line, useGLTF } from "@react-three/drei";
 import * as THREE from "three";
+import { useIsMobile } from "@/hooks/useMobile";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import {
   ArrowLeft,
   ArrowRight,
@@ -81,6 +89,8 @@ const tracks = [
     eyebrow: "Track 01",
     description:
       "Design a calmer, clearer future for money. Turn complex financial moments into tools people can actually understand and trust.",
+    brief:
+      "The finance industry generates vast amounts of structured and unstructured data every day — from transaction records and market trends to customer behaviour and financial documents. Build AI/ML solutions that address challenges in the financial sector. Projects may focus on areas such as fraud detection, forecasting, customer analytics, risk assessment, document understanding, or any other finance-related application.\n\nDataset — The provided dataset is a ZIP archive containing multiple forms of finance-related data, including structured numerical data, documents, images, time-series data, and other relevant files. Participants are encouraged to explore the dataset, identify a problem of their choice, and develop an AI/ML solution using one or more of the provided data types.",
     color: "cyan",
     icon: Database,
     glyph: "₹",
@@ -95,6 +105,8 @@ const tracks = [
     eyebrow: "Track 02",
     description:
       "Build for better care. Reimagine the tools, systems, and small human moments that make health support more accessible and useful.",
+    brief:
+      "Healthcare systems generate enormous volumes of medical data ranging from diagnostic images and patient records to physiological signals and laboratory reports. Develop AI/ML solutions that improve healthcare through intelligent analysis of medical data. Projects may focus on disease detection, diagnosis support, medical imaging, patient monitoring, healthcare analytics, or any other healthcare application.\n\nDataset — The provided dataset is a ZIP archive containing various healthcare-related data formats such as medical images, clinical records, physiological signals, text reports, and structured datasets. Teams are free to utilize any combination of the available data to build an AI/ML solution of their choice.",
     color: "coral",
     icon: HeartPulse,
     glyph: "+",
@@ -109,6 +121,8 @@ const tracks = [
     eyebrow: "Track 03",
     description:
       "Take the idea airborne. Explore navigation, autonomy, logistics, safety, and the next generation of movement through the sky.",
+    brief:
+      "Today's drones and aviation systems rely on AI for autonomous navigation, surveillance, mapping, object detection, predictive maintenance, and airspace management. As more aerial imagery, flight telemetry, and sensor data are available, AI is vital for safety and efficiency. Develop AI/ML solutions for drone technology and aviation in the areas of autonomous systems, aerial analytics, surveillance, navigation, predictive maintenance, and flight intelligence.\n\nDataset — The provided dataset is a ZIP archive containing multiple aviation-related data types such as aerial images, videos, telemetry logs, sensor readings, maps, and structured datasets. Participants may use any portion of the dataset to develop an AI/ML project relevant to the domain.",
     color: "lime",
     icon: Plane,
     glyph: "✈",
@@ -123,6 +137,8 @@ const tracks = [
     eyebrow: "Track 04",
     description:
       "Make the digital world harder to break and easier to trust. Build tools that protect people, systems, and the ideas inside them.",
+    brief:
+      "Security today extends beyond physical systems into cybersecurity, surveillance, identity verification, anomaly detection, and threat intelligence. Build AI/ML solutions that enhance security across physical and digital environments. Projects may focus on surveillance, cybersecurity, anomaly detection, threat analysis, identity verification, or other security applications.\n\nDataset — The dataset provided is a ZIP archive of security-related data, including images, videos, network logs, structured data, documents, and sensor data. Teams are encouraged to use the dataset and develop any AI/ML solution that addresses a security challenge.",
     color: "blue",
     icon: ShieldCheck,
     glyph: "///",
@@ -137,6 +153,8 @@ const tracks = [
     eyebrow: "Track 05",
     description:
       "No box, no brief, no ceiling. Bring the strange idea, the stubborn problem, or the tiny detail that deserves a much bigger solution.",
+    brief:
+      "Open Innovation is for teams who want to tackle any real-world problem using Artificial Intelligence and Machine Learning. Unlike domain-specific tracks, participants are free to select their own dataset, formulate the problem statement, and build a unique AI/ML solution.\n\nDataset — No dataset will be provided for this track. Participants are expected to source their own dataset(s) and build an AI/ML solution based on a problem of their choice.",
     color: "violet",
     icon: Sparkles,
     glyph: "∞",
@@ -519,10 +537,13 @@ export default function Home() {
   const [faqMode, setFaqMode] = useState<keyof typeof faqs>("General");
   const [faqOpen, setFaqOpen] = useState(0);
   const [scrolled, setScrolled] = useState(false);
-  const [musicPlaying, setMusicPlaying] = useState(true);
+  const [musicPlaying, setMusicPlaying] = useState(false);
   const [mascotPointer, setMascotPointer] = useState({ x: 0, y: 0 });
   const [reducedMotion, setReducedMotion] = useState(false);
   const [coarsePointer, setCoarsePointer] = useState(false);
+  const [menuNudgeVisible, setMenuNudgeVisible] = useState(false);
+  const [mobileNoticeDismissed, setMobileNoticeDismissed] = useState(false);
+  const isMobile = useIsMobile();
   const [songQuery, setSongQuery] = useState("");
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const leaderboardQuery = trpc.spotify.leaderboard.useQuery();
@@ -541,35 +562,65 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    // Siren defaults to on as a welcome, but browsers block audio with sound
-    // until the visitor has interacted with the page — try immediately, and
-    // fall back to starting on the very first click/keypress/touch.
-    const audio = audioRef.current;
-    if (!audio) return;
+    let visited = false;
+    try {
+      visited = window.localStorage.getItem("cc-visited") === "1";
+    } catch {
+      // localStorage unavailable (private mode, etc.) — just skip the nudge.
+      return;
+    }
+    if (visited) return;
 
-    let started = false;
-    const tryStart = () => {
-      if (started) return;
-      audio
-        .play()
-        .then(() => {
-          started = true;
-          setMusicPlaying(true);
-        })
-        .catch(() => setMusicPlaying(false));
+    setMenuNudgeVisible(true);
+    const dismiss = () => {
+      setMenuNudgeVisible(false);
+      try {
+        window.localStorage.setItem("cc-visited", "1");
+      } catch {
+        // ignore write failures
+      }
     };
 
-    tryStart();
-
-    const onFirstInteraction = () => tryStart();
-    window.addEventListener("pointerdown", onFirstInteraction, { once: true });
-    window.addEventListener("keydown", onFirstInteraction, { once: true });
+    const onScroll = () => dismiss();
+    window.addEventListener("scroll", onScroll, { passive: true, once: true });
+    const timer = window.setTimeout(dismiss, 6000);
 
     return () => {
-      window.removeEventListener("pointerdown", onFirstInteraction);
-      window.removeEventListener("keydown", onFirstInteraction);
+      window.removeEventListener("scroll", onScroll);
+      window.clearTimeout(timer);
     };
   }, []);
+
+  useEffect(() => {
+    const wantedTrack = new URLSearchParams(window.location.search)
+      .get("track")
+      ?.trim()
+      .toLowerCase();
+    if (!wantedTrack) return;
+    const matchIndex = tracks.findIndex(
+      (track) => track.name.toLowerCase() === wantedTrack,
+    );
+    if (matchIndex >= 0) setTrackIndex(matchIndex);
+  }, []);
+
+  useEffect(() => {
+    try {
+      if (window.sessionStorage.getItem("cc-mobile-notice-seen") === "1") {
+        setMobileNoticeDismissed(true);
+      }
+    } catch {
+      // ignore — just show the notice if we can't remember it was dismissed
+    }
+  }, []);
+
+  const dismissMobileNotice = () => {
+    setMobileNoticeDismissed(true);
+    try {
+      window.sessionStorage.setItem("cc-mobile-notice-seen", "1");
+    } catch {
+      // ignore write failures
+    }
+  };
 
   useEffect(() => {
     setReducedMotion(
@@ -662,8 +713,34 @@ export default function Home() {
     );
   };
 
+  const openMenu = () => {
+    setMenuOpen(true);
+    setMenuNudgeVisible(false);
+    try {
+      window.localStorage.setItem("cc-visited", "1");
+    } catch {
+      // ignore write failures
+    }
+  };
+
   return (
     <div className="site-shell">
+      {isMobile && !mobileNoticeDismissed && (
+        <div className="mobile-notice" role="dialog" aria-label="Best viewed on a laptop">
+          <div className="mobile-notice__card">
+            <p className="mobile-notice__eyebrow">A quick note, dev to dev</p>
+            <h2>This one's built laptop-first.</h2>
+            <p>
+              Somewhere a UX designer is crying about the mascot on a 6-inch
+              screen. Grab a laptop for the full build when you can — or just
+              keep going, we won't judge (much).
+            </p>
+            <button type="button" onClick={dismissMobileNotice}>
+              Continue on phone anyway <ArrowUpRight size={16} />
+            </button>
+          </div>
+        </div>
+      )}
       <audio
         ref={audioRef}
         src={sirenTrack}
@@ -695,32 +772,12 @@ export default function Home() {
               ({musicPlaying ? "ON" : "OFF"})
             </span>
           </button>
-          <a
-            className="participant-trigger"
-            href={mainAppUrl}
-            target="_blank"
-            rel="noreferrer"
-            aria-label="Open team login and registration"
-          >
-            <UsersRound size={16} aria-hidden="true" />
-            <span className="header-action__label">TEAM LOGIN</span>
-          </a>
-          <a
-            className="admin-switch"
-            href={`${mainAppUrl}/admin`}
-            target="_blank"
-            rel="noreferrer"
-            aria-label="Open admin login"
-          >
-            <Shield size={16} aria-hidden="true" />
-            <span className="header-action__label">ADMIN</span>
-          </a>
         </div>
       </header>
       <div className="menu-rail">
         <button
-          className="menu-trigger"
-          onClick={() => setMenuOpen(true)}
+          className={`menu-trigger ${menuNudgeVisible ? "menu-trigger--nudge" : ""}`}
+          onClick={openMenu}
           aria-label="Open menu"
         >
           <span className="menu-trigger__word">MENU</span>
@@ -728,6 +785,11 @@ export default function Home() {
             <Menu size={22} strokeWidth={1.8} />
           </span>
         </button>
+        {menuNudgeVisible && (
+          <span className="menu-trigger__nudge-hint" aria-hidden="true">
+            Tap to explore ↗
+          </span>
+        )}
       </div>
 
       <div
@@ -775,6 +837,46 @@ export default function Home() {
                 </a>
               );
             })}
+            <a
+              href={mainAppUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="menu-panel__login-link"
+            >
+              <span className="menu-panel__index">TL</span>
+              <UsersRound
+                className="menu-panel__item-icon"
+                size={22}
+                strokeWidth={1.6}
+                aria-hidden="true"
+              />
+              <span className="menu-panel__item-label">Team Login</span>
+              <ArrowUpRight
+                className="menu-panel__item-arrow"
+                size={22}
+                strokeWidth={1.4}
+              />
+            </a>
+            <a
+              href={`${mainAppUrl}/admin`}
+              target="_blank"
+              rel="noreferrer"
+              className="menu-panel__login-link"
+            >
+              <span className="menu-panel__index">AD</span>
+              <Shield
+                className="menu-panel__item-icon"
+                size={22}
+                strokeWidth={1.6}
+                aria-hidden="true"
+              />
+              <span className="menu-panel__item-label">Admin</span>
+              <ArrowUpRight
+                className="menu-panel__item-arrow"
+                size={22}
+                strokeWidth={1.4}
+              />
+            </a>
           </nav>
         </div>
         <div className="menu-panel__footer">
@@ -1068,16 +1170,28 @@ export default function Home() {
               <h3>{activeTrack.name}</h3>
               <p>{activeTrack.description}</p>
               <div className="tracks__active-card-actions">
-                <a
-                  className="text-link text-link--dark"
-                  href="#faqs"
-                  onClick={(event) => {
-                    event.preventDefault();
-                    jumpTo("#faqs");
-                  }}
-                >
-                  Read the brief <ArrowUpRight size={18} />
-                </a>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <button
+                      type="button"
+                      className="text-link text-link--dark track-brief-trigger"
+                    >
+                      Know more <ArrowUpRight size={18} />
+                    </button>
+                  </DialogTrigger>
+                  <DialogContent className="track-brief-dialog">
+                    <DialogHeader>
+                      <DialogTitle className="track-brief-dialog__title">
+                        {activeTrack.name}
+                      </DialogTitle>
+                    </DialogHeader>
+                    <div className="track-brief-dialog__body">
+                      {activeTrack.brief.split("\n\n").map((paragraph, index) => (
+                        <p key={index}>{paragraph}</p>
+                      ))}
+                    </div>
+                  </DialogContent>
+                </Dialog>
                 {activeTrack.dataset === "pick-your-own" ? (
                   <span className="tracks__dataset-note">
                     Pick your own dataset for this track.

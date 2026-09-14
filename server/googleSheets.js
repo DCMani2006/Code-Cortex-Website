@@ -4,6 +4,43 @@ import fs from 'fs';
 
 let doc;
 
+// Every read here is a full-sheet scan against the Google Sheets API, and
+// Google's default quota (~60 read requests/min per identity, and this
+// service account is the *one* identity behind every visitor's request) gets
+// exhausted fast once more than a handful of people load a dashboard at the
+// same time. A short-TTL cache on the hot list-reads absorbs concurrent
+// polling; writes below invalidate the relevant key immediately so nobody
+// sees stale data right after creating/joining a team or submitting.
+const READ_CACHE_TTL_MS = 12_000;
+const readCache = new Map(); // key -> { data, expiresAt }
+const inFlight = new Map(); // key -> Promise, so concurrent misses share one fetch
+
+async function cachedRead(key, fetcher) {
+  const hit = readCache.get(key);
+  if (hit && hit.expiresAt > Date.now()) return hit.data;
+
+  // A burst of simultaneous requests (e.g. 300+ people opening their
+  // dashboard in the same second) can all miss the cache before the first
+  // fetch resolves. Without this, each of them would fire its own Sheets
+  // read and blow through the quota in one go — share a single in-flight
+  // fetch across all of them instead.
+  const pending = inFlight.get(key);
+  if (pending) return pending;
+
+  const promise = fetcher()
+    .then((data) => {
+      readCache.set(key, { data, expiresAt: Date.now() + READ_CACHE_TTL_MS });
+      return data;
+    })
+    .finally(() => inFlight.delete(key));
+  inFlight.set(key, promise);
+  return promise;
+}
+
+function invalidateCache(...keys) {
+  keys.forEach((key) => readCache.delete(key));
+}
+
 export async function initGoogleSheets() {
   if (!doc) {
     // credentials.json is gitignored (it's a private key), so a deploy built
@@ -26,23 +63,26 @@ export async function initGoogleSheets() {
 }
 
 export async function getUsers() {
-  const document = await initGoogleSheets();
-  const sheet = document.sheetsByTitle['Users'];
-  if (!sheet) return [];
-  const rows = await sheet.getRows();
-  return rows.map(row => ({
-    User_ID: row.get('User_ID'),
-    Name: row.get('Name'),
-    Email: row.get('Email'),
-    'Role (Participant/Admin)': row.get('Role (Participant/Admin)'),
-    Team_ID: row.get('Team_ID'),
-  }));
+  return cachedRead('users', async () => {
+    const document = await initGoogleSheets();
+    const sheet = document.sheetsByTitle['Users'];
+    if (!sheet) return [];
+    const rows = await sheet.getRows();
+    return rows.map(row => ({
+      User_ID: row.get('User_ID'),
+      Name: row.get('Name'),
+      Email: row.get('Email'),
+      'Role (Participant/Admin)': row.get('Role (Participant/Admin)'),
+      Team_ID: row.get('Team_ID'),
+    }));
+  });
 }
 
 export async function addUser(data) {
   const document = await initGoogleSheets();
   const sheet = document.sheetsByTitle['Users'];
   await sheet.addRow(data);
+  invalidateCache('users');
 }
 
 import crypto from 'crypto';
@@ -73,6 +113,7 @@ export async function syncAuthUser(email, name) {
       Team_ID: 'null'
     };
     await sheet.addRow(newUser);
+    invalidateCache('users');
     return newUser;
   }
 }
@@ -128,17 +169,19 @@ export async function verifyUserCredentials(identifier, password) {
 }
 
 export async function getTeams() {
-  const document = await initGoogleSheets();
-  const sheet = document.sheetsByTitle['Team']; // As per instructions, "Team" not "Teams"
-  if (!sheet) return [];
-  const rows = await sheet.getRows();
-  return rows.map(row => ({
-    Team_ID: row.get('Team_ID'),
-    'Team_ Name': row.get('Team_ Name'), // Exact spacing
-    Track: row.get('Track'),
-    Team_Leader: row.get('Team_Leader'),
-    'No. of Members': row.get('No. of Members'),
-  }));
+  return cachedRead('teams', async () => {
+    const document = await initGoogleSheets();
+    const sheet = document.sheetsByTitle['Team']; // As per instructions, "Team" not "Teams"
+    if (!sheet) return [];
+    const rows = await sheet.getRows();
+    return rows.map(row => ({
+      Team_ID: row.get('Team_ID'),
+      'Team_ Name': row.get('Team_ Name'), // Exact spacing
+      Track: row.get('Track'),
+      Team_Leader: row.get('Team_Leader'),
+      'No. of Members': row.get('No. of Members'),
+    }));
+  });
 }
 
 export async function linkUserToTeam(userId, teamId) {
@@ -173,7 +216,8 @@ export async function linkUserToTeam(userId, teamId) {
         console.log(`Updated No. of Members for team ${teamId} to ${currentMembers + 1}`);
       }
     }
-    
+
+    invalidateCache('users', 'teams');
     return true;
   }
   console.log(`User ${userId} not found`);
@@ -293,6 +337,7 @@ export async function addTeam(data, additionalMembers = []) {
 
     ensureColumn('Password', ['Team_Password', 'teamPassword', 'Team Password']);
     ensureColumn('Team_Leader', ['Team Leader', 'Leader Name']);
+    ensureColumn('Track');
 
     if (newHeaders.length > headers.length) {
       await sheet.setHeaderRow(newHeaders);
@@ -302,6 +347,7 @@ export async function addTeam(data, additionalMembers = []) {
   }
 
   await sheet.addRow(rowData);
+  invalidateCache('teams');
 
   // Update the user's Team_ID if they are logged in and just created this team
   if (userId) {
@@ -329,6 +375,7 @@ export async function addTeam(data, additionalMembers = []) {
           console.error(`Failed to add additional member ${m.regNo}:`, e);
         }
       }
+      invalidateCache('users');
     }
   }
 }
@@ -375,6 +422,7 @@ export async function addMemberToTeam(teamId, memberData) {
     console.error("Could not update team member count:", e);
   }
 
+  invalidateCache('users', 'teams');
   return { success: true };
 }
 
@@ -389,27 +437,29 @@ const getRowValue = (row, candidates) => {
 };
 
 export async function getSubmissions() {
-  const document = await initGoogleSheets();
-  const sheet = document.sheetsByTitle['Submissions'];
-  if (!sheet) return [];
-  const rows = await sheet.getRows();
+  return cachedRead('submissions', async () => {
+    const document = await initGoogleSheets();
+    const sheet = document.sheetsByTitle['Submissions'];
+    if (!sheet) return [];
+    const rows = await sheet.getRows();
 
-  return rows.map(row => {
-    const teamId = getRowValue(row, ['Team_ID', 'Team ID', 'TeamId', 'teamId']);
-    const teamName = getRowValue(row, ['Team_Name', 'Team_ Name', 'Team Name', 'Team_Name ', 'Team Name ']);
-    const projectDescription = getRowValue(row, ['Project_Description', 'Project Description', 'Project Description ']);
-    const githubLink = getRowValue(row, ['GitHub Link', 'GitHub', 'GitHub Link ']);
-    const figmaLink = getRowValue(row, ['Figma Link', 'Figma', 'Figma Link ']);
-    const submissionTime = getRowValue(row, ['Submission Time', 'Submission Time ', 'Submitted At', 'Submission_Time']);
+    return rows.map(row => {
+      const teamId = getRowValue(row, ['Team_ID', 'Team ID', 'TeamId', 'teamId']);
+      const teamName = getRowValue(row, ['Team_Name', 'Team_ Name', 'Team Name', 'Team_Name ', 'Team Name ']);
+      const projectDescription = getRowValue(row, ['Project_Description', 'Project Description', 'Project Description ']);
+      const githubLink = getRowValue(row, ['GitHub Link', 'GitHub', 'GitHub Link ']);
+      const figmaLink = getRowValue(row, ['Figma Link', 'Figma', 'Figma Link ']);
+      const submissionTime = getRowValue(row, ['Submission Time', 'Submission Time ', 'Submitted At', 'Submission_Time']);
 
-    return {
-      Team_ID: teamId,
-      'Team_Name ': teamName,
-      Project_Description: projectDescription,
-      'GitHub Link': githubLink,
-      'Figma Link': figmaLink,
-      'Submission Time': submissionTime,
-    };
+      return {
+        Team_ID: teamId,
+        'Team_Name ': teamName,
+        Project_Description: projectDescription,
+        'GitHub Link': githubLink,
+        'Figma Link': figmaLink,
+        'Submission Time': submissionTime,
+      };
+    });
   });
 }
 
@@ -445,25 +495,28 @@ export async function addSubmission(data) {
   };
 
   await sheet.addRow(rowData);
+  invalidateCache('submissions');
 }
 
 export async function getReviews() {
-  const document = await initGoogleSheets();
-  const sheet = document.sheetsByTitle['Reviews_Scores'];
-  if (!sheet) return [];
-  const rows = await sheet.getRows();
-  return rows.map(row => ({
-    Team_ID: row.get('Team_ID'),
-    Team_Name: row.get('Team_Name'),
-    Admin_Name: row.get('Admin_Name'),
-    'Approach (20)': row.get('Approach (20)'),
-    'Scalability (10)': row.get('Scalability (10)'),
-    'Design (20)': row.get('Design (20)'),
-    'Tech (30)': row.get('Tech (30)'),
-    'USP (20)': row.get('USP (20)'),
-    Total_Score: row.get('Total_Score'),
-    Review_Round: row.get('Review_Round'),
-  }));
+  return cachedRead('reviews', async () => {
+    const document = await initGoogleSheets();
+    const sheet = document.sheetsByTitle['Reviews_Scores'];
+    if (!sheet) return [];
+    const rows = await sheet.getRows();
+    return rows.map(row => ({
+      Team_ID: row.get('Team_ID'),
+      Team_Name: row.get('Team_Name'),
+      Admin_Name: row.get('Admin_Name'),
+      'Approach (20)': row.get('Approach (20)'),
+      'Scalability (10)': row.get('Scalability (10)'),
+      'Design (20)': row.get('Design (20)'),
+      'Tech (30)': row.get('Tech (30)'),
+      'USP (20)': row.get('USP (20)'),
+      Total_Score: row.get('Total_Score'),
+      Review_Round: row.get('Review_Round'),
+    }));
+  });
 }
 
 export async function addReview(data) {
@@ -524,4 +577,5 @@ export async function addReview(data) {
   } else {
     await sheet.addRow(rowData);
   }
+  invalidateCache('reviews');
 }
