@@ -1,6 +1,13 @@
 import { GoogleSpreadsheet } from 'google-spreadsheet';
 import { JWT } from 'google-auth-library';
 import fs from 'fs';
+import path from 'path';
+import crypto from 'crypto';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const credentialsPath = path.resolve(__dirname, 'credentials.json');
 
 let doc;
 
@@ -46,9 +53,14 @@ export async function initGoogleSheets() {
     // credentials.json is gitignored (it's a private key), so a deploy built
     // from git won't have the file — fall back to pasting the same JSON into
     // a GOOGLE_CREDENTIALS_JSON env var on whatever host runs this.
-    const credentials = process.env.GOOGLE_CREDENTIALS_JSON
-      ? JSON.parse(process.env.GOOGLE_CREDENTIALS_JSON)
-      : JSON.parse(fs.readFileSync('./credentials.json', 'utf-8'));
+    let credentials;
+    if (process.env.GOOGLE_CREDENTIALS_JSON) {
+      credentials = JSON.parse(process.env.GOOGLE_CREDENTIALS_JSON);
+    } else if (fs.existsSync(credentialsPath)) {
+      credentials = JSON.parse(fs.readFileSync(credentialsPath, 'utf-8'));
+    } else {
+      throw new Error(`Google Sheets credentials not found. Provide GOOGLE_CREDENTIALS_JSON env var or place credentials.json in ${__dirname}`);
+    }
 
     const jwt = new JWT({
       email: credentials.client_email,
@@ -84,8 +96,6 @@ export async function addUser(data) {
   await sheet.addRow(data);
   invalidateCache('users');
 }
-
-import crypto from 'crypto';
 
 export async function syncAuthUser(email, name) {
   const document = await initGoogleSheets();
@@ -184,7 +194,7 @@ export async function getTeams() {
   });
 }
 
-export async function linkUserToTeam(userId, teamId) {
+export async function linkUserToTeam(userId, teamId, incrementCount = true) {
   const document = await initGoogleSheets();
   const usersSheet = document.sheetsByTitle['Users'];
   if (!usersSheet) throw new Error("Users sheet not found");
@@ -192,7 +202,7 @@ export async function linkUserToTeam(userId, teamId) {
   const rows = await usersSheet.getRows();
   const userRow = rows.find(r => r.get('User_ID') === userId);
   
-  console.log(`linkUserToTeam: userId=${userId}, teamId=${teamId}`);
+  console.log(`linkUserToTeam: userId=${userId}, teamId=${teamId}, incrementCount=${incrementCount}`);
   if (userRow) {
     const existingTeamId = String(userRow.get('Team_ID') || '').trim();
     if (existingTeamId && existingTeamId !== String(teamId).trim()) {
@@ -204,16 +214,18 @@ export async function linkUserToTeam(userId, teamId) {
     await userRow.save();
     console.log(`Saved Team_ID to ${teamId} for ${userId}`);
     
-    // Also increment No. of Members in the Team sheet!
-    const teamSheet = document.sheetsByTitle['Team'];
-    if (teamSheet) {
-      const teamRows = await teamSheet.getRows();
-      const teamRow = teamRows.find(r => String(r.get('Team_ID')).trim() === String(teamId).trim());
-      if (teamRow) {
-        let currentMembers = Number(teamRow.get('No. of Members')) || 0;
-        teamRow.assign({ 'No. of Members': String(currentMembers + 1) });
-        await teamRow.save();
-        console.log(`Updated No. of Members for team ${teamId} to ${currentMembers + 1}`);
+    // Only increment No. of Members when a new user joins an existing team
+    if (incrementCount) {
+      const teamSheet = document.sheetsByTitle['Team'];
+      if (teamSheet) {
+        const teamRows = await teamSheet.getRows();
+        const teamRow = teamRows.find(r => String(r.get('Team_ID')).trim() === String(teamId).trim());
+        if (teamRow) {
+          let currentMembers = Number(teamRow.get('No. of Members')) || 0;
+          teamRow.assign({ 'No. of Members': String(currentMembers + 1) });
+          await teamRow.save();
+          console.log(`Updated No. of Members for team ${teamId} to ${currentMembers + 1}`);
+        }
       }
     }
 
@@ -352,7 +364,7 @@ export async function addTeam(data, additionalMembers = []) {
   // Update the user's Team_ID if they are logged in and just created this team
   if (userId) {
     try {
-      await linkUserToTeam(userId, rowData.Team_ID);
+      await linkUserToTeam(userId, rowData.Team_ID, false);
       console.log(`Successfully linked User ${userId} to Team ${rowData.Team_ID}`);
     } catch (e) {
       console.error(`Failed to link user ${userId}:`, e);

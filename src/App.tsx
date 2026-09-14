@@ -15,8 +15,12 @@ import {
   addTeamMember
 } from "./services/api";
 
-import type { User } from "./types/database";
+import type { User, Team, Submission } from "./types/database";
 import { AdminDashboard } from "./components/AdminDashboard";
+
+const STORAGE_KEY_USER = "cc_logged_in_user";
+const STORAGE_KEY_ADMIN = "cc_admin_logged_in";
+const STORAGE_KEY_ADMIN_NAME = "cc_admin_username";
 
 // Hardcoded review-panel admin accounts (not stored in the Sheet). Anyone on
 // this list gets admin access with the shared passcode below.
@@ -34,23 +38,58 @@ const ADMIN_PASSCODE = "tamreviewpanel_cc";
 // the nav send visitors there instead of duplicating its content here.
 const eventSiteUrl =
   import.meta.env.VITE_EVENT_SITE_URL ||
-  (import.meta.env.DEV ? "http://localhost:3000" : "https://codecortex.tamvit.in");
+  (import.meta.env.DEV ? "http://localhost:3001" : "https://codecortex.tamvit.in");
 
 export default function App() {
   // =====================================================
   // APPLICATION STATE
   // =====================================================
 
-  const [role, setRole] = useState<string | null>(null);
+  const [role, setRole] = useState<string>(() => {
+    try {
+      if (localStorage.getItem(STORAGE_KEY_ADMIN) === "true") return "admin";
+    } catch {
+      // ignore
+    }
+    return "participant";
+  });
   const [activePage, setActivePage] = useState("team-portal");
 
   const [showModal, setShowModal] = useState(false);
 
-  const [loggedInUser, setLoggedInUser] =
-    useState<User | null>(null);
+  const [loggedInUser, setLoggedInUser] = useState<User | null>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY_USER);
+      return saved ? (JSON.parse(saved) as User) : null;
+    } catch {
+      return null;
+    }
+  });
 
   const [googleAuthLoading, setGoogleAuthLoading] = useState(false);
   const [googleAuthError, setGoogleAuthError] = useState<string | null>(null);
+
+  // Helper to synchronize user session with localStorage
+  const updateLoggedInUser = (user: User | null) => {
+    setLoggedInUser(user);
+    try {
+      if (user) {
+        localStorage.setItem(STORAGE_KEY_USER, JSON.stringify(user));
+        if (user.Team_ID) {
+          setTeamIdInput(user.Team_ID);
+          setTeamLoggedIn(true);
+        }
+      } else {
+        localStorage.removeItem(STORAGE_KEY_USER);
+        setTeamLoggedIn(false);
+        setTeamIdInput("");
+        setTeamMembers([]);
+        setTeamDetails(null);
+      }
+    } catch (e) {
+      console.error("Failed to sync user session to localStorage:", e);
+    }
+  };
 
   // =====================================================
   // REGISTRATION
@@ -59,15 +98,17 @@ export default function App() {
   const [regTeamName, setRegTeamName] = useState("");
   const [regTrack, setRegTrack] = useState("");
   const [regLeaderName, setRegLeaderName] = useState("");
+  const [regLeaderRegNo, setRegLeaderRegNo] = useState("");
   const [regMembers, setRegMembers] = useState("");
   const [regPassword, setRegPassword] = useState("");
   const [teamMembersList, setTeamMembersList] = useState<{name: string, regNo: string, email: string}[]>([]);
 
-  useEffect(() => {
-    const count = Number(regMembers);
+  const handleRegMembersChange = (value: string) => {
+    setRegMembers(value);
+    const count = Number(value);
     if (Number.isInteger(count) && count >= 2 && count <= 4) {
+      const requiredMembers = count - 1;
       setTeamMembersList(prev => {
-        const requiredMembers = count - 1;
         if (prev.length === requiredMembers) return prev;
         const newList = [...prev];
         while (newList.length < requiredMembers) {
@@ -78,7 +119,7 @@ export default function App() {
     } else {
       setTeamMembersList([]);
     }
-  }, [regMembers]);
+  };
 
   const handleMemberChange = (index: number, field: keyof typeof teamMembersList[0], value: string) => {
     setTeamMembersList(prev => {
@@ -94,6 +135,19 @@ export default function App() {
   const [newTeamId, setNewTeamId] = useState("");
   const [isSubmittingTeam, setIsSubmittingTeam] = useState(false);
 
+  const [showRegPassword, setShowRegPassword] = useState(false);
+  const [showJoinPassword, setShowJoinPassword] = useState(false);
+  const [showAdminPassword, setShowAdminPassword] = useState(false);
+
+  const [toastMessage, setToastMessage] = useState<{ text: string; type: "success" | "danger" | "info" } | null>(null);
+
+  const showToast = (text: string, type: "success" | "danger" | "info" = "danger") => {
+    setToastMessage({ text, type });
+    setTimeout(() => {
+      setToastMessage((prev) => (prev?.text === text ? null : prev));
+    }, 4500);
+  };
+
   // =====================================================
   // JOIN TEAM
   // =====================================================
@@ -101,10 +155,12 @@ export default function App() {
   const [joinTeamId, setJoinTeamId] = useState("");
   const [joinPassword, setJoinPassword] = useState("");
 
+
   // =====================================================
   // SUBMISSION
   // =====================================================
 
+  const [subReviewRound, setSubReviewRound] = useState("Review 1");
   const [subGithub, setSubGithub] = useState("");
   const [subFigma, setSubFigma] = useState("");
   const [subDesc, setSubDesc] = useState("");
@@ -116,23 +172,35 @@ export default function App() {
   // ADMIN
   // =====================================================
 
-  const [adminLoggedIn, setAdminLoggedIn] =
-    useState(false);
+  const [adminLoggedIn, setAdminLoggedIn] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem(STORAGE_KEY_ADMIN) === "true";
+    } catch {
+      return false;
+    }
+  });
 
-  const [adminUsername, setAdminUsername] = useState("");
+  const [adminUsername, setAdminUsername] = useState<string>(() => {
+    try {
+      return localStorage.getItem(STORAGE_KEY_ADMIN_NAME) || "";
+    } catch {
+      return "";
+    }
+  });
   const [adminPassword, setAdminPassword] = useState("");
 
   const [adminError, setAdminError] = useState<string | null>(null);
   const adminPasswordRef = useRef<HTMLInputElement | null>(null);
 
-  const [showAdminLogin, setShowAdminLogin] =
-    useState(false);
+  const [showAdminLogin, setShowAdminLogin] = useState<boolean>(() => {
+    return typeof window !== "undefined" && window.location.pathname === "/admin";
+  });
 
   const [adminTeamId, setAdminTeamId] = useState("");
   const [adminTeamFilter, setAdminTeamFilter] = useState("");
 
   // Admin data
-  const [submissions, setSubmissions] = useState<any[]>([]);
+  const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [selectedSubmissionIndex, setSelectedSubmissionIndex] = useState<number | null>(null);
 
   const [scoreApproach, setScoreApproach] = useState("");
@@ -146,50 +214,69 @@ export default function App() {
   // TEAM LOGIN
   // =====================================================
 
-  const [teamLoggedIn, setTeamLoggedIn] = useState(false);
-const [teamIdInput, setTeamIdInput] = useState("");
+  const [teamLoggedIn, setTeamLoggedIn] = useState<boolean>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY_USER);
+      if (saved) {
+        const u = JSON.parse(saved) as User;
+        return Boolean(u?.Team_ID);
+      }
+    } catch {
+      // ignore
+    }
+    return false;
+  });
 
+  const [teamIdInput, setTeamIdInput] = useState<string>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY_USER);
+      if (saved) {
+        const u = JSON.parse(saved) as User;
+        return u?.Team_ID || "";
+      }
+    } catch {
+      // ignore
+    }
+    return "";
+  });
 
+  const [joinTeamError, setJoinTeamError] =
+    useState<string | null>(null);
 
-const [joinTeamError, setJoinTeamError] =
-  useState<string | null>(null);
+  const joinPasswordRef =
+    useRef<HTMLInputElement | null>(null);
 
-const joinPasswordRef =
-  useRef<HTMLInputElement | null>(null);
+  const [teamMembers, setTeamMembers] = useState<User[]>([]);
+  const [teamDetails, setTeamDetails] = useState<Team | null>(null);
 
-const [teamMembers, setTeamMembers] = useState<any[]>([]);
-const [teamDetails, setTeamDetails] = useState<any | null>(null);
+  const [showAddMemberForm, setShowAddMemberForm] = useState(false);
+  const [newMemberName, setNewMemberName] = useState("");
+  const [newMemberRegNo, setNewMemberRegNo] = useState("");
+  const [newMemberEmail, setNewMemberEmail] = useState("");
+  const [isAddingMember, setIsAddingMember] = useState(false);
 
-const [showAddMemberForm, setShowAddMemberForm] = useState(false);
-const [newMemberName, setNewMemberName] = useState("");
-const [newMemberRegNo, setNewMemberRegNo] = useState("");
-const [newMemberEmail, setNewMemberEmail] = useState("");
-const [isAddingMember, setIsAddingMember] = useState(false);
+  useEffect(() => {
+    if (!teamLoggedIn || !teamIdInput.trim()) return;
 
-useEffect(() => {
-  if (loggedInUser?.Team_ID) {
-    setTeamIdInput(loggedInUser.Team_ID);
-    setTeamLoggedIn(true);
-  }
-}, [loggedInUser]);
-
-useEffect(() => {
-  if (teamLoggedIn && teamIdInput) {
-    getTeamMembers(teamIdInput)
-      .then(setTeamMembers)
+    let active = true;
+    getTeamMembers(teamIdInput.trim())
+      .then((members) => {
+        if (active) setTeamMembers(members);
+      })
       .catch((e) => console.error("Failed to load team members:", e));
 
     getTeams()
-      .then(teams => {
-        const current = teams.find(t => String(t.Team_ID).trim() === String(teamIdInput).trim());
+      .then((teams) => {
+        if (!active) return;
+        const current = teams.find((t) => String(t.Team_ID).trim() === String(teamIdInput).trim());
         if (current) setTeamDetails(current);
       })
       .catch((e) => console.error("Failed to load team details:", e));
-  } else {
-    setTeamMembers([]);
-    setTeamDetails(null);
-  }
-}, [teamLoggedIn, teamIdInput]);
+
+    return () => {
+      active = false;
+    };
+  }, [teamLoggedIn, teamIdInput]);
 
   const filteredSubmissions = submissions.filter((submission) => {
   const teamId = String(submission?.Team_ID || '').trim().toLowerCase();
@@ -249,10 +336,26 @@ const selectedReviewSubmission =
   };
 
   useEffect(() => {
-    if (adminLoggedIn) {
-      fetchSubmissions();
-    }
-  }, [adminLoggedIn]);
+    if (!adminLoggedIn) return;
+    let active = true;
+
+    getSubmissions()
+      .then((data) => {
+        if (!active) return;
+        setSubmissions(data);
+        if (selectedSubmissionIndex !== null && data[selectedSubmissionIndex]) {
+          setAdminTeamId(data[selectedSubmissionIndex].Team_ID || '');
+        }
+      })
+      .catch((e) => {
+        console.error('Failed to fetch submissions:', e);
+        if (active) setSubmissions([]);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [adminLoggedIn, selectedSubmissionIndex]);
 
   // Load any existing score for the selected team + review round, so the
   // board can see/edit a prior review instead of always starting blank.
@@ -287,12 +390,6 @@ const selectedReviewSubmission =
       cancelled = true;
     };
   }, [adminTeamId, scoreReviewRound]);
-
-  useEffect(() => {
-    if (window.location.pathname === '/admin') {
-      setShowAdminLogin(true);
-    }
-  }, []);
 
 
   const handleAdminScoreSubmit = async () => {
@@ -373,19 +470,6 @@ const selectedReviewSubmission =
   const [contactSubmitted, setContactSubmitted] =
     useState(false);
 
-  // =====================================================
-  // INITIAL ROLE
-  // =====================================================
-
-  useEffect(() => {
-    setRole("participant");
-  }, []);
-
-  useEffect(() => {
-    if (loggedInUser?.Name) {
-      setRegLeaderName(loggedInUser.Name);
-    }
-  }, [loggedInUser]);
 
   // =====================================================
   // STYLES
@@ -466,7 +550,8 @@ const googleSignup = useGoogleLogin({
         await addUser(user, "");
       }
 
-      setLoggedInUser(user);
+      updateLoggedInUser(user);
+      if (user.Name) setRegLeaderName(user.Name);
       setActivePage("team-portal");
 
     } catch (error) {
@@ -486,17 +571,26 @@ const googleSignup = useGoogleLogin({
     if (isSubmittingTeam) return;
 
     if (!regTeamName.trim()) {
-      alert("Please enter a team name.");
+      showToast("Please enter a team name.", "danger");
       return;
     }
 
     if (!regTrack) {
-      alert("Please select a track.");
+      showToast("Please select a track.", "danger");
       return;
     }
 
     if (!regLeaderName.trim()) {
-      alert("Please enter the Team Leader name.");
+      showToast("Please enter the Team Leader name.", "danger");
+      return;
+    }
+
+    const regNoRegex = /^\d{2}[a-zA-Z]{3}\d{4,5}$/;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const leaderReg = regLeaderRegNo.trim().toUpperCase();
+
+    if (!leaderReg || !regNoRegex.test(leaderReg)) {
+      showToast("Please enter a valid Team Leader Registration Number (e.g. 21BCE1234).", "danger");
       return;
     }
 
@@ -507,7 +601,7 @@ const googleSignup = useGoogleLogin({
       memberCount < 2 ||
       memberCount > 4
     ) {
-      alert("Team size must be between 2 and 4 members.");
+      showToast("Team size must be between 2 and 4 members.", "danger");
       return;
     }
 
@@ -515,53 +609,45 @@ const googleSignup = useGoogleLogin({
       !regPassword ||
       regPassword.length < 4
     ) {
-      alert(
-        "Please enter a team password of at least 4 characters."
-      );
+      showToast("Please enter a team password of at least 4 characters.", "danger");
       return;
     }
 
     if (!loggedInUser) {
-      alert("Please log in first.");
+      showToast("Please log in first.", "danger");
       return;
     }
 
     if (loggedInUser?.Team_ID) {
-      alert("You are already a member of a team and cannot create or join another team.");
+      showToast("You are already a member of a team and cannot create or join another team.", "danger");
       setActivePage("team-portal");
       return;
     }
 
-    // Validation for Team Members Details
-    const regNoRegex = /^\d{2}[a-zA-Z]{3}\d{4,5}$/;
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    
-    const leaderMatch = regLeaderName.match(/\b(\d{2}[a-zA-Z]{3}\d{4,5})\b/) || loggedInUser.Name.match(/\b(\d{2}[a-zA-Z]{3}\d{4,5})\b/);
-    const leaderRegNo = leaderMatch ? leaderMatch[1].toUpperCase() : null;
-
     const seenRegNos = new Set<string>();
+    seenRegNos.add(leaderReg);
     
     for (let i = 0; i < teamMembersList.length; i++) {
       const m = teamMembersList[i];
       if (!m.name.trim() || !m.regNo.trim() || !m.email.trim()) {
-        alert(`Please fill all details for Member ${i + 2}.`);
+        showToast(`Please fill all details for Member ${i + 2}.`, "danger");
         return;
       }
       const memberReg = m.regNo.trim().toUpperCase();
       if (!regNoRegex.test(memberReg)) {
-        alert(`Invalid Registration Number for Member ${i + 2}. Expected format eg: 20ABC1234`);
+        showToast(`Invalid Registration Number for Member ${i + 2}. Expected format eg: 20ABC1234`, "danger");
         return;
       }
       if (!emailRegex.test(m.email.trim())) {
-        alert(`Invalid Email Address for Member ${i + 2}.`);
+        showToast(`Invalid Email Address for Member ${i + 2}.`, "danger");
         return;
       }
-      if (leaderRegNo && memberReg === leaderRegNo) {
-        alert(`Registration Number for Member ${i + 2} cannot be the same as the Team Leader's.`);
+      if (memberReg === leaderReg) {
+        showToast(`Registration Number for Member ${i + 2} cannot be the same as the Team Leader's.`, "danger");
         return;
       }
       if (seenRegNos.has(memberReg)) {
-        alert(`Duplicate Registration Number found: ${memberReg}.`);
+        showToast(`Duplicate Registration Number found: ${memberReg}.`, "danger");
         return;
       }
       seenRegNos.add(memberReg);
@@ -573,34 +659,40 @@ const googleSignup = useGoogleLogin({
         "CC-" +
         Math.floor(1000 + Math.random() * 9000);
 
-      await addTeam(
-  {
-    Team_ID: teamId,
-    "Team_ Name": regTeamName.trim(),
-    Track: regTrack,
-    Team_Leader: regLeaderName.trim(),
-    "No. of Members": String(memberCount)
-  },
-  regPassword,
-  loggedInUser.User_ID,
-  teamMembersList
-);
+      const effectiveUserId = (loggedInUser.User_ID && !loggedInUser.User_ID.startsWith("U-"))
+        ? loggedInUser.User_ID
+        : leaderReg;
 
-      setLoggedInUser({
+      await addTeam(
+        {
+          Team_ID: teamId,
+          "Team_ Name": regTeamName.trim(),
+          Track: regTrack,
+          Team_Leader: `${regLeaderName.trim()} (${leaderReg})`,
+          "No. of Members": String(memberCount)
+        },
+        regPassword,
+        effectiveUserId,
+        teamMembersList
+      );
+
+      updateLoggedInUser({
         ...loggedInUser,
+        User_ID: effectiveUserId,
         Team_ID: teamId
       });
 
       setNewTeamId(teamId);
       setRegistrationSubmitted(true);
+      showToast("Team registered successfully!", "success");
 
     } catch (error) {
       console.error(error);
-
-      alert(
+      showToast(
         error instanceof Error
           ? error.message
-          : "Failed to submit registration."
+          : "Failed to submit registration.",
+        "danger"
       );
     } finally {
       setIsSubmittingTeam(false);
@@ -612,94 +704,93 @@ const googleSignup = useGoogleLogin({
   // =====================================================
 
   const handleJoinTeam = async () => {
-  setJoinTeamError(null);
+    setJoinTeamError(null);
 
-  if (!joinTeamId.trim() || !joinPassword) {
-    setJoinTeamError("Please enter Team ID and Password.");
+    if (!joinTeamId.trim() || !joinPassword) {
+      setJoinTeamError("Please enter Team ID and Password.");
 
-    setTimeout(() => {
-      if (!joinTeamId.trim()) {
-        document.getElementById("join-team-id-input")?.focus();
-      } else {
-        joinPasswordRef.current?.focus();
-      }
-    }, 50);
+      setTimeout(() => {
+        if (!joinTeamId.trim()) {
+          document.getElementById("join-team-id-input")?.focus();
+        } else {
+          joinPasswordRef.current?.focus();
+        }
+      }, 50);
 
-    return;
-  }
-
-  if (!loggedInUser) {
-    setJoinTeamError("Please log in first.");
-    return;
-  }
-
-  if (loggedInUser?.Team_ID) {
-    setJoinTeamError("You are already a member of a team and cannot create or join another team.");
-    return;
-  }
-
-  try {
-    const success = await joinTeam(
-      joinTeamId.trim(),
-      joinPassword,
-      loggedInUser.User_ID
-    );
-
-    if (!success) {
-      throw new Error("Failed to join team. Please check the Team ID and Password.");
+      return;
     }
 
-    setLoggedInUser({
-      ...loggedInUser,
-      Team_ID: joinTeamId.trim()
-    });
+    if (!loggedInUser) {
+      setJoinTeamError("Please log in first.");
+      return;
+    }
 
-    setTeamIdInput(joinTeamId.trim());
-    setTeamLoggedIn(true);
+    if (loggedInUser?.Team_ID) {
+      setJoinTeamError("You are already a member of a team and cannot create or join another team.");
+      return;
+    }
 
-    setJoinTeamError(null);
-    setJoinPassword("");
+    try {
+      const success = await joinTeam(
+        joinTeamId.trim(),
+        joinPassword,
+        loggedInUser.User_ID
+      );
 
-    setActivePage("team-portal");
+      if (!success) {
+        throw new Error("Failed to join team. Please check the Team ID and Password.");
+      }
 
-  } catch (error) {
-    console.error("Join team error:", error);
+      updateLoggedInUser({
+        ...loggedInUser,
+        Team_ID: joinTeamId.trim()
+      });
 
-    setJoinTeamError(
-      error instanceof Error
-        ? error.message
-        : "Invalid Team ID or Password."
-    );
+      setTeamIdInput(joinTeamId.trim());
+      setTeamLoggedIn(true);
 
-    // Clear incorrect password
-    setJoinPassword("");
+      setJoinTeamError(null);
+      setJoinPassword("");
 
-    // Return cursor to password box
-    setTimeout(() => {
-      joinPasswordRef.current?.focus();
-    }, 50);
-  }
-};
+      setActivePage("team-portal");
+      showToast("Joined team successfully!", "success");
+
+    } catch (error) {
+      console.error("Join team error:", error);
+
+      setJoinTeamError(
+        error instanceof Error
+          ? error.message
+          : "Invalid Team ID or Password."
+      );
+
+      // Clear incorrect password
+      setJoinPassword("");
+
+      // Return cursor to password box
+      setTimeout(() => {
+        joinPasswordRef.current?.focus();
+      }, 50);
+    }
+  };
 
   // =====================================================
   // TEAM LOGIN
   // =====================================================
 
-  
-
   const handleAddMemberSubmit = async () => {
     if (!newMemberName.trim() || !newMemberRegNo.trim() || !newMemberEmail.trim()) {
-      alert("Please fill in all member details.");
+      showToast("Please fill in all member details.", "danger");
       return;
     }
     const regNoRegex = /^\d{2}[a-zA-Z]{3}\d{4,5}$/;
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!regNoRegex.test(newMemberRegNo.trim().toUpperCase())) {
-      alert("Invalid Registration Number format. Expected e.g. 20ABC1234");
+      showToast("Invalid Registration Number format. Expected e.g. 20ABC1234", "danger");
       return;
     }
     if (!emailRegex.test(newMemberEmail.trim())) {
-      alert("Invalid Email Address.");
+      showToast("Invalid Email Address.", "danger");
       return;
     }
 
@@ -718,10 +809,10 @@ const googleSignup = useGoogleLogin({
       setNewMemberRegNo("");
       setNewMemberEmail("");
       setShowAddMemberForm(false);
-      alert("Member added successfully!");
+      showToast("Member added successfully!", "success");
     } catch (error) {
       console.error(error);
-      alert(error instanceof Error ? error.message : "Failed to add member.");
+      showToast(error instanceof Error ? error.message : "Failed to add member.", "danger");
     } finally {
       setIsAddingMember(false);
     }
@@ -733,40 +824,41 @@ const googleSignup = useGoogleLogin({
 
   const handleProjectSubmit = async () => {
     if (!teamIdInput.trim()) {
-      alert("Team ID is missing.");
+      showToast("Team ID is missing.", "danger");
       return;
     }
 
     if (!subGithub.trim()) {
-      alert("Please enter your GitHub repository link.");
+      showToast("Please enter your GitHub repository link.", "danger");
       return;
     }
 
     if (!subDesc.trim()) {
-      alert("Please enter a project description.");
+      showToast("Please enter a project description.", "danger");
       return;
     }
 
     try {
+      const actualTeamName = teamDetails?.['Team_ Name'] || loggedInUser?.Name || teamIdInput;
       await addSubmission({
         Team_ID: teamIdInput.trim(),
-        "Team_Name ": loggedInUser?.Name || teamIdInput,
-        Project_Description: subDesc.trim(),
+        "Team_Name ": actualTeamName,
+        Project_Description: `[${subReviewRound}] ${subDesc.trim()}`,
         "GitHub Link": subGithub.trim(),
         "Figma Link": subFigma.trim(),
-        "Submission Time":
-          new Date().toLocaleString()
+        "Submission Time": new Date().toLocaleString()
       });
 
       setProjectSubmitted(true);
+      showToast("Project details submitted successfully!", "success");
 
     } catch (error) {
       console.error(error);
-
-      alert(
+      showToast(
         error instanceof Error
           ? error.message
-          : "Failed to submit project."
+          : "Failed to submit project.",
+        "danger"
       );
     }
   };
@@ -788,25 +880,24 @@ const googleSignup = useGoogleLogin({
       setAdminLoggedIn(true);
       setShowAdminLogin(false);
       setRole('admin');
-      setLoggedInUser(null);
+      updateLoggedInUser(null);
       setActivePage('team-portal');
       setAdminError(null);
       setAdminUsername('');
       setAdminPassword('');
+      try {
+        localStorage.setItem(STORAGE_KEY_ADMIN, "true");
+        localStorage.setItem(STORAGE_KEY_ADMIN_NAME, email);
+      } catch {
+        // ignore
+      }
+      showToast("Authenticated as admin.", "success");
     } else {
       setAdminError('Invalid Admin Email or Passcode!');
       setAdminPassword('');
       setTimeout(() => adminPasswordRef.current?.focus(), 0);
     }
   };
-
-  // =====================================================
-  // LOADING
-  // =====================================================
-
-  if (!role) {
-    return null;
-  }
 
   // =====================================================
   // RENDER
@@ -826,7 +917,39 @@ const googleSignup = useGoogleLogin({
 
       <div className="main-content position-relative z-3 min-vh-100 d-flex flex-column">
 
-        {/* Admin Login button removed */}
+        {/* Floating Toast Notification */}
+        {toastMessage && (
+          <div
+            className="position-fixed top-0 start-50 translate-middle-x mt-4 px-4 py-2 rounded-pill shadow-lg border d-flex align-items-center gap-2 fade-in"
+            style={{
+              backgroundColor:
+                toastMessage.type === "success"
+                  ? "rgba(10, 50, 30, 0.95)"
+                  : toastMessage.type === "danger"
+                  ? "rgba(60, 15, 20, 0.95)"
+                  : "rgba(10, 30, 60, 0.95)",
+              borderColor:
+                toastMessage.type === "success"
+                  ? "var(--lime)"
+                  : toastMessage.type === "danger"
+                  ? "var(--coral)"
+                  : "var(--cyan)",
+              color: "#fff",
+              zIndex: 9999,
+              backdropFilter: "blur(8px)"
+            }}
+          >
+            <span>{toastMessage.type === "success" ? "✓" : toastMessage.type === "danger" ? "⚠" : "ℹ"}</span>
+            <span className="fw-semibold small">{toastMessage.text}</span>
+            <button
+              type="button"
+              className="btn btn-sm btn-link text-white p-0 ms-2 text-decoration-none"
+              onClick={() => setToastMessage(null)}
+            >
+              ×
+            </button>
+          </div>
+        )}
 
         {/* =================================================
             PARTICIPANT
@@ -876,11 +999,11 @@ const googleSignup = useGoogleLogin({
                     NAVBAR
                 ================================================= */}
 
-                <div className="d-flex justify-content-center align-items-center pt-4 w-100 position-relative">
+                <div className="navbar-container d-flex justify-content-center align-items-center pt-4 w-100 position-relative px-3 px-md-5">
 
-                  <div className="position-absolute start-0 ms-4 ms-md-5">
+                  <div className="navbar-logo-left position-absolute start-0 ms-4 ms-md-5 d-none d-md-block">
                     <img
-                      src="/TAM_WhiteLogo 1.png"
+                      src="/tam-white-logo.png"
                       alt="TAM Logo"
                       style={{
                         height: "40px",
@@ -894,33 +1017,48 @@ const googleSignup = useGoogleLogin({
 
                   <div className="floating-nav flex-wrap justify-content-center px-3 px-md-5 py-2 position-relative z-3">
 
-                    <a href={eventSiteUrl}>
-                      Home
+                    <a href={eventSiteUrl} target="_blank" rel="noreferrer">
+                      Home ↗
                     </a>
 
-                    <a href={`${eventSiteUrl}/#tracks`}>
-                      Tracks
+                    <a href={`${eventSiteUrl}/#tracks`} target="_blank" rel="noreferrer">
+                      Tracks ↗
                     </a>
-
-                  
 
                     <a
-  onClick={() => setActivePage("team-portal")}
-  className={
-    activePage === "team-portal"
-      ? "active"
-      : ""
-  }
->
-  Team Portal
-</a>
+                      onClick={() => setActivePage("team-portal")}
+                      className={
+                        activePage === "team-portal"
+                          ? "active"
+                          : ""
+                      }
+                    >
+                      Team Portal
+                    </a>
+
+                    {loggedInUser && (
+                      <a
+                        role="button"
+                        onClick={() => {
+                          updateLoggedInUser(null);
+                          setTeamLoggedIn(false);
+                          setTeamIdInput("");
+                          setActivePage("team-portal");
+                          showToast("Signed out successfully", "info");
+                        }}
+                        className="text-danger"
+                        style={{ cursor: "pointer" }}
+                      >
+                        Sign Out
+                      </a>
+                    )}
 
                   </div>
 
-                  <div className="position-absolute end-0 me-4 me-md-5">
+                  <div className="navbar-logo-right position-absolute end-0 me-4 me-md-5 d-none d-md-block">
                     <img
-                      src="/vit_light 1.png"
-                      alt="VIT Logo"
+                      src="/code-cortex-logo.png"
+                      alt="Code Cortex Logo"
                       style={{
                         height: "45px",
                         objectFit: "contain"
@@ -1181,11 +1319,15 @@ const googleSignup = useGoogleLogin({
                                     Submit Project Details
                                   </h5>
 
-                                  <select className="form-select bg-dark text-white border-secondary mb-4">
-                                    <option>
+                                  <select
+                                    className="form-select bg-dark text-white border-secondary mb-4"
+                                    value={subReviewRound}
+                                    onChange={(e) => setSubReviewRound(e.target.value)}
+                                  >
+                                    <option value="Review 1">
                                       Review 1
                                     </option>
-                                    <option>
+                                    <option value="Review 2">
                                       Review 2
                                     </option>
                                   </select>
@@ -1282,23 +1424,32 @@ const googleSignup = useGoogleLogin({
   }}
 />
 
-                        <input
-  type="password"
-  className="form-control mb-4 py-2"
-  style={inputStyle}
-  placeholder="Team Password"
-  value={joinPassword}
-  ref={joinPasswordRef}
-  onChange={(e) => {
-    setJoinPassword(e.target.value);
-    setJoinTeamError(null);
-  }}
-  onKeyDown={(e) => {
-    if (e.key === "Enter") {
-      handleJoinTeam();
-    }
-  }}
-/>
+                        <div className="position-relative mb-4">
+                          <input
+                            type={showJoinPassword ? "text" : "password"}
+                            className="form-control py-2 pe-5"
+                            style={inputStyle}
+                            placeholder="Team Password"
+                            value={joinPassword}
+                            ref={joinPasswordRef}
+                            onChange={(e) => {
+                              setJoinPassword(e.target.value);
+                              setJoinTeamError(null);
+                            }}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") {
+                                handleJoinTeam();
+                              }
+                            }}
+                          />
+                          <button
+                            type="button"
+                            className="btn btn-sm text-secondary position-absolute end-0 top-50 translate-middle-y me-2 border-0 bg-transparent"
+                            onClick={() => setShowJoinPassword(!showJoinPassword)}
+                          >
+                            {showJoinPassword ? "Hide" : "Show"}
+                          </button>
+                        </div>
 
 {joinTeamError && (
   <div className="text-danger mb-3">
@@ -1471,6 +1622,23 @@ const googleSignup = useGoogleLogin({
                               <div className="col-md-6">
 
                                 <input
+                                  type="text"
+                                  className="form-control"
+                                  style={inputStyle}
+                                  placeholder="Leader Reg No (e.g. 21BCE1234)"
+                                  value={regLeaderRegNo}
+                                  onChange={(e) =>
+                                    setRegLeaderRegNo(
+                                      e.target.value.toUpperCase()
+                                    )
+                                  }
+                                />
+
+                              </div>
+
+                              <div className="col-md-6">
+
+                                <input
                                   type="email"
                                   className="form-control"
                                   style={{
@@ -1496,7 +1664,7 @@ const googleSignup = useGoogleLogin({
                                   placeholder="No. of Members (2-4)"
                                   value={regMembers}
                                   onChange={(e) =>
-                                    setRegMembers(
+                                    handleRegMembersChange(
                                       e.target.value
                                     )
                                   }
@@ -1506,18 +1674,27 @@ const googleSignup = useGoogleLogin({
 
                               <div className="col-md-6">
 
-                                <input
-                                  type="password"
-                                  className="form-control"
-                                  style={inputStyle}
-                                  placeholder="Set Team Password"
-                                  value={regPassword}
-                                  onChange={(e) =>
-                                    setRegPassword(
-                                      e.target.value
-                                    )
-                                  }
-                                />
+                                <div className="position-relative">
+                                  <input
+                                    type={showRegPassword ? "text" : "password"}
+                                    className="form-control pe-5"
+                                    style={inputStyle}
+                                    placeholder="Set Team Password (min 4 chars)"
+                                    value={regPassword}
+                                    onChange={(e) =>
+                                      setRegPassword(
+                                        e.target.value
+                                      )
+                                    }
+                                  />
+                                  <button
+                                    type="button"
+                                    className="btn btn-sm text-secondary position-absolute end-0 top-50 translate-middle-y me-2 border-0 bg-transparent"
+                                    onClick={() => setShowRegPassword(!showRegPassword)}
+                                  >
+                                    {showRegPassword ? "Hide" : "Show"}
+                                  </button>
+                                </div>
 
                               </div>
 
@@ -1831,6 +2008,13 @@ const googleSignup = useGoogleLogin({
                   setAdminError(null);
                   setShowAdminLogin(false);
                   setActivePage('team-portal');
+                  try {
+                    localStorage.removeItem(STORAGE_KEY_ADMIN);
+                    localStorage.removeItem(STORAGE_KEY_ADMIN_NAME);
+                  } catch {
+                    // ignore
+                  }
+                  showToast("Admin signed out", "info");
                 }}
               >
                 Logout
@@ -1967,23 +2151,32 @@ const googleSignup = useGoogleLogin({
               }
             />
 
-            <input
-  type="password"
-  className="form-control mb-4 py-2"
-  style={inputStyle}
-  placeholder="Admin Passcode"
-  value={adminPassword}
-  onChange={(e) => {
-    setAdminPassword(e.target.value);
-    setAdminError(null);
-  }}
-  ref={adminPasswordRef}
-  onKeyDown={(e) => {
-    if (e.key === "Enter") {
-      handleAdminLogin();
-    }
-  }}
-/>
+            <div className="position-relative mb-4">
+              <input
+                type={showAdminPassword ? "text" : "password"}
+                className="form-control py-2 pe-5"
+                style={inputStyle}
+                placeholder="Admin Passcode"
+                value={adminPassword}
+                onChange={(e) => {
+                  setAdminPassword(e.target.value);
+                  setAdminError(null);
+                }}
+                ref={adminPasswordRef}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    handleAdminLogin();
+                  }
+                }}
+              />
+              <button
+                type="button"
+                className="btn btn-sm text-secondary position-absolute end-0 top-50 translate-middle-y me-2 border-0 bg-transparent"
+                onClick={() => setShowAdminPassword(!showAdminPassword)}
+              >
+                {showAdminPassword ? "Hide" : "Show"}
+              </button>
+            </div>
 
             {adminError && (
               <div className="text-danger mb-3">{adminError}</div>

@@ -42,11 +42,25 @@ export const AdminDashboard = ({
   onSubmit
   
 }: Props) => {
+  const totalScore =
+    (Number(approach) || 0) +
+    (Number(scalability) || 0) +
+    (Number(design) || 0) +
+    (Number(tech) || 0) +
+    (Number(usp) || 0);
+
   return (
     <div className="container py-2 text-white fade-in">
-      <h4 className="mb-3 text-info">
-  BOARD JUDGING PORTAL
-</h4>
+      <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+        <h4 className="mb-0 text-info">
+          BOARD JUDGING PORTAL
+        </h4>
+        <div className="px-3 py-1 rounded border border-info" style={{ backgroundColor: "rgba(0, 150, 255, 0.15)" }}>
+          <span className="text-secondary small me-2">TOTAL SCORE:</span>
+          <span className="fs-5 fw-bold text-info">{totalScore}</span>
+          <span className="text-secondary small"> / 100</span>
+        </div>
+      </div>
 
       <div className="mb-3">
         <div className="small text-secondary">Evaluating Team:</div>
@@ -100,7 +114,12 @@ export const AdminDashboard = ({
             
           </div>
 
-          <div className="col-md-6"></div>
+          <div className="col-md-6 d-flex flex-column justify-content-center align-items-md-end">
+            <div className="p-3 rounded border border-info text-center w-100" style={{ backgroundColor: "rgba(0, 150, 255, 0.1)", maxWidth: "260px" }}>
+              <div className="text-secondary small text-uppercase fw-semibold">Live Score Total</div>
+              <div className="fs-3 fw-bold text-info">{totalScore} <span className="fs-6 text-secondary">/ 100</span></div>
+            </div>
+          </div>
 
           <div className="col-md-6">
             <label className="form-label glow-text">Approach, Idea & Planning (20 pts)</label>
@@ -128,7 +147,7 @@ export const AdminDashboard = ({
           </div>
 
           <div className="col-md-6 d-flex align-items-end">
-            <button type="button" onClick={onSubmit} className="btn btn-gradient w-100 py-2 fw-bold">APPEND SCORES TO DB</button>
+            <button type="button" onClick={onSubmit} className="btn btn-gradient w-100 py-2 fw-bold">Save Evaluation</button>
           </div>
         </div>
       </div>

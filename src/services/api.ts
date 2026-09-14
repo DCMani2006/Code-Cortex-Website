@@ -97,23 +97,24 @@ export const syncAuth = async (
 // TEAMS
 // =====================================================
 
-const mapTeam = (team: any): Team => ({
-  Team_ID: String(team?.teamId ?? ''),
-  'Team_ Name': String(team?.teamName ?? ''),
-  Track: String(team?.track ?? ''),
-  Team_Leader: String(team?.teamLeader ?? ''),
-  'No. of Members': String(team?.numberOfMembers ?? '')
+type RawTeam = Record<string, unknown>;
+
+const mapTeam = (team: RawTeam): Team => ({
+  Team_ID: String(team?.Team_ID ?? team?.teamId ?? ''),
+  'Team_ Name': String(team?.['Team_ Name'] ?? team?.teamName ?? ''),
+  Track: String(team?.Track ?? team?.track ?? ''),
+  Team_Leader: String(team?.Team_Leader ?? team?.teamLeader ?? ''),
+  'No. of Members': String(team?.['No. of Members'] ?? team?.numberOfMembers ?? '')
 });
 
-export const getTeamMembers = async (teamId: string): Promise<any[]> => {
+export const getTeamMembers = async (teamId: string): Promise<User[]> => {
   const response = await fetch(`${API_BASE}/teams/${teamId}/members`, { method: 'GET', cache: 'no-store' });
   if (!response.ok) {
     throw new Error('Failed to fetch team members');
   }
   const data = await response.json();
-  return data;
+  return Array.isArray(data) ? data : [];
 };
-
 
 export const getTeams = async (): Promise<Team[]> => {
   const response = await fetch(`${API_BASE}/teams`, { method: 'GET', cache: 'no-store' });
@@ -127,15 +128,7 @@ export const getTeams = async (): Promise<Team[]> => {
 
   if (!Array.isArray(teamsFromServer)) return [];
 
-  return teamsFromServer.map((t: any) =>
-    mapTeam({
-      teamId: t.Team_ID,
-      teamName: t['Team_ Name'],
-      track: t.Track,
-      teamLeader: t.Team_Leader,
-      numberOfMembers: t['No. of Members']
-    })
-  );
+  return (teamsFromServer as RawTeam[]).map(mapTeam);
 };
 
 export const addTeam = async (
@@ -249,7 +242,9 @@ export const joinTeam = async (
 // SUBMISSIONS
 // =====================================================
 
-const mapSubmission = (submission: any): Submission => ({
+type RawSubmission = Record<string, unknown>;
+
+const mapSubmission = (submission: RawSubmission): Submission => ({
   Team_ID: String(submission?.Team_ID ?? ''),
   'Team_Name ': String(submission?.['Team_Name '] ?? ''),
   Project_Description: String(
@@ -280,7 +275,7 @@ export const getSubmissions = async (
   }
 
   const submissions = await response.json().catch(() => []);
-  return Array.isArray(submissions) ? submissions.map(mapSubmission) : [];
+  return Array.isArray(submissions) ? (submissions as RawSubmission[]).map(mapSubmission) : [];
 };
 
 export const addSubmission = async (
@@ -309,7 +304,9 @@ export const addSubmission = async (
 // REVIEWS / SCORES
 // =====================================================
 
-const mapReview = (review: any): ReviewScore => ({
+type RawReview = Record<string, unknown>;
+
+const mapReview = (review: RawReview): ReviewScore => ({
   Team_ID: String(review?.Team_ID ?? ''),
   Team_Name: String(review?.Team_Name ?? ''),
   Admin_Name: String(review?.Admin_Name ?? ''),
