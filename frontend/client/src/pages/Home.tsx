@@ -53,7 +53,7 @@ import {
 } from "lucide-react";
 
 const sirenTrack = "/audio/siren-ambience.m4a";
-const codeCortexLogo = "/codecortex-3.0.svg";
+const codeCortexLogo = "/code-cortex-logo.png";
 // The registration/team/admin app — a separate app (src/App.tsx), not part of this site.
 const mainAppUrl = import.meta.env.VITE_MAIN_APP_URL || "http://localhost:5173";
 const polyfabLogo = "/polyfab-logo.png";
