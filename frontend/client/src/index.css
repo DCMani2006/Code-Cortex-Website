@@ -119,8 +119,8 @@ body {
   background-color: #faf6ee;
   color: #2d1f36;
   font-family: var(--body-pixel);
-  font-size: 16px;
-  line-height: 1.65;
+  font-size: 15.5px;
+  line-height: 1.75;
   letter-spacing: 0.02em;
   -webkit-font-smoothing: antialiased;
   background-image: 
@@ -1166,50 +1166,52 @@ h3 em {
 .sponsors h2,
 .faq h2,
 .footer h2 {
-  font-size: clamp(54px, 8vw, 110px);
-  font-weight: 500;
-  letter-spacing: -0.1em;
-  line-height: 0.83;
-  margin: clamp(48px, 7vw, 90px) 0 34px;
+  font-size: clamp(44px, 6.5vw, 84px);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+  margin: clamp(24px, 4vw, 48px) 0 28px;
 }
 .heading-with-icon {
   align-items: flex-start;
   display: flex;
-  gap: clamp(16px, 3vw, 42px);
+  gap: clamp(16px, 2.5vw, 32px);
   perspective: 900px;
   position: relative;
+  margin-bottom: 20px;
 }
 .heading-with-icon > h2 {
   flex: 1;
   min-width: 0;
+  margin: 0;
 }
 .heading-with-icon__icon {
   align-items: center;
   animation: headingIconFloat 4.6s ease-in-out infinite;
   background: var(--cream);
   border: 1px solid var(--navy);
-  border-radius: 18px 18px 18px 5px;
+  border-radius: 14px;
   box-shadow:
-    8px 10px 0 rgba(49, 88, 255, 0.34),
+    6px 8px 0 rgba(49, 88, 255, 0.34),
     inset -3px -3px 0 rgba(8, 21, 47, 0.1);
   color: var(--navy);
   display: inline-flex;
   flex: 0 0 auto;
-  height: clamp(48px, 5vw, 70px);
+  height: clamp(44px, 4.5vw, 58px);
   justify-content: center;
-  margin-top: clamp(18px, 3vw, 34px);
-  transform: rotate(-10deg) translateZ(0);
+  margin-top: 6px;
+  transform: rotate(-8deg) translateZ(0);
   transform-style: preserve-3d;
   transition:
     box-shadow 0.25s var(--ease-out),
     transform 0.25s var(--ease-out);
-  width: clamp(48px, 5vw, 70px);
+  width: clamp(44px, 4.5vw, 58px);
 }
 .heading-with-icon__icon:hover {
   box-shadow:
-    12px 14px 0 rgba(49, 88, 255, 0.44),
+    10px 12px 0 rgba(49, 88, 255, 0.44),
     inset -3px -3px 0 rgba(8, 21, 47, 0.12);
-  transform: rotate(-3deg) translateY(-6px) translateZ(16px);
+  transform: rotate(-3deg) translateY(-4px) translateZ(16px);
 }
 .heading-with-icon__icon svg {
   filter: drop-shadow(2px 3px 0 rgba(49, 88, 255, 0.22));
@@ -1228,9 +1230,9 @@ h3 em {
 .sponsors__title-row p,
 .faq__side p,
 .footer__contact a {
-  font-size: clamp(16px, 1.5vw, 20px);
-  letter-spacing: -0.025em;
-  line-height: 1.36;
+  font-size: clamp(15px, 1.4vw, 18px);
+  letter-spacing: 0.01em;
+  line-height: 1.75;
 }
 .lead-copy {
   max-width: 450px;
@@ -4308,8 +4310,8 @@ body, p, span, div, li, input, textarea, select {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding-top: 100px;
-  padding-bottom: 30px;
+  padding-top: clamp(120px, 14vh, 150px) !important;
+  padding-bottom: clamp(50px, 8vh, 80px) !important;
   position: relative;
   overflow: hidden;
 }
@@ -4317,7 +4319,7 @@ body, p, span, div, li, input, textarea, select {
   display: grid;
   grid-template-columns: 1.1fr 0.9fr;
   align-items: center;
-  gap: clamp(24px, 4vw, 56px);
+  gap: clamp(36px, 5vw, 68px) !important;
   position: relative;
   z-index: 10;
   width: 100%;
@@ -4328,7 +4330,7 @@ body, p, span, div, li, input, textarea, select {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 16px;
+  gap: 26px !important;
 }
 .hero-right-col {
   display: flex;
@@ -4343,12 +4345,13 @@ body, p, span, div, li, input, textarea, select {
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  padding: 7px 16px 7px 14px;
+  padding: 8px 18px 8px 14px;
   background: linear-gradient(135deg, #fde88a 0%, #fbc7a4 100%);
   border: 2px dashed #2d1f36;
   border-radius: 6px;
   box-shadow: 3px 3px 0px #2d1f36;
   position: relative;
+  margin-bottom: 6px;
 }
 .ticket-punch-hole {
   width: 10px;
@@ -4367,7 +4370,7 @@ body, p, span, div, li, input, textarea, select {
 
 /* Hero Logo & Headline */
 .hero-logo-wrapper {
-  margin: 2px 0 0 0;
+  margin: 10px 0 16px 0 !important;
 }
 .hero-logo-wrapper .hero__logo {
   max-width: min(480px, 85vw);
@@ -4377,15 +4380,18 @@ body, p, span, div, li, input, textarea, select {
   transform: rotate(-1.5deg);
   margin-top: 0;
 }
+.hero-headline-block {
+  margin-bottom: 6px;
+}
 .hero-headline-block h1 {
   font-family: var(--display) !important;
   font-size: clamp(32px, 4.8vw, 64px) !important;
   font-weight: 700 !important;
-  line-height: 1.05 !important;
+  line-height: 1.35 !important;
   color: #2d1f36 !important;
-  letter-spacing: -0.02em !important;
-  margin-top: 6px;
-  margin-bottom: 0;
+  letter-spacing: 0.01em !important;
+  margin-top: 8px !important;
+  margin-bottom: 12px !important;
 }
 .hero-headline-block h1 em {
   color: #7abcc4 !important;
@@ -4397,15 +4403,15 @@ body, p, span, div, li, input, textarea, select {
 .hero-actions-row {
   display: flex;
   align-items: center;
-  gap: 14px;
-  margin-top: 6px;
+  gap: 18px !important;
+  margin-top: 16px !important;
   flex-wrap: wrap;
 }
 .hero-pixel-btn {
   display: inline-flex;
   align-items: center;
-  gap: 9px;
-  padding: 12px 18px;
+  gap: 10px;
+  padding: 13px 20px !important;
   border: 2.5px solid #2d1f36;
   border-radius: 6px;
   box-shadow: 4px 4px 0px #2d1f36;
@@ -4450,7 +4456,7 @@ body, p, span, div, li, input, textarea, select {
   display: flex;
   flex-direction: column;
   position: relative;
-  margin-bottom: 18px;
+  margin-bottom: 24px !important;
 }
 .monitor-bezel-top {
   display: flex;
@@ -4570,7 +4576,7 @@ body, p, span, div, li, input, textarea, select {
   border: 2.5px solid #2d1f36;
   border-radius: 8px;
   box-shadow: 4px 4px 0px #2d1f36;
-  padding: 10px 14px;
+  padding: 14px 18px !important;
   position: relative;
 }
 .story-speaker {
@@ -4581,14 +4587,14 @@ body, p, span, div, li, input, textarea, select {
   background: #7abcc4;
   border: 1.5px solid #2d1f36;
   border-radius: 4px;
-  padding: 2px 7px;
-  margin-bottom: 5px;
+  padding: 3px 8px;
+  margin-bottom: 8px;
   letter-spacing: 0.05em;
 }
 .mascot-story-bubble p {
   font-family: var(--body-pixel);
-  font-size: 13px;
-  line-height: 1.4;
+  font-size: 13.5px;
+  line-height: 1.6 !important;
   color: #2d1f36;
   margin: 0;
   display: flex;
@@ -4674,13 +4680,27 @@ body, p, span, div, li, input, textarea, select {
   background: #fde88a;
   border: 2px solid #2d1f36;
   border-radius: 4px;
-  padding: 4px 10px;
+  padding: 5px 12px;
   box-shadow: 2.5px 2.5px 0px #2d1f36;
   font-family: var(--pixel);
   font-size: 8.5px;
   color: #2d1f36;
   letter-spacing: 0.08em;
-  margin-bottom: 12px;
+  margin-bottom: 20px !important;
+}
+
+/* Section Vertical Breathing Room */
+.about,
+.manifesto,
+.duo-story,
+.tracks,
+.nominate,
+.events,
+.sponsors,
+.faq,
+.footer {
+  padding-top: clamp(80px, 10vw, 130px) !important;
+  padding-bottom: clamp(80px, 10vw, 130px) !important;
 }
 
 /* CHAPTER 01: THE HACKER'S TAVERN */
@@ -4693,27 +4713,28 @@ body, p, span, div, li, input, textarea, select {
   border: 3px solid #2d1f36;
   border-radius: 10px;
   box-shadow: 5px 5px 0px #2d1f36;
-  padding: 16px 20px;
-  margin-top: 20px;
+  padding: 24px 28px !important;
+  margin-top: 28px !important;
   position: relative;
+  line-height: 1.75;
 }
 .tavern-mentor-header {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 10px;
+  gap: 12px;
+  margin-bottom: 14px;
 }
 .mentor-avatar {
-  width: 38px;
-  height: 38px;
+  width: 42px;
+  height: 42px;
   background: #7abcc4;
   border: 2px solid #2d1f36;
   border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 20px;
-  box-shadow: 2px 2px 0px #2d1f36;
+  font-size: 22px;
+  box-shadow: 2.5px 2.5px 0px #2d1f36;
 }
 .mentor-nameplate {
   font-family: var(--pixel);
@@ -4721,14 +4742,14 @@ body, p, span, div, li, input, textarea, select {
   color: #2d1f36;
   background: #ede5f5;
   border: 1.5px solid #2d1f36;
-  padding: 2px 8px;
+  padding: 3px 9px;
   border-radius: 4px;
 }
 .tavern-quest-pouches {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
-  margin-top: 16px;
+  gap: 14px !important;
+  margin-top: 22px !important;
 }
 .quest-pouch {
   display: inline-flex;
@@ -4738,7 +4759,7 @@ body, p, span, div, li, input, textarea, select {
   border: 2px solid #2d1f36;
   border-radius: 6px;
   box-shadow: 3px 3px 0px #2d1f36;
-  padding: 6px 12px;
+  padding: 8px 14px !important;
   font-family: var(--pixel);
   font-size: 9px;
   color: #2d1f36;
@@ -4753,16 +4774,16 @@ body, p, span, div, li, input, textarea, select {
   border: 3.5px solid #2d1f36;
   border-radius: 12px;
   box-shadow: 6px 6px 0px #2d1f36;
-  padding: 24px clamp(18px, 3vw, 36px);
+  padding: 36px clamp(24px, 4vw, 52px) !important;
   position: relative;
-  margin-top: 16px;
+  margin-top: 24px !important;
 }
 .tome-bookmark {
   position: absolute;
-  top: -12px;
-  right: 28px;
-  width: 24px;
-  height: 38px;
+  top: -14px;
+  right: 32px;
+  width: 26px;
+  height: 42px;
   background: #9391bc;
   border: 2px solid #2d1f36;
   box-shadow: 2px 2px 0px #2d1f36;
@@ -4771,47 +4792,88 @@ body, p, span, div, li, input, textarea, select {
 .tome-parchment-body {
   font-family: var(--body-pixel);
   font-size: 15px;
-  line-height: 1.6;
+  line-height: 1.8 !important;
   color: #2d1f36;
+}
+.tome-parchment-body p {
+  margin-bottom: 20px !important;
+}
+.manifesto__signature {
+  margin-top: 32px !important;
+  display: inline-block;
 }
 
 /* CHAPTER 03 & 04: CITADEL & GUILD HQ */
-.duo-card--vit {
-  background: #ffffff !important;
-  border: 3px solid #2d1f36 !important;
-  border-radius: 10px !important;
-  box-shadow: 5px 5px 0px #2d1f36 !important;
+.duo-story {
+  gap: 32px !important;
+  background: #faf6ee !important;
 }
+.duo-card--vit,
 .duo-card--gdg {
   background: #ffffff !important;
   border: 3px solid #2d1f36 !important;
   border-radius: 10px !important;
   box-shadow: 5px 5px 0px #2d1f36 !important;
+  padding: 36px 32px 50px !important;
+  min-height: 480px;
+}
+.duo-card h3 {
+  margin: 20px 0 20px !important;
+  line-height: 1.25 !important;
+}
+.duo-card p {
+  margin-bottom: 18px !important;
+  line-height: 1.75 !important;
+}
+.duo-card p + p {
+  margin-top: 18px !important;
 }
 .trophy-badge {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   background: #fde88a;
   border: 1.5px solid #2d1f36;
-  padding: 3px 8px;
+  padding: 6px 12px !important;
   border-radius: 4px;
   font-family: var(--pixel);
-  font-size: 8px;
-  margin-top: 10px;
+  font-size: 8.5px;
+  margin-top: 18px !important;
+  margin-bottom: 16px !important;
 }
 
 /* CHAPTER 05: DUNGEON SELECTOR (TRACKS) */
 .tracks {
   background: #faf6ee !important;
 }
+.tracks__title-row {
+  margin-top: 40px !important;
+  margin-bottom: 40px !important;
+  gap: clamp(32px, 5vw, 64px) !important;
+}
+.tracks__canvas {
+  gap: clamp(28px, 4vw, 56px) !important;
+  padding: 40px 0 !important;
+}
 .tracks__active-card {
   background: #ffffff !important;
   border: 3.5px solid #2d1f36 !important;
   border-radius: 12px !important;
   box-shadow: 6px 6px 0px #2d1f36 !important;
-  padding: 28px !important;
+  padding: 36px !important;
   position: relative;
+}
+.tracks__active-card h3 {
+  margin: 18px 0 16px !important;
+  line-height: 1.25 !important;
+}
+.tracks__active-card p {
+  line-height: 1.75 !important;
+  margin-bottom: 24px !important;
+}
+.tracks__active-card-actions {
+  margin-top: 28px !important;
+  gap: 20px !important;
 }
 .track-tab {
   background: #ffffff !important;
@@ -4821,7 +4883,9 @@ body, p, span, div, li, input, textarea, select {
   font-family: var(--pixel) !important;
   font-size: 9.5px !important;
   color: #2d1f36 !important;
-  padding: 10px 14px !important;
+  padding: 14px 18px !important;
+  margin-bottom: 8px !important;
+  gap: 18px !important;
   transition: transform 0.12s ease, box-shadow 0.12s ease !important;
 }
 .track-tab:hover {
@@ -4838,6 +4902,16 @@ body, p, span, div, li, input, textarea, select {
 .nominate {
   background: #f4ede3 !important;
 }
+.nominate__title-row {
+  margin-top: 40px !important;
+  margin-bottom: 36px !important;
+  gap: clamp(32px, 5vw, 64px) !important;
+}
+.nominate-search {
+  margin-top: 32px !important;
+  margin-bottom: 32px !important;
+  gap: 14px !important;
+}
 .nominate-search input {
   background: #ffffff !important;
   border: 2.5px solid #2d1f36 !important;
@@ -4846,6 +4920,7 @@ body, p, span, div, li, input, textarea, select {
   font-family: var(--body-pixel) !important;
   font-size: 14px !important;
   color: #2d1f36 !important;
+  padding: 14px 18px !important;
 }
 .nominate-search button {
   background: #7abcc4 !important;
@@ -4855,12 +4930,19 @@ body, p, span, div, li, input, textarea, select {
   font-family: var(--pixel) !important;
   font-size: 9.5px !important;
   color: #2d1f36 !important;
+  padding: 14px 22px !important;
+}
+.nominate__grid {
+  margin-top: 44px !important;
+  gap: 20px !important;
 }
 .nomination-card {
   background: #ffffff !important;
   border: 2.5px solid #2d1f36 !important;
   border-radius: 8px !important;
   box-shadow: 3.5px 3.5px 0px #2d1f36 !important;
+  padding: 24px 22px !important;
+  margin-bottom: 8px !important;
   transition: transform 0.12s ease, box-shadow 0.12s ease !important;
 }
 .nomination-card:hover {
@@ -4872,47 +4954,108 @@ body, p, span, div, li, input, textarea, select {
   background: #ede5f5 !important;
   box-shadow: 4px 4px 0px #7abcc4 !important;
 }
+.nomination-card__title {
+  line-height: 1.35 !important;
+  margin-top: 16px !important;
+  margin-bottom: 8px !important;
+}
+.nomination-card__note {
+  line-height: 1.6 !important;
+  margin-top: 8px !important;
+  margin-bottom: 16px !important;
+}
+.nomination-card__bar {
+  margin-top: 22px !important;
+}
+.nominate__footer {
+  margin-top: 36px !important;
+  line-height: 1.6 !important;
+}
 
 /* CHAPTER 07: EXPEDITIONS ROADMAP (EVENTS) */
 .events {
   background: #faf6ee !important;
+}
+.events__title-row {
+  margin-top: 40px !important;
+  margin-bottom: 44px !important;
+  gap: clamp(32px, 5vw, 64px) !important;
+}
+.event-grid {
+  gap: 24px !important;
 }
 .event-card {
   background: #ffffff !important;
   border: 2.5px solid #2d1f36 !important;
   border-radius: 8px !important;
   box-shadow: 4px 4px 0px #2d1f36 !important;
+  padding: 34px !important;
 }
 .event-card:hover {
   transform: translate(-2px, -2px) !important;
   box-shadow: 6px 6px 0px #2d1f36 !important;
+}
+.event-card h3 {
+  line-height: 1.25 !important;
+  margin: 18px 0 14px !important;
+}
+.event-card p {
+  line-height: 1.75 !important;
 }
 
 /* CHAPTER 08: MERCHANT BAZAAR (SPONSORS) */
 .sponsors {
   background: #f4ede3 !important;
 }
+.sponsors__title-row {
+  margin-top: 40px !important;
+  margin-bottom: 44px !important;
+  gap: clamp(32px, 5vw, 64px) !important;
+}
 .sponsor-card {
   background: #ffffff !important;
   border: 3px solid #2d1f36 !important;
   border-radius: 10px !important;
   box-shadow: 5px 5px 0px #2d1f36 !important;
+  padding: 36px !important;
 }
 .sponsor-card:hover {
   transform: translate(-2px, -2px) !important;
   box-shadow: 7px 7px 0px #2d1f36 !important;
 }
+.sponsor-card__name {
+  line-height: 1.25 !important;
+  margin-top: 18px !important;
+}
 
 /* CHAPTER 09: WISE ELDER'S TENT (FAQS) */
 .faq {
   background: #faf6ee !important;
+  gap: clamp(40px, 6vw, 84px) !important;
 }
 .faq-item {
   background: #ffffff !important;
   border: 2.5px solid #2d1f36 !important;
   border-radius: 8px !important;
   box-shadow: 3.5px 3.5px 0px #2d1f36 !important;
-  margin-bottom: 12px !important;
+  margin-bottom: 18px !important;
+  padding: 18px 24px !important;
+}
+.faq-item > button {
+  padding: 8px 0 !important;
+  gap: 20px !important;
+}
+.faq-item > button strong {
+  line-height: 1.45 !important;
+  font-size: 15px !important;
+}
+.faq-item__answer p {
+  line-height: 1.75 !important;
+  padding: 16px 20px 12px 48px !important;
+}
+.faq__tabs {
+  gap: 16px !important;
+  margin-bottom: 30px !important;
 }
 .faq__tabs button {
   background: #ffffff !important;
@@ -4922,17 +5065,25 @@ body, p, span, div, li, input, textarea, select {
   font-family: var(--pixel) !important;
   font-size: 9px !important;
   color: #2d1f36 !important;
+  padding: 10px 18px !important;
 }
 .faq__tabs button.is-active {
   background: #7abcc4 !important;
   transform: translate(1px, 1px) !important;
   box-shadow: 1px 1px 0px #2d1f36 !important;
 }
+.discord-link {
+  margin-top: 36px !important;
+}
 
 /* CHAPTER 10: WARP PORTAL & CREDITS (FOOTER) */
 .footer {
   background: #faf6ee !important;
   border-top: 3.5px solid #2d1f36 !important;
+  padding: 80px 0 50px !important;
+}
+.footer__main {
+  gap: 40px !important;
 }
 .footer__socials a {
   background: #ffffff !important;
@@ -4943,8 +5094,8 @@ body, p, span, div, li, input, textarea, select {
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
-  width: 40px !important;
-  height: 40px !important;
+  width: 42px !important;
+  height: 42px !important;
   transition: transform 0.12s ease, box-shadow 0.12s ease !important;
 }
 .footer__socials a:hover {
@@ -4952,24 +5103,37 @@ body, p, span, div, li, input, textarea, select {
   transform: translate(-2px, -2px) !important;
   box-shadow: 5px 5px 0px #2d1f36 !important;
 }
+.footer__contact {
+  padding-top: 24px !important;
+  gap: 20px !important;
+}
 .footer__contact a {
   background: #ffffff !important;
   border: 2px solid #2d1f36 !important;
   border-radius: 6px !important;
   box-shadow: 2.5px 2.5px 0px #2d1f36 !important;
-  padding: 8px 14px !important;
+  padding: 10px 16px !important;
   color: #2d1f36 !important;
   font-family: var(--body-pixel) !important;
-  font-size: 13px !important;
+  font-size: 13.5px !important;
   display: inline-flex !important;
   align-items: center !important;
-  gap: 8px !important;
+  gap: 10px !important;
+  line-height: 1.6 !important;
   text-decoration: none !important;
   transition: transform 0.12s ease !important;
 }
 .footer__contact a:hover {
   transform: translate(-1.5px, -1.5px) !important;
   background: #ede5f5 !important;
+}
+.footer__bottom {
+  margin-top: 60px !important;
+  padding-top: 32px !important;
+  gap: 28px !important;
+}
+.footer__socials {
+  gap: 16px !important;
 }
 
 

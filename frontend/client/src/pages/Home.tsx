@@ -1093,7 +1093,7 @@ export default function Home() {
                   <span style={{ fontSize: "11px", color: "#6b5b73", marginLeft: "8px", fontFamily: "var(--body-pixel)" }}>Master Hacker</span>
                 </div>
               </div>
-              <p style={{ margin: 0, fontSize: "13px", lineHeight: "1.5", fontFamily: "var(--body-pixel)", color: "#2d1f36" }}>
+              <p style={{ margin: 0, fontSize: "14px", lineHeight: "1.75", fontFamily: "var(--body-pixel)", color: "#2d1f36" }}>
                 "Welcome to the tavern, traveler! The 30-hour clock starts ticking the moment you enter the arena. Choose your direction wisely and forge your masterpiece."
               </p>
               <div className="tavern-quest-pouches">
@@ -1109,7 +1109,7 @@ export default function Home() {
                 event.preventDefault();
                 jumpTo("#tracks");
               }}
-              style={{ marginTop: "16px", display: "inline-flex" }}
+              style={{ marginTop: "24px", display: "inline-flex" }}
             >
               Find your dungeon track <ArrowRight size={18} />
             </a>
