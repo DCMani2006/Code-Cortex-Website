@@ -318,11 +318,11 @@ function MascotFallback() {
 function TransitionRibbons() {
   const clubMarks = [
     "TAM",
-    "THE AIML CLUB",
+    "THE AI & ML CLUB",
     "TAM",
-    "THE AIML CLUB",
+    "THE AI & ML CLUB",
     "TAM",
-    "THE AIML CLUB",
+    "THE AI & ML CLUB",
   ];
   const codeMarks = [
     "CODE CORTEX 3.0",
@@ -333,7 +333,7 @@ function TransitionRibbons() {
   return (
     <div
       className="transition-ribbons"
-      aria-label="TAM The AIML Club and Code Cortex"
+      aria-label="TAM The AI & ML Club and Code Cortex"
     >
       <div className="transition-ribbon transition-ribbon--upper">
         <div
@@ -501,6 +501,95 @@ function WireframeStamp({
       {words.map((word) => (
         <span key={word}>{word}</span>
       ))}
+    </div>
+  );
+}
+
+function BuilderForgeAnimation() {
+  return (
+    <div
+      className="builder-forge-stage"
+      role="img"
+      aria-label="Pixel builder animated in a 4-frame loop swinging a pickaxe to break and fracture a laptop"
+    >
+      <div className="forge-hud">
+        <span>⚡ TAM BUILDER // BREAK_HARDWARE.EXE</span>
+        <div className="forge-hud__live">
+          <div className="forge-hud__live-dot" />
+          <span>FORGE ACTIVE</span>
+        </div>
+      </div>
+
+      <div className="forge-ground" />
+      <div className="forge-desk" />
+
+      <div className="forge-actor">
+        <img
+          className="forge-actor__sprite"
+          src="/builder_sprite.png"
+          alt="TAM Builder"
+          width="145"
+          height="275"
+          loading="lazy"
+        />
+        <div className="forge-pickaxe">
+          <img
+            src="/pickaxe_sprite.png"
+            alt="Pickaxe"
+            width="110"
+            height="110"
+            loading="lazy"
+          />
+        </div>
+      </div>
+
+      <div className="forge-target">
+        <img
+          className="forge-target__laptop forge-target__laptop--pristine"
+          src="/laptop_sprite.png"
+          alt="Laptop Intact"
+          width="185"
+          height="160"
+          loading="lazy"
+        />
+        <img
+          className="forge-target__laptop forge-target__laptop--cracked"
+          src="/laptop_cracked_sprite.png"
+          alt="Laptop Cracked"
+          width="185"
+          height="160"
+          loading="lazy"
+        />
+      </div>
+
+      <div className="forge-impact">
+        <svg viewBox="0 0 100 100" fill="none">
+          <polygon
+            points="50,5 62,35 95,25 72,50 95,75 62,65 50,95 38,65 5,75 28,50 5,25 38,35"
+            fill="#fde047"
+            stroke="#ffffff"
+            strokeWidth="3"
+          />
+          <polygon
+            points="50,20 58,40 80,35 65,50 80,65 58,60 50,80 42,60 20,65 35,50 20,35 42,40"
+            fill="#f97316"
+          />
+        </svg>
+      </div>
+
+      <div className="forge-sparks">
+        <svg width="40" height="40" viewBox="0 0 40 40">
+          <rect x="5" y="10" width="4" height="4" fill="#67e8f9" />
+          <rect x="25" y="5" width="5" height="5" fill="#fde047" />
+          <rect x="30" y="25" width="4" height="4" fill="#ffffff" />
+          <rect x="12" y="28" width="5" height="5" fill="#f97316" />
+        </svg>
+      </div>
+
+      <div className="forge-caption">
+        <span>BUILD_CYCLE // 4 FRAMES</span>
+        <span>STATUS: REPEAT LOOP ⚡</span>
+      </div>
     </div>
   );
 }
@@ -1115,21 +1204,7 @@ export default function Home() {
             </a>
           </div>
           <div className="about__visual">
-            <div className="about__visual-label">🏰 VIT KINGDOM / 12°58′N 79°09′E</div>
-            <div className="map-card">
-              <div className="map-card__rings" />
-              <div className="map-card__route map-card__route--one" />
-              <div className="map-card__route map-card__route--two" />
-              <span className="map-card__pin map-card__pin--one" />
-              <span className="map-card__pin map-card__pin--two" />
-              <span className="map-card__pin map-card__pin--three" />
-              <WireframeStamp words={["MAKE", "IT", "USEFUL"]} size="large" />
-              <span className="map-card__caption">
-                MAP // REALM OF BUILDERS
-                <br />
-                DISCOVER THE UNKNOWN
-              </span>
-            </div>
+            <BuilderForgeAnimation />
           </div>
         </section>
 

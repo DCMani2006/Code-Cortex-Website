@@ -1260,112 +1260,324 @@ h3 em {
   color: var(--navy);
 }
 .about__visual {
-  padding-top: clamp(35px, 7vw, 85px);
+  display: flex;
+  justify-content: center;
+  padding-top: clamp(20px, 4vw, 50px);
   position: relative;
+  width: 100%;
 }
-.about__visual-label {
-  color: var(--cobalt);
-  font-family: var(--mono);
-  font-size: 10px;
-  letter-spacing: 0.15em;
-  position: absolute;
-  right: 9%;
-  top: 0;
-}
-.map-card {
-  animation: cardBreathe 8s ease-in-out infinite;
-  background: #e9e0c4;
-  border: 1px solid rgba(8, 21, 47, 0.28);
-  height: clamp(320px, 42vw, 560px);
+
+/* BUILDER FORGE STAGE */
+.builder-forge-stage {
+  background: linear-gradient(145deg, #0b1c3e 0%, #061024 100%);
+  border: 2px solid rgba(49, 88, 255, 0.65);
+  border-radius: 14px;
+  box-shadow:
+    12px 14px 0 rgba(49, 88, 255, 0.35),
+    inset 0 0 45px rgba(49, 88, 255, 0.16);
+  height: clamp(400px, 46vw, 490px);
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  max-width: 560px;
   overflow: hidden;
   position: relative;
-  transform: rotate(3deg);
+  transition: transform 0.3s var(--ease-out), box-shadow 0.3s var(--ease-out);
+  width: 100%;
 }
-.map-card:after {
-  background-image: radial-gradient(
-    rgba(8, 21, 47, 0.22) 0.8px,
-    transparent 0.8px
-  );
-  background-size: 6px 6px;
-  content: "";
+.builder-forge-stage:hover {
+  box-shadow:
+    16px 18px 0 rgba(49, 88, 255, 0.45),
+    inset 0 0 55px rgba(49, 88, 255, 0.22);
+  transform: translateY(-4px);
+}
+
+/* Blueprint grid */
+.builder-forge-stage::before {
+  background-image:
+    linear-gradient(rgba(49, 88, 255, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(49, 88, 255, 0.08) 1px, transparent 1px);
+  background-size: 20px 20px;
+  content: '';
   inset: 0;
-  mix-blend-mode: multiply;
-  opacity: 0.12;
+  pointer-events: none;
   position: absolute;
-}
-.map-card__rings {
-  border: 1px solid rgba(49, 88, 255, 0.3);
-  border-radius: 50%;
-  height: 80%;
-  left: 10%;
-  position: absolute;
-  top: 10%;
-  width: 75%;
-}
-.map-card__rings:before,
-.map-card__rings:after {
-  border: 1px solid rgba(49, 88, 255, 0.26);
-  border-radius: 50%;
-  content: "";
-  inset: 13%;
-  position: absolute;
-}
-.map-card__rings:after {
-  inset: 27%;
-}
-.map-card__route {
-  border: 1px solid var(--cobalt);
-  height: 75%;
-  left: 50%;
-  position: absolute;
-  top: 8%;
-  transform: rotate(44deg);
-  width: 20%;
-}
-.map-card__route--two {
-  height: 60%;
-  left: 24%;
-  top: 24%;
-  transform: rotate(-53deg);
-  width: 30%;
-}
-.map-card__pin {
-  background: var(--coral);
-  border: 4px solid #e9e0c4;
-  border-radius: 50%;
-  height: 17px;
-  position: absolute;
-  width: 17px;
-  z-index: 2;
-}
-.map-card__pin--one {
-  left: 18%;
-  top: 28%;
-}
-.map-card__pin--two {
-  right: 18%;
-  top: 24%;
-}
-.map-card__pin--three {
-  bottom: 17%;
-  left: 49%;
-}
-.map-card .wireframe-stamp {
-  bottom: 8%;
-  position: absolute;
-  right: 8%;
   z-index: 1;
 }
-.map-card__caption {
-  bottom: 9%;
-  color: var(--cobalt);
-  font-family: var(--mono);
-  font-size: 10px;
-  left: 8%;
-  letter-spacing: 0.16em;
-  line-height: 1.35;
+
+/* CRT Scanlines */
+.builder-forge-stage::after {
+  background: linear-gradient(to bottom, transparent 50%, rgba(0, 0, 0, 0.25) 51%);
+  background-size: 100% 4px;
+  content: '';
+  inset: 0;
+  opacity: 0.55;
+  pointer-events: none;
   position: absolute;
   z-index: 2;
+}
+
+/* Top HUD Bar */
+.forge-hud {
+  align-items: center;
+  background: rgba(8, 21, 47, 0.88);
+  border-bottom: 1px solid rgba(49, 88, 255, 0.4);
+  color: var(--light-blue);
+  display: flex;
+  font-family: var(--mono);
+  font-size: clamp(9px, 1.1vw, 11px);
+  height: 36px;
+  justify-content: space-between;
+  left: 0;
+  letter-spacing: 0.12em;
+  padding: 0 16px;
+  position: absolute;
+  right: 0;
+  top: 0;
+  z-index: 10;
+}
+.forge-hud__live {
+  align-items: center;
+  color: #4ade80;
+  display: flex;
+  gap: 8px;
+}
+.forge-hud__live-dot {
+  animation: liveBlink 1s infinite alternate;
+  background: #4ade80;
+  border-radius: 50%;
+  height: 7px;
+  width: 7px;
+}
+
+/* Ground Platform */
+.forge-ground {
+  background: linear-gradient(90deg, #1e3a78, #3158ff, #1e3a78);
+  border-bottom: 2px solid #08152f;
+  border-top: 2px solid #96d8ea;
+  bottom: 30px;
+  box-shadow: 0 4px 18px rgba(49, 88, 255, 0.5);
+  height: 18px;
+  left: 24px;
+  position: absolute;
+  right: 24px;
+  z-index: 3;
+}
+.forge-ground::after {
+  background: rgba(49, 88, 255, 0.25);
+  content: '';
+  filter: blur(6px);
+  height: 8px;
+  left: 10%;
+  position: absolute;
+  right: 10%;
+  top: 18px;
+}
+
+/* Workbench Desk */
+.forge-desk {
+  background: #0f224d;
+  border: 2px solid #3158ff;
+  bottom: 48px;
+  box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.45);
+  height: clamp(32px, 4vw, 38px);
+  position: absolute;
+  right: clamp(24px, 5vw, 44px);
+  width: clamp(150px, 20vw, 185px);
+  z-index: 4;
+}
+.forge-desk::before {
+  color: #64748b;
+  content: 'WORKBENCH // CC-3.0';
+  font-family: var(--mono);
+  font-size: 8px;
+  left: 10px;
+  letter-spacing: 0.1em;
+  position: absolute;
+  top: 8px;
+}
+
+/* BUILDER ACTOR CONTAINER */
+.forge-actor {
+  animation: builderAction 2.2s steps(1) infinite;
+  bottom: 48px;
+  height: clamp(230px, 27vw, 280px);
+  left: clamp(20px, 4.5vw, 45px);
+  position: absolute;
+  transform-origin: bottom center;
+  width: clamp(120px, 15vw, 148px);
+  z-index: 5;
+}
+.forge-actor__sprite {
+  display: block;
+  height: 100%;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  object-fit: contain;
+  width: 100%;
+}
+
+/* PICKAXE ATTACHED TO BUILDER'S HAND */
+.forge-pickaxe {
+  animation: pickaxeAction 2.2s steps(1) infinite;
+  bottom: clamp(75px, 9vw, 95px);
+  height: clamp(90px, 11vw, 112px);
+  position: absolute;
+  right: clamp(-36px, -4vw, -30px);
+  transform-origin: 22% 82%;
+  width: clamp(90px, 11vw, 112px);
+  z-index: 6;
+}
+.forge-pickaxe img {
+  display: block;
+  height: 100%;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  object-fit: contain;
+  width: 100%;
+}
+
+/* LAPTOP TARGET CONTAINER */
+.forge-target {
+  bottom: clamp(72px, 9vw, 86px);
+  height: clamp(130px, 16vw, 160px);
+  position: absolute;
+  right: clamp(20px, 4.2vw, 36px);
+  width: clamp(155px, 19vw, 190px);
+  z-index: 5;
+}
+.forge-target__laptop {
+  height: 100%;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  inset: 0;
+  object-fit: contain;
+  position: absolute;
+  width: 100%;
+}
+.forge-target__laptop--pristine {
+  animation: laptopState 2.2s steps(1) infinite;
+}
+.forge-target__laptop--cracked {
+  animation: laptopCrackedState 2.2s steps(1) infinite;
+}
+
+/* IMPACT BURST */
+.forge-impact {
+  animation: impactFlash 2.2s steps(1) infinite;
+  bottom: clamp(118px, 15vw, 142px);
+  height: clamp(55px, 7vw, 70px);
+  pointer-events: none;
+  position: absolute;
+  right: clamp(80px, 11vw, 105px);
+  width: clamp(55px, 7vw, 70px);
+  z-index: 8;
+}
+.forge-impact svg {
+  filter: drop-shadow(0 0 10px #fde047);
+  height: 100%;
+  width: 100%;
+}
+
+/* Pixel Sparks */
+.forge-sparks {
+  animation: sparkScatter 2.2s steps(1) infinite;
+  bottom: clamp(128px, 16vw, 155px);
+  pointer-events: none;
+  position: absolute;
+  right: clamp(88px, 12vw, 115px);
+  z-index: 9;
+}
+
+/* Bottom Marquee Status */
+.forge-caption {
+  align-items: center;
+  bottom: 8px;
+  color: #6da4ff;
+  display: flex;
+  font-family: var(--mono);
+  font-size: clamp(9px, 1vw, 10px);
+  justify-content: space-between;
+  left: 16px;
+  letter-spacing: 0.14em;
+  position: absolute;
+  right: 16px;
+  z-index: 10;
+}
+
+/* 4-FRAME ANIMATION KEYFRAMES (steps(1) per 2.2s cycle) */
+@keyframes builderAction {
+  0% { transform: translate(0, 0); }
+  25% { transform: translate(-14px, 4px) rotate(-7deg); }
+  50% { transform: translate(32px, -4px) rotate(10deg); }
+  75% { transform: translate(22px, 0px) rotate(5deg); }
+}
+
+@keyframes pickaxeAction {
+  0% { transform: rotate(10deg) translate(18px, 15px); }
+  25% { transform: rotate(15deg) translate(55px, -70px); }
+  50% { transform: rotate(18deg) translate(52px, -32px); }
+  75% { transform: rotate(12deg) translate(46px, -24px); }
+}
+
+@keyframes laptopState {
+  0%, 25% {
+    opacity: 1;
+    transform: translate(0, 0);
+  }
+  50%, 75% {
+    opacity: 0;
+    transform: translate(4px, -3px) rotate(-3deg);
+  }
+}
+
+@keyframes laptopCrackedState {
+  0%, 25% {
+    opacity: 0;
+    transform: translate(0, 0);
+  }
+  50% {
+    opacity: 1;
+    transform: translate(4px, -3px) rotate(-3deg);
+  }
+  75% {
+    opacity: 1;
+    transform: translate(1px, -1px);
+  }
+}
+
+@keyframes impactFlash {
+  0%, 25% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.4) rotate(12deg);
+  }
+  75% {
+    opacity: 0.75;
+    transform: scale(1.1) rotate(28deg);
+  }
+}
+
+@keyframes sparkScatter {
+  0%, 25% {
+    opacity: 0;
+    transform: translate(0, 0) scale(0.2);
+  }
+  50% {
+    opacity: 1;
+    transform: translate(-12px, -16px) scale(1.3);
+  }
+  75% {
+    opacity: 0.6;
+    transform: translate(-28px, -32px) scale(1.5);
+  }
+}
+
+@keyframes liveBlink {
+  from { opacity: 0.4; }
+  to { opacity: 1; filter: drop-shadow(0 0 6px #4ade80); }
 }
 
 .manifesto {
@@ -3364,8 +3576,8 @@ h3 em {
   .about__visual {
     width: 100%;
   }
-  .map-card {
-    height: 360px;
+  .builder-forge-stage {
+    height: clamp(360px, 80vw, 440px);
   }
   .manifesto {
     padding-bottom: 100px;
