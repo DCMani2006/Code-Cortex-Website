@@ -294,7 +294,7 @@ function MascotModel({
             [0.2, -0.01, 0],
             [0.28, 0.06, 0],
           ]}
-          color="#48d9ff"
+          color="#fbe27f"
           lineWidth={3.2}
           dashed={false}
         />
@@ -308,7 +308,7 @@ function MascotFallback() {
     <mesh position={[0, 0, 0]}>
       <icosahedronGeometry args={[1.25, 2]} />
       <meshStandardMaterial
-        color="#48d9ff"
+        color="#caa6fe"
         roughness={0.48}
         metalness={0.28}
         wireframe
@@ -909,16 +909,16 @@ export default function Home() {
               dpr={[1, 1.5]}
               gl={{ alpha: true, antialias: true }}
             >
-              <ambientLight intensity={1.8} />
+              <ambientLight intensity={2.2} color="#f3e8ff" />
               <directionalLight
-                position={[2, 3, 4]}
-                intensity={2.5}
-                color="#48d9ff"
+                position={[2.5, 3.5, 4]}
+                intensity={2.6}
+                color="#fed7aa"
               />
               <directionalLight
                 position={[-3, 1, 2]}
-                intensity={1.4}
-                color="#d9f45b"
+                intensity={1.6}
+                color="#bbf7d0"
               />
               <Suspense fallback={<MascotFallback />}>
                 <MascotModel
