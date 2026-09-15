@@ -909,16 +909,16 @@ export default function Home() {
               dpr={[1, 1.5]}
               gl={{ alpha: true, antialias: true }}
             >
-              <ambientLight intensity={2.2} color="#f3e8ff" />
+              <ambientLight intensity={2.8} color="#ffffff" />
               <directionalLight
                 position={[2.5, 3.5, 4]}
                 intensity={2.6}
-                color="#fed7aa"
+                color="#fff1db"
               />
               <directionalLight
                 position={[-3, 1, 2]}
-                intensity={1.6}
-                color="#bbf7d0"
+                intensity={1.8}
+                color="#e0f4ff"
               />
               <Suspense fallback={<MascotFallback />}>
                 <MascotModel

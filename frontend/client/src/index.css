@@ -39,52 +39,52 @@
 }
 
 :root {
-  --primary: #f8a379;
-  --primary-foreground: #231c33;
-  --background: #231c33;
-  --foreground: #fcf6eb;
-  --card: #352a4d;
-  --card-foreground: #fcf6eb;
-  --popover: #352a4d;
-  --popover-foreground: #fcf6eb;
-  --secondary: #3e3256;
-  --secondary-foreground: #ded6ee;
-  --muted: #2f2545;
-  --muted-foreground: #baaed1;
-  --accent: #9de0b2;
-  --accent-foreground: #231c33;
+  --primary: #f89bb4;
+  --primary-foreground: #2d1f36;
+  --background: #faf6ee;
+  --foreground: #2d1f36;
+  --card: #ffffff;
+  --card-foreground: #2d1f36;
+  --popover: #ffffff;
+  --popover-foreground: #2d1f36;
+  --secondary: #ede5f5;
+  --secondary-foreground: #2d1f36;
+  --muted: #f4ede3;
+  --muted-foreground: #6b5b73;
+  --accent: #9ec5a6;
+  --accent-foreground: #2d1f36;
   --destructive: #f4829a;
   --destructive-foreground: #fff;
-  --border: #181224;
-  --input: #181224;
-  --ring: #f8a379;
-  --sidebar: #231c33;
-  --sidebar-foreground: #fcf6eb;
-  --sidebar-primary: #f8a379;
-  --sidebar-primary-foreground: #231c33;
-  --sidebar-accent: #3e3256;
-  --sidebar-accent-foreground: #fcf6eb;
-  --sidebar-border: #181224;
-  --sidebar-ring: #f8a379;
+  --border: #2d1f36;
+  --input: #2d1f36;
+  --ring: #f89bb4;
+  --sidebar: #faf6ee;
+  --sidebar-foreground: #2d1f36;
+  --sidebar-primary: #f89bb4;
+  --sidebar-primary-foreground: #2d1f36;
+  --sidebar-accent: #ede5f5;
+  --sidebar-accent-foreground: #2d1f36;
+  --sidebar-border: #2d1f36;
+  --sidebar-ring: #f89bb4;
   --radius: 0px;
 
-  /* Cozy Pastel RPG Theme Tokens */
-  --navy: #231c33;
-  --navy-2: #2d2442;
-  --cream: #fcf6eb;
-  --parchment: #fcf7ed;
-  --ink: #1e172a;
-  --cyan: #9ddbe8;
-  --coral: #f8a379;
-  --cobalt: #8a85f5;
-  --lime: #9de0b2;
-  --yellow: #fbe27f;
-  --violet: #c8a3f8;
-  --rose: #f7a8be;
-  --peach: #fbb792;
-  --sage: #85c798;
-  --amber: #f8a379;
-  --amber-bright: #fbe27f;
+  /* Bright & Cozy Pastel RPG Theme Tokens */
+  --navy: #faf6ee;
+  --navy-2: #f4ede3;
+  --cream: #2d1f36;
+  --parchment: #ffffff;
+  --ink: #2d1f36;
+  --cyan: #9fd3e8;
+  --coral: #f89bb4;
+  --cobalt: #b8aee6;
+  --lime: #9ec5a6;
+  --yellow: #fde88a;
+  --violet: #d0b8f2;
+  --rose: #fba8c4;
+  --peach: #fbc7a4;
+  --sage: #a3c9a8;
+  --amber: #fbc7a4;
+  --amber-bright: #fde88a;
 
   /* Pixel Typography */
   --pixel: "Press Start 2P", monospace;
@@ -94,10 +94,10 @@
   --ease-out: cubic-bezier(0, 0, 0.2, 1);
 
   /* Retro Hard Shadows */
-  --pixel-border: 3px solid #181224;
-  --pixel-shadow: 4px 4px 0px #181224;
-  --pixel-shadow-sm: 2px 2px 0px #181224;
-  --pixel-shadow-lg: 6px 6px 0px #181224;
+  --pixel-border: 2.5px solid #2d1f36;
+  --pixel-shadow: 4px 4px 0px #2d1f36;
+  --pixel-shadow-sm: 2px 2px 0px #2d1f36;
+  --pixel-shadow-lg: 6px 6px 0px #2d1f36;
 }
 
 * {
@@ -111,19 +111,18 @@ html {
 body {
   margin: 0;
   min-width: 320px;
-  background: var(--navy);
-  color: var(--cream);
+  background-color: #faf6ee;
+  color: #2d1f36;
   font-family: var(--body-pixel);
   font-size: 16px;
-  line-height: 1.6;
+  line-height: 1.65;
   letter-spacing: 0.02em;
   -webkit-font-smoothing: antialiased;
   background-image: 
-    radial-gradient(circle at 20% 15%, rgba(200, 163, 248, 0.12) 0%, transparent 40%),
-    radial-gradient(circle at 80% 80%, rgba(248, 163, 121, 0.1) 0%, transparent 45%),
-    linear-gradient(rgba(252, 246, 235, 0.04) 2px, transparent 2px),
-    linear-gradient(90deg, rgba(252, 246, 235, 0.04) 2px, transparent 2px);
-  background-size: 100% 100%, 100% 100%, 32px 32px, 32px 32px;
+    linear-gradient(180deg, #f2e6f4 0%, #fef4e8 30%, #edf6ec 65%, #faf6ee 100%),
+    linear-gradient(rgba(45, 31, 54, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(45, 31, 54, 0.04) 1px, transparent 1px);
+  background-size: 100% 100%, 32px 32px, 32px 32px;
 }
 body,
 button,
@@ -302,16 +301,16 @@ body {
   padding-right: clamp(22px, 6vw, 96px);
 }
 .section-dark {
-  background: var(--navy);
-  color: var(--cream);
+  background: transparent;
+  color: var(--foreground);
 }
 .section-light {
-  background: #0b142a;
-  color: var(--cream);
+  background: rgba(255, 255, 255, 0.75);
+  color: var(--foreground);
 }
 .section-blue {
-  background: var(--cobalt);
-  color: var(--cream);
+  background: #f3ebfa;
+  color: var(--foreground);
 }
 
 .site-header {
@@ -3665,66 +3664,84 @@ h3 em {
 }
 
 /* ==========================================================================
-   COZY RETRO PASTEL RPG DESIGN SYSTEM
+   100% LIGHT, BRIGHT & COZY RETRO PASTEL RPG DESIGN SYSTEM
+   Inspired by Bunny Campfire, Retro Desktop PC & Cute Pastel Pixel Stickers
    ========================================================================== */
 
-/* 1. Global 8-bit Pixel Cursor & Selection */
+/* 1. Global Light Canvas & 8-Bit Pixel Cursor */
 * {
-  cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20' shape-rendering='crispEdges'><path d='M2 1v15l4-4 3 6 3-1.5-3-6h5.5z' fill='%23fdf6eb' stroke='%23181224' stroke-width='1.5'/></svg>"), default;
+  cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20' shape-rendering='crispEdges'><path d='M2 1v15l4-4 3 6 3-1.5-3-6h5.5z' fill='%23ffffff' stroke='%232d1f36' stroke-width='1.5'/></svg>"), default;
 }
 button, a, input, select, textarea, [role="button"], .cursor-pointer {
-  cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 22 22' shape-rendering='crispEdges'><path d='M7 2h3v2h2v2h2v2h2v2h-2v2h-2v2h-2v3h-3v-3h-2v-2h-2v-2h2V8h2V6h2V4h-2V2z' fill='%23fbe27f' stroke='%23181224' stroke-width='1.5'/></svg>"), pointer !important;
+  cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 22 22' shape-rendering='crispEdges'><path d='M7 2h3v2h2v2h2v2h2v2h-2v2h-2v2h-2v3h-3v-3h-2v-2h-2v-2h2V8h2V6h2V4h-2V2z' fill='%23fde88a' stroke='%232d1f36' stroke-width='1.5'/></svg>"), pointer !important;
 }
 ::selection {
-  background: var(--coral) !important;
-  color: var(--ink) !important;
+  background: #f8b4cb !important;
+  color: #2d1f36 !important;
 }
 
-/* 2. Authentic & Highly Legible Typography */
+.site-shell {
+  background: #faf6ee !important;
+  color: #2d1f36 !important;
+}
+
+/* 2. Light & Cute Typography */
 h1, h2, h3, h4, h5, h6,
 .hero h1, .faq h2, .tracks__title-row h2, .about h2,
 .nominate__title-row h2, .gallery h2, .sponsors h2 {
   font-family: var(--pixel) !important;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
   text-transform: uppercase;
-  color: var(--cream);
-  text-shadow: 2px 2px 0px #181224;
+  color: #2d1f36 !important;
+  text-shadow: 2px 2px 0px #f8b4cb;
 }
 
 body, p, span, div, li, input, textarea, select {
   font-family: var(--body-pixel);
+  color: #2d1f36;
 }
 
 .eyebrow, .section-label, .menu-panel__index, .hero__topline, .hero__location {
   font-family: var(--pixel) !important;
   font-size: 10px !important;
   letter-spacing: 0.08em;
-  color: var(--yellow) !important;
-  text-shadow: 1px 1px 0px #181224;
+  color: #7d5a96 !important;
+  text-shadow: none !important;
 }
 
 .eyebrow--bright {
-  background: rgba(46, 36, 68, 0.85);
-  border: 2px solid #181224;
-  box-shadow: 3px 3px 0px #181224;
+  background: #ffffff !important;
+  border: 2.5px solid #2d1f36 !important;
+  box-shadow: 3px 3px 0px #2d1f36 !important;
   padding: 6px 14px;
-  border-radius: 0px !important;
+  border-radius: 8px !important;
   display: inline-flex;
   align-items: center;
   gap: 8px;
+  color: #d1567d !important;
 }
 .eyebrow__pulse {
-  background: var(--lime) !important;
-  box-shadow: 0 0 0 2px #181224 !important;
+  background: #9ec5a6 !important;
+  box-shadow: 0 0 0 2px #2d1f36 !important;
   border-radius: 0px !important;
   width: 8px !important;
   height: 8px !important;
 }
 
-/* 3. Hero Section & 3D Mascot Pedestal */
+/* 3. Hero Section & Retro PC Mascot Frame */
 .hero {
-  background: var(--navy) !important;
+  background: linear-gradient(180deg, #f4e8f7 0%, #fef3e8 45%, #edf6ed 85%, #faf6ee 100%) !important;
   position: relative;
+}
+.hero__noise {
+  display: none !important;
+}
+.hero__grid {
+  opacity: 0.1 !important;
+  background-image: 
+    linear-gradient(#2d1f36 1px, transparent 1px),
+    linear-gradient(90deg, #2d1f36 1px, transparent 1px) !important;
+  background-size: 32px 32px !important;
 }
 .hero:after {
   content: "";
@@ -3732,44 +3749,60 @@ body, p, span, div, li, input, textarea, select {
   bottom: 0;
   left: 0;
   right: 0;
-  height: 48px;
+  height: 36px;
   background-image: 
-    radial-gradient(circle at 10px 10px, #7eb88a 6px, transparent 0),
-    radial-gradient(circle at 30px 10px, #fbe27f 4px, transparent 0);
-  background-size: 40px 20px;
-  opacity: 0.15;
+    radial-gradient(circle at 12px 12px, #a3c9a8 6px, transparent 0),
+    radial-gradient(circle at 36px 12px, #fde88a 5px, transparent 0);
+  background-size: 48px 24px;
+  opacity: 0.35;
   pointer-events: none;
 }
 .hero h1 {
-  font-size: clamp(24px, 4.5vw, 44px) !important;
+  font-size: clamp(22px, 4vw, 40px) !important;
   line-height: 1.35 !important;
+  color: #2d1f36 !important;
+  text-shadow: 2px 2px 0px #f8b4cb !important;
 }
 .hero h1 em {
   font-style: normal;
-  color: var(--coral) !important;
-  text-shadow: 3px 3px 0px #181224, 0 0 16px rgba(248, 163, 121, 0.4);
+  color: #d1567d !important;
+  text-shadow: 2px 2px 0px #fde88a !important;
 }
 
+/* 3D Mascot Window Frame (Inspired by Retro Monitor / PIXEL.LYF) */
 .hero__mascot {
-  height: min(48vh, 460px) !important;
-  width: min(46vw, 520px) !important;
+  height: min(48vh, 440px) !important;
+  width: min(46vw, 480px) !important;
+  background: linear-gradient(180deg, #e3f2fd 0%, #fce4ec 100%) !important;
+  border: 3px solid #2d1f36 !important;
+  border-radius: 14px 14px 8px 8px !important;
+  box-shadow: 6px 6px 0px #2d1f36, 0 16px 32px rgba(45, 31, 54, 0.08) !important;
+  padding-top: 32px !important;
+  overflow: hidden !important;
 }
 .hero__mascot:before {
-  content: "";
+  content: "★ TAM_MASCOT.EXE  _ 🗖 ✕";
   position: absolute;
-  width: 80% !important;
-  height: 80% !important;
-  background: radial-gradient(circle, rgba(254, 215, 170, 0.3) 0%, rgba(200, 163, 248, 0.18) 50%, transparent 75%) !important;
-  border: 3px solid #181224 !important;
-  box-shadow: 
-    0 0 0 3px #fbe27f,
-    0 10px 0 3px #181224,
-    0 0 40px rgba(251, 226, 127, 0.25) !important;
-  border-radius: 50% !important;
-  z-index: -1;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 30px;
+  background: #b6daf0 !important;
+  color: #2d1f36 !important;
+  font-family: var(--pixel) !important;
+  font-size: 9px !important;
+  display: flex !important;
+  align-items: center !important;
+  padding: 0 12px !important;
+  border-bottom: 2.5px solid #2d1f36 !important;
+  border-radius: 10px 10px 0 0 !important;
+  letter-spacing: 0.1em !important;
+  box-shadow: none !important;
+  z-index: 10 !important;
+  width: 100% !important;
 }
 
-/* 4. Chunky 8-Bit Pressable Buttons */
+/* 4. Cute Chunky Pastel Buttons */
 .round-cta,
 .text-link,
 .button,
@@ -3781,217 +3814,72 @@ body, p, span, div, li, input, textarea, select {
 .menu-panel__nav a {
   font-family: var(--pixel) !important;
   text-transform: uppercase;
-  border: 3px solid #181224 !important;
-  box-shadow: 4px 4px 0px #181224 !important;
-  border-radius: 0px !important;
+  border: 2.5px solid #2d1f36 !important;
+  box-shadow: 3.5px 3.5px 0px #2d1f36 !important;
+  border-radius: 6px !important;
   transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.12s ease !important;
+  color: #2d1f36 !important;
 }
 .round-cta {
-  background: var(--coral) !important;
-  color: var(--navy) !important;
-  width: 120px !important;
-  height: 120px !important;
-  border-radius: 0px !important;
-  clip-path: polygon(0 8px, 8px 0, calc(100% - 8px) 0, 100% 8px, 100% calc(100% - 8px), calc(100% - 8px) 100%, 8px 100%, 0 calc(100% - 8px));
+  background: #f89bb4 !important;
+  color: #2d1f36 !important;
+  width: 110px !important;
+  height: 110px !important;
+  border-radius: 50% !important;
+  clip-path: none !important;
 }
 .round-cta:hover {
   transform: translate(-2px, -2px) !important;
-  box-shadow: 6px 6px 0px #181224 !important;
-  background: #ffb792 !important;
+  box-shadow: 5px 5px 0px #2d1f36 !important;
+  background: #fcaec3 !important;
 }
 .round-cta:active {
   transform: translate(2px, 2px) !important;
-  box-shadow: 1px 1px 0px #181224 !important;
+  box-shadow: 1px 1px 0px #2d1f36 !important;
 }
 
 .text-link {
-  background: var(--sage) !important;
-  color: var(--navy) !important;
+  background: #9ec5a6 !important;
+  color: #2d1f36 !important;
   padding: 10px 20px !important;
   display: inline-flex;
   align-items: center;
   gap: 8px;
   font-size: 11px !important;
+  border-radius: 8px !important;
 }
 .text-link:hover {
-  background: var(--lime) !important;
+  background: #b5dab9 !important;
   transform: translate(-2px, -2px) !important;
-  box-shadow: 6px 6px 0px #181224 !important;
+  box-shadow: 5px 5px 0px #2d1f36 !important;
 }
 .text-link:active {
   transform: translate(2px, 2px) !important;
-  box-shadow: 1px 1px 0px #181224 !important;
+  box-shadow: 1px 1px 0px #2d1f36 !important;
 }
 
-/* 5. Retro OS Window Cards (Parchment & Dusk Slate) */
-.tracks__active-card,
-.about__card,
-.nominate,
-.event-card,
-.gallery__card,
-.sponsors__card,
-.faq-item {
-  border: 3px solid #181224 !important;
-  box-shadow: 6px 6px 0px #181224 !important;
-  border-radius: 0px !important;
+/* 5. Cozy Dialogue Box (From Bunny Campfire Reference) */
+.about {
+  background: #faf6ee !important;
 }
-
-/* Tracks Quest Card */
-.tracks__active-card {
-  background: var(--parchment) !important;
-  color: var(--ink) !important;
-  transform: rotate(0deg) !important;
-  position: relative;
-  padding-top: 50px !important;
-}
-.tracks__active-card:before {
-  content: "■ QUEST LOG // TRACK DETAILS _ 🗖 ✕";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 32px;
-  background: #3e3256;
-  color: var(--yellow);
-  font-family: var(--pixel);
-  font-size: 10px;
-  display: flex;
-  align-items: center;
-  padding: 0 12px;
-  border-bottom: 3px solid #181224;
-  letter-spacing: 0.1em;
-}
-.tracks__active-card h3 {
-  font-size: clamp(20px, 3.2vw, 32px) !important;
-  color: var(--ink) !important;
-  text-shadow: none !important;
-}
-.tracks__active-card p {
+.lead-copy {
+  background: #ffffff !important;
+  border: 3px solid #e0b3c8 !important;
+  box-shadow: 4px 4px 0px #cf9ab4 !important;
+  border-radius: 14px !important;
+  padding: 22px 26px !important;
+  color: #3a284c !important;
   font-size: 17px !important;
-  color: #3b314a !important;
-  line-height: 1.65 !important;
-}
-.tracks__dataset-download {
-  background: var(--sage) !important;
-  color: var(--navy) !important;
-  font-size: 11px !important;
-  padding: 12px 24px !important;
-}
-.tracks__dataset-download:hover {
-  background: var(--lime) !important;
-  transform: translate(-2px, -2px) !important;
-  box-shadow: 6px 6px 0px #181224 !important;
-}
-
-/* Track Rail / Cards */
-.tracks__card {
-  border: 3px solid #181224 !important;
-  box-shadow: 4px 4px 0px #181224 !important;
-  border-radius: 0px !important;
-  background: var(--card) !important;
-}
-.tracks__card.is-active {
-  background: #483964 !important;
-  border-color: var(--yellow) !important;
-  box-shadow: 5px 5px 0px #181224 !important;
-}
-
-/* 6. Nominate / Spotify Bards' Jukebox Section */
-.nominate {
-  background: #332749 !important;
-  position: relative;
-  padding-top: 52px !important;
-}
-.nominate:before {
-  content: "■ TAVERN JUKEBOX // CAST YOUR VOTE _ 🗖 ✕";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 34px;
-  background: #251c35;
-  color: var(--rose);
-  font-family: var(--pixel);
-  font-size: 10px;
-  display: flex;
-  align-items: center;
-  padding: 0 14px;
-  border-bottom: 3px solid #181224;
-  letter-spacing: 0.1em;
-}
-.nominate-search input {
-  background: #231c33 !important;
-  border: 3px solid #181224 !important;
-  box-shadow: 4px 4px 0px #181224 !important;
-  color: var(--cream) !important;
-  font-family: var(--pixel) !important;
-  font-size: 12px !important;
-  border-radius: 0px !important;
-  padding: 14px 18px !important;
-}
-.nominate-search button {
-  background: var(--coral) !important;
-  color: var(--navy) !important;
-  font-size: 11px !important;
-  padding: 14px 22px !important;
-}
-.nominate-results li {
-  background: #3d2f57 !important;
-  border: 2px solid #181224 !important;
-  box-shadow: 3px 3px 0px #181224 !important;
-  border-radius: 0px !important;
-}
-.nominate-results li button {
-  background: var(--lime) !important;
-  color: var(--navy) !important;
-  font-size: 10px !important;
-  padding: 8px 14px !important;
-}
-
-/* 7. FAQs Adventurer's Guidebook */
-.faq {
-  background: var(--navy-2) !important;
-}
-.faq-item {
-  background: #352a4d !important;
-  margin-bottom: 16px !important;
-}
-.faq-item > button {
-  font-family: var(--pixel) !important;
-  font-size: 12px !important;
-  line-height: 1.5 !important;
-  padding: 18px 22px !important;
-  color: var(--cream) !important;
-}
-.faq-item--open {
-  background: #3e3256 !important;
-  border-color: var(--yellow) !important;
-}
-.faq-item--open > button {
-  color: var(--yellow) !important;
-}
-.faq-item__answer p {
-  font-family: var(--body-pixel) !important;
-  font-size: 16px !important;
   line-height: 1.7 !important;
-  color: #ded6ee !important;
-}
-
-/* 8. Dialogue Box Flourish */
-.dialogue-box {
-  background: var(--parchment);
-  border: 3px solid #181224;
-  box-shadow: 5px 5px 0px #181224;
-  color: var(--ink);
-  padding: 18px 24px;
   position: relative;
-  font-family: var(--body-pixel);
+  display: block;
 }
-.dialogue-arrow {
-  display: inline-block;
-  color: var(--coral);
+.lead-copy:after {
+  content: " ▼";
+  color: #d1567d;
+  font-size: 13px;
   animation: pixelBounce 1s infinite alternate;
-  font-size: 14px;
+  display: inline-block;
   margin-left: 6px;
 }
 @keyframes pixelBounce {
@@ -3999,25 +3887,185 @@ body, p, span, div, li, input, textarea, select {
   100% { transform: translateY(3px); }
 }
 
-/* 9. Transition Ribbons */
+/* 6. Tracks Section (Quest Log Scrolls) */
+.tracks {
+  background: #edf7ef !important;
+}
+.tracks__active-card {
+  background: #ffffff !important;
+  color: #2d1f36 !important;
+  transform: rotate(0deg) !important;
+  position: relative;
+  padding-top: 50px !important;
+  border: 3px solid #2d1f36 !important;
+  box-shadow: 6px 6px 0px #2d1f36 !important;
+  border-radius: 12px !important;
+}
+.tracks__active-card:before {
+  content: "■ QUEST LOG // TRACK DETAILS  _ 🗖 ✕";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 32px;
+  background: #b6daf0 !important;
+  color: #2d1f36 !important;
+  font-family: var(--pixel);
+  font-size: 9px;
+  display: flex;
+  align-items: center;
+  padding: 0 14px;
+  border-bottom: 2.5px solid #2d1f36;
+  border-radius: 8px 8px 0 0;
+  letter-spacing: 0.1em;
+}
+.tracks__active-card h3 {
+  font-size: clamp(20px, 3vw, 30px) !important;
+  color: #2d1f36 !important;
+  text-shadow: 1px 1px 0px #f8b4cb !important;
+}
+.tracks__active-card p {
+  font-size: 16px !important;
+  color: #443452 !important;
+  line-height: 1.65 !important;
+}
+.tracks__dataset-download {
+  background: #9ec5a6 !important;
+  color: #2d1f36 !important;
+  font-size: 11px !important;
+  padding: 12px 22px !important;
+}
+.tracks__dataset-download:hover {
+  background: #b5dab9 !important;
+  transform: translate(-2px, -2px) !important;
+  box-shadow: 5px 5px 0px #2d1f36 !important;
+}
+.tracks__card {
+  border: 2.5px solid #2d1f36 !important;
+  box-shadow: 3.5px 3.5px 0px #2d1f36 !important;
+  border-radius: 8px !important;
+  background: #ffffff !important;
+  color: #2d1f36 !important;
+}
+.tracks__card.is-active {
+  background: #fff3e3 !important;
+  border-color: #d1567d !important;
+  box-shadow: 4px 4px 0px #2d1f36 !important;
+}
+
+/* 7. Nominate / Spotify Bards' Jukebox Section */
+.nominate {
+  background: #fdf0f4 !important;
+  position: relative;
+  padding-top: 52px !important;
+  border: 3px solid #2d1f36 !important;
+  box-shadow: 6px 6px 0px #2d1f36 !important;
+  border-radius: 12px !important;
+}
+.nominate:before {
+  content: "■ TAVERN JUKEBOX // CAST YOUR VOTE  _ 🗖 ✕";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 32px;
+  background: #f8b4cb !important;
+  color: #2d1f36 !important;
+  font-family: var(--pixel);
+  font-size: 9px;
+  display: flex;
+  align-items: center;
+  padding: 0 14px;
+  border-bottom: 2.5px solid #2d1f36;
+  border-radius: 8px 8px 0 0;
+  letter-spacing: 0.1em;
+}
+.nominate-search input {
+  background: #ffffff !important;
+  border: 2.5px solid #2d1f36 !important;
+  box-shadow: 3.5px 3.5px 0px #2d1f36 !important;
+  color: #2d1f36 !important;
+  font-family: var(--body-pixel) !important;
+  font-size: 15px !important;
+  border-radius: 8px !important;
+  padding: 12px 18px !important;
+}
+.nominate-search button {
+  background: #f89bb4 !important;
+  color: #2d1f36 !important;
+  font-size: 11px !important;
+  padding: 12px 20px !important;
+}
+.nominate-results li {
+  background: #ffffff !important;
+  border: 2.5px solid #2d1f36 !important;
+  box-shadow: 3px 3px 0px #2d1f36 !important;
+  border-radius: 8px !important;
+  color: #2d1f36 !important;
+}
+.nominate-results li button {
+  background: #9ec5a6 !important;
+  color: #2d1f36 !important;
+  font-size: 10px !important;
+  padding: 8px 14px !important;
+}
+
+/* 8. FAQs Section (Adventurer's Guidebook) */
+.faq {
+  background: #f4eff9 !important;
+}
+.faq-item {
+  background: #ffffff !important;
+  border: 2.5px solid #2d1f36 !important;
+  box-shadow: 4px 4px 0px #2d1f36 !important;
+  border-radius: 8px !important;
+  margin-bottom: 14px !important;
+}
+.faq-item > button {
+  font-family: var(--pixel) !important;
+  font-size: 12px !important;
+  line-height: 1.5 !important;
+  padding: 18px 22px !important;
+  color: #2d1f36 !important;
+}
+.faq-item--open {
+  background: #fffceb !important;
+  border-color: #2d1f36 !important;
+}
+.faq-item--open > button {
+  color: #d1567d !important;
+}
+.faq-item__answer p {
+  font-family: var(--body-pixel) !important;
+  font-size: 16px !important;
+  line-height: 1.7 !important;
+  color: #443452 !important;
+}
+
+/* 9. Sweet Pastel Transition Ribbons */
 .transition-ribbons {
-  border-top: 3px solid #181224 !important;
-  border-bottom: 3px solid #181224 !important;
+  border-top: 2.5px solid #2d1f36 !important;
+  border-bottom: 2.5px solid #2d1f36 !important;
 }
 .transition-ribbon--upper {
-  background: var(--lime) !important;
-  color: var(--navy) !important;
+  background: #f89bb4 !important;
+  color: #2d1f36 !important;
 }
 .transition-ribbon--lower {
-  background: var(--coral) !important;
-  color: var(--navy) !important;
+  background: #fde88a !important;
+  color: #2d1f36 !important;
 }
 .transition-ribbon__mark {
   font-family: var(--pixel) !important;
-  font-size: clamp(14px, 2.2vw, 22px) !important;
+  font-size: clamp(13px, 2vw, 20px) !important;
 }
 
-/* 10. Navigation HUD */
+/* 10. Navigation HUD & Menu */
+.site-header {
+  background: rgba(250, 246, 238, 0.85) !important;
+  backdrop-filter: blur(8px) !important;
+  border-bottom: 2px solid rgba(45, 31, 54, 0.1) !important;
+}
 .menu-rail {
   clip-path: none !important;
   background: transparent !important;
@@ -4028,11 +4076,11 @@ body, p, span, div, li, input, textarea, select {
 }
 .menu-rail .menu-trigger {
   clip-path: none !important;
-  background: #3e3256 !important;
-  border: 3px solid #181224 !important;
-  box-shadow: 4px 4px 0px #181224 !important;
-  border-radius: 0px !important;
-  padding: 12px 14px !important;
+  background: #ffffff !important;
+  border: 2.5px solid #2d1f36 !important;
+  box-shadow: 3.5px 3.5px 0px #2d1f36 !important;
+  border-radius: 8px !important;
+  padding: 10px 14px !important;
   flex-direction: row !important;
   gap: 10px !important;
 }
@@ -4040,73 +4088,76 @@ body, p, span, div, li, input, textarea, select {
   writing-mode: horizontal-tb !important;
   font-family: var(--pixel) !important;
   font-size: 11px !important;
-  color: var(--yellow) !important;
+  color: #2d1f36 !important;
 }
 .menu-trigger__icon {
-  width: 32px !important;
-  height: 32px !important;
-  border-radius: 0px !important;
-  border: 2px solid #181224 !important;
-  background: var(--coral) !important;
-  color: var(--navy) !important;
+  width: 28px !important;
+  height: 28px !important;
+  border-radius: 4px !important;
+  border: 2px solid #2d1f36 !important;
+  background: #f89bb4 !important;
+  color: #2d1f36 !important;
 }
 
-/* Menu Drawer */
 .menu-panel {
-  background: #2b213f !important;
-  border-left: 4px solid #181224 !important;
-  box-shadow: -8px 0px 0px rgba(0, 0, 0, 0.4) !important;
+  background: #fdfbf7 !important;
+  border-left: 3.5px solid #2d1f36 !important;
+  box-shadow: -8px 0px 24px rgba(45, 31, 54, 0.15) !important;
 }
 .menu-panel__nav a {
-  background: #382c4e !important;
-  border: 2px solid #181224 !important;
-  box-shadow: 3px 3px 0px #181224 !important;
-  border-radius: 0px !important;
+  background: #ffffff !important;
+  border: 2px solid #2d1f36 !important;
+  box-shadow: 3px 3px 0px #2d1f36 !important;
+  border-radius: 6px !important;
+  color: #2d1f36 !important;
   margin-bottom: 8px !important;
 }
 .menu-panel__nav a:hover {
-  background: var(--coral) !important;
-  color: var(--navy) !important;
+  background: #f89bb4 !important;
+  color: #2d1f36 !important;
   transform: translate(-2px, -2px) !important;
-  box-shadow: 5px 5px 0px #181224 !important;
+  box-shadow: 4px 4px 0px #2d1f36 !important;
 }
 .menu-panel__login-link {
-  background: var(--sage) !important;
-  color: var(--navy) !important;
+  background: #9ec5a6 !important;
+  color: #2d1f36 !important;
 }
 
 /* Audio Toggle HUD */
 .music-toggle {
-  background: #3e3256 !important;
-  border: 3px solid #181224 !important;
-  box-shadow: 4px 4px 0px #181224 !important;
-  border-radius: 0px !important;
+  background: #ffffff !important;
+  border: 2.5px solid #2d1f36 !important;
+  box-shadow: 3.5px 3.5px 0px #2d1f36 !important;
+  border-radius: 8px !important;
 }
 .music-toggle__state {
   font-family: var(--pixel) !important;
   font-size: 9px !important;
+  color: #2d1f36 !important;
 }
 .music-toggle:hover {
   transform: translate(-50%, -50%) translate(-2px, -2px) !important;
-  box-shadow: 6px 6px 0px #181224 !important;
+  box-shadow: 5px 5px 0px #2d1f36 !important;
+  background: #fff8f0 !important;
 }
 
-/* Pixel scrollbar */
+/* Sweet Scrollbar */
 ::-webkit-scrollbar {
   width: 10px;
   height: 10px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--navy-2);
-  border-left: 2px solid #181224;
+  background: #faf6ee;
+  border-left: 2px solid #2d1f36;
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--primary);
-  border: 2px solid #181224;
-  box-shadow: inset -1px -1px 0px #181224, inset 1px 1px 0px #ffe2b8;
+  background: #f89bb4;
+  border: 2px solid #2d1f36;
+  box-shadow: inset -1px -1px 0px #2d1f36, inset 1px 1px 0px #fff;
 }
 * {
-  scrollbar-color: var(--primary) var(--navy-2);
+  scrollbar-color: #f89bb4 #faf6ee;
   scrollbar-width: thin;
 }
+
 
