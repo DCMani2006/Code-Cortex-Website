@@ -1620,22 +1620,13 @@ h3 em {
   max-width: 400px;
 }
 .tracks__canvas {
+  align-items: stretch;
   display: grid;
-  grid-template-columns: 1.1fr 0.9fr;
+  gap: clamp(24px, 3vw, 48px);
+  grid-template-columns: 1fr 1fr;
   min-height: 530px;
   padding: 54px 0 34px;
   position: relative;
-}
-.tracks__object-image {
-  align-items: center;
-  display: flex;
-  justify-content: center;
-  overflow: hidden;
-  transform: translateX(-10%);
-}
-.tracks__object-image .wireframe-stamp {
-  animation: stampFloat 6s ease-in-out -1s infinite;
-  transform: rotate(-7deg);
 }
 .tracks__active-card {
   align-self: center;
@@ -1812,18 +1803,20 @@ h3 em {
 }
 .tracks__rail {
   border-top: 1px solid rgba(246, 240, 220, 0.42);
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 .track-tab {
   align-items: center;
   background: transparent;
-  border-bottom: 3px solid transparent;
-  display: flex;
-  flex-direction: column;
-  gap: 13px;
-  min-height: 112px;
-  padding: 17px 9px 14px;
+  border-bottom: 1px solid rgba(246, 240, 220, 0.24);
+  border-left: 5px solid rgba(246, 240, 220, 0.3);
+  display: grid;
+  flex: 1;
+  gap: 20px;
+  grid-template-columns: 50px 1fr 28px;
+  padding: 15px 22px;
   text-align: left;
   transition:
     background 0.22s ease,
@@ -1832,45 +1825,79 @@ h3 em {
     transform 0.22s var(--ease-out);
 }
 .track-tab:hover {
-  background: rgba(246, 240, 220, 0.09);
-  transform: translateY(-4px);
+  background: var(--cyan);
+  border-left-color: var(--cyan);
+  color: var(--navy);
+  transform: translateX(18px);
+}
+.track-tab--coral:hover {
+  background: var(--coral);
+  border-left-color: var(--coral);
+}
+.track-tab--lime:hover {
+  background: var(--lime);
+  border-left-color: var(--lime);
+}
+.track-tab--blue:hover {
+  background: var(--cyan);
+  border-left-color: var(--cyan);
+}
+.track-tab--violet:hover {
+  background: var(--violet);
+  border-left-color: var(--violet);
+}
+.track-tab--yellow:hover {
+  background: var(--yellow);
+  border-left-color: var(--yellow);
+}
+.track-tab:hover .track-tab__number,
+.track-tab:hover svg {
+  color: var(--navy);
+  opacity: 1;
 }
 .track-tab--active {
-  background: rgba(246, 240, 220, 0.12);
-  border-bottom-color: var(--cyan);
+  background: rgba(246, 240, 220, 0.14);
+  border-left-color: var(--cyan);
 }
 .track-tab--coral.track-tab--active {
-  border-color: var(--coral);
+  border-left-color: var(--coral);
 }
 .track-tab--lime.track-tab--active {
-  border-color: var(--lime);
+  border-left-color: var(--lime);
 }
 .track-tab--blue.track-tab--active {
-  border-color: var(--cyan);
+  border-left-color: var(--cyan);
 }
 .track-tab--violet.track-tab--active {
-  border-color: var(--violet);
+  border-left-color: var(--violet);
 }
 .track-tab--yellow.track-tab--active {
-  border-color: var(--yellow);
+  border-left-color: var(--yellow);
 }
 .track-tab span:nth-child(2) {
-  font-size: 13px;
+  font-size: 21px;
   font-weight: 500;
-  letter-spacing: -0.03em;
-  line-height: 1.05;
-  min-height: 30px;
-  width: 100%;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
 }
 .track-tab__number {
   color: var(--cyan);
   font-family: var(--mono);
-  font-size: 9px;
-  width: 100%;
+  font-size: 13px;
+  transition: color 0.22s ease, opacity 0.22s ease;
 }
 .track-tab svg {
-  align-self: flex-end;
+  height: 20px;
+  justify-self: end;
   opacity: 0.7;
+  transition: opacity 0.22s ease, transform 0.22s var(--ease-out);
+  width: 20px;
+}
+.track-tab:hover svg {
+  transform: translateX(3px);
+}
+.track-tab:active {
+  transform: translateX(18px) scale(0.97);
 }
 .tracks__dots {
   display: none;
@@ -3077,14 +3104,8 @@ h3 em {
   .duo-card {
     min-height: 420px;
   }
-  .tracks__canvas {
-    grid-template-columns: 0.9fr 1.1fr;
-  }
-  .tracks__object-image {
-    transform: translateX(-18%);
-  }
   .track-tab span:nth-child(2) {
-    font-size: 11px;
+    font-size: 15px;
   }
   .event-card {
     min-height: 390px;
@@ -3411,12 +3432,6 @@ h3 em {
     display: block;
     min-height: 0;
     padding-top: 24px;
-  }
-  .tracks__object-image {
-    height: 220px;
-    margin-left: -10%;
-    transform: none;
-    width: 120%;
   }
   .tracks__active-card {
     min-height: 420px;
