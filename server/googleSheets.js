@@ -68,9 +68,46 @@ export async function initGoogleSheets() {
       scopes: ['https://www.googleapis.com/auth/spreadsheets'],
     });
 
+    if (!process.env.GOOGLE_SHEET_ID) {
+      throw new Error('GOOGLE_SHEET_ID environment variable is missing. Please set it in server/.env');
+    }
+
     doc = new GoogleSpreadsheet(process.env.GOOGLE_SHEET_ID, jwt);
   }
   await doc.loadInfo(); // loads document properties and worksheets
+
+  const requiredSheets = [
+    {
+      title: 'Users',
+      headerValues: ['User_ID', 'Name', 'Email', 'Role (Participant/Admin)', 'Team_ID', 'Password']
+    },
+    {
+      title: 'Team',
+      headerValues: ['Team_ID', 'Team_ Name', 'Track', 'Team_Leader', 'No. of Members', 'Password']
+    },
+    {
+      title: 'Submissions',
+      headerValues: ['Team_ID', 'Team_Name', 'Project_Description', 'GitHub Link', 'Figma Link', 'Submission Time']
+    },
+    {
+      title: 'Reviews_Scores',
+      headerValues: ['Team_ID', 'Team_Name', 'Admin_Name', 'Approach (20)', 'Scalability (10)', 'Design (20)', 'Tech (30)', 'USP (20)', 'Total_Score', 'Review_Round']
+    }
+  ];
+
+  for (const req of requiredSheets) {
+    if (!doc.sheetsByTitle[req.title]) {
+      try {
+        await doc.addSheet({
+          title: req.title,
+          headerValues: req.headerValues
+        });
+      } catch (e) {
+        console.error(`Failed to auto-create sheet ${req.title}:`, e);
+      }
+    }
+  }
+
   return doc;
 }
 
