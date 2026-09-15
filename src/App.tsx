@@ -1103,7 +1103,7 @@ const googleSignup = useGoogleLogin({
                       padding: "4px 10px",
                       borderRadius: "6px",
                       border: "2px solid #2d1f36",
-                      boxShadow: "2.5px 2.5px 0px #f89bb4",
+                      boxShadow: "2.5px 2.5px 0px #7abcc4",
                       display: "inline-flex",
                       alignItems: "center"
                     }}>

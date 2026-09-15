@@ -39,51 +39,56 @@
 }
 
 :root {
-  --primary: #f89bb4;
+  --primary: #7abcc4;
   --primary-foreground: #2d1f36;
-  --background: #faf6ee;
+  --background: #feeddd;
   --foreground: #2d1f36;
   --card: #ffffff;
   --card-foreground: #2d1f36;
   --popover: #ffffff;
   --popover-foreground: #2d1f36;
-  --secondary: #ede5f5;
+  --secondary: #e8f3f5;
   --secondary-foreground: #2d1f36;
-  --muted: #f4ede3;
-  --muted-foreground: #6b5b73;
-  --accent: #9ec5a6;
+  --muted: #fbf5ee;
+  --muted-foreground: #606d7a;
+  --accent: #9391bc;
   --accent-foreground: #2d1f36;
-  --destructive: #f4829a;
+  --destructive: #df678f;
   --destructive-foreground: #fff;
   --border: #2d1f36;
   --input: #2d1f36;
-  --ring: #f89bb4;
-  --sidebar: #faf6ee;
+  --ring: #7abcc4;
+  --sidebar: #feeddd;
   --sidebar-foreground: #2d1f36;
-  --sidebar-primary: #f89bb4;
+  --sidebar-primary: #7abcc4;
   --sidebar-primary-foreground: #2d1f36;
-  --sidebar-accent: #ede5f5;
+  --sidebar-accent: #e8f3f5;
   --sidebar-accent-foreground: #2d1f36;
   --sidebar-border: #2d1f36;
-  --sidebar-ring: #f89bb4;
+  --sidebar-ring: #7abcc4;
   --radius: 0px;
 
-  /* Bright & Cozy Pastel RPG Theme Tokens */
-  --navy: #faf6ee;
-  --navy-2: #f4ede3;
+  /* Cozy Pastel RPG Palette (Soft Sky Cyan & Slate Periwinkle Blues) */
+  --navy: #feeddd;
+  --navy-2: #f6ebd8;
   --cream: #2d1f36;
   --parchment: #ffffff;
   --ink: #2d1f36;
-  --cyan: #9fd3e8;
-  --coral: #f89bb4;
-  --cobalt: #b8aee6;
+  --cyan: #7abcc4;
+  --cyan-dark: #62a3ab;
+  --cyan-light: #9adce3;
+  --slate-blue: #9391bc;
+  --slate-blue-dark: #7b78a3;
+  --coral: #7abcc4;
+  --coral-accent: #f3a6ba;
+  --cobalt: #9391bc;
   --lime: #9ec5a6;
   --yellow: #fde88a;
-  --violet: #d0b8f2;
-  --rose: #fba8c4;
-  --peach: #fbc7a4;
+  --violet: #9391bc;
+  --rose: #f3a6ba;
+  --peach: #fec1b6;
   --sage: #a3c9a8;
-  --amber: #fbc7a4;
+  --amber: #fec1b6;
   --amber-bright: #fde88a;
 
   /* Pixel Typography */
@@ -3782,7 +3787,7 @@ body, p, span, div, li, input, textarea, select {
   color: #2d1f36 !important;
 }
 .round-cta {
-  background: #f89bb4 !important;
+  background: #7abcc4 !important;
   color: #2d1f36 !important;
   width: 110px !important;
   height: 110px !important;
@@ -3792,7 +3797,7 @@ body, p, span, div, li, input, textarea, select {
 .round-cta:hover {
   transform: translate(-2px, -2px) !important;
   box-shadow: 5px 5px 0px #2d1f36 !important;
-  background: #fcaec3 !important;
+  background: #9adce3 !important;
 }
 .round-cta:active {
   transform: translate(2px, 2px) !important;
@@ -3952,7 +3957,7 @@ body, p, span, div, li, input, textarea, select {
   padding: 12px 18px !important;
 }
 .nominate-search button {
-  background: #f89bb4 !important;
+  background: #7abcc4 !important;
   color: #2d1f36 !important;
   font-size: 11px !important;
   padding: 12px 20px !important;
@@ -4009,7 +4014,7 @@ body, p, span, div, li, input, textarea, select {
   border-bottom: 2.5px solid #2d1f36 !important;
 }
 .transition-ribbon--upper {
-  background: #f89bb4 !important;
+  background: #7abcc4 !important;
   color: #2d1f36 !important;
 }
 .transition-ribbon--lower {
@@ -4079,7 +4084,7 @@ body, p, span, div, li, input, textarea, select {
   background: #2d1f36;
   border: 2px solid #2d1f36;
   border-radius: 6px;
-  box-shadow: 3px 3px 0px #f89bb4, inset 0 0 0 1px rgba(255, 255, 255, 0.25);
+  box-shadow: 3px 3px 0px #7abcc4, inset 0 0 0 1px rgba(255, 255, 255, 0.25);
   transition: box-shadow 0.2s ease, transform 0.2s ease;
 }
 .brand--pixel-flashy:hover .brand-logo-frame {
@@ -4097,7 +4102,7 @@ body, p, span, div, li, input, textarea, select {
 }
 @keyframes sparkleRotate {
   0% { transform: scale(0.9) rotate(0deg); color: #fde88a; }
-  50% { transform: scale(1.25) rotate(15deg); color: #f89bb4; }
+  50% { transform: scale(1.25) rotate(15deg); color: #7abcc4; }
   100% { transform: scale(0.9) rotate(-10deg); color: #fde88a; }
 }
 .brand__tam-logo {
@@ -4116,7 +4121,7 @@ body, p, span, div, li, input, textarea, select {
 .brand__bottom {
   font-family: var(--body-pixel);
   font-size: 9.5px;
-  color: #f89bb4;
+  color: #7abcc4;
   font-weight: 700;
   letter-spacing: 0.08em;
 }
@@ -4238,7 +4243,7 @@ body, p, span, div, li, input, textarea, select {
   align-items: center;
   gap: 7px;
   padding: 8px 14px;
-  background: #f89bb4;
+  background: #7abcc4;
   border: 2.5px solid #2d1f36;
   border-radius: 6px;
   box-shadow: 3.5px 3.5px 0px #2d1f36;
@@ -4251,7 +4256,7 @@ body, p, span, div, li, input, textarea, select {
 .pixel-nav-menu-btn:hover {
   transform: translate(-1.5px, -1.5px);
   box-shadow: 5px 5px 0px #2d1f36;
-  background: #fba8c4;
+  background: #9adce3;
 }
 .pixel-nav-menu-btn:active {
   transform: translate(2px, 2px);
@@ -4272,7 +4277,7 @@ body, p, span, div, li, input, textarea, select {
   margin-bottom: 8px !important;
 }
 .menu-panel__nav a:hover {
-  background: #f89bb4 !important;
+  background: #7abcc4 !important;
   color: #2d1f36 !important;
   transform: translate(-2px, -2px) !important;
   box-shadow: 4px 4px 0px #2d1f36 !important;
@@ -4368,7 +4373,7 @@ body, p, span, div, li, input, textarea, select {
   margin-bottom: 0;
 }
 .hero-headline-block h1 em {
-  color: #f89bb4 !important;
+  color: #7abcc4 !important;
   font-style: normal;
   text-shadow: 2px 2px 0px rgba(45, 31, 54, 0.12);
 }
@@ -4404,11 +4409,11 @@ body, p, span, div, li, input, textarea, select {
   box-shadow: 2px 2px 0px #2d1f36;
 }
 .hero-pixel-btn--primary {
-  background: #f89bb4;
+  background: #7abcc4;
   color: #2d1f36;
 }
 .hero-pixel-btn--primary:hover {
-  background: #fba8c4;
+  background: #9adce3;
 }
 .hero-pixel-btn--secondary {
   background: #fde88a;
@@ -4554,7 +4559,7 @@ body, p, span, div, li, input, textarea, select {
   font-family: var(--pixel);
   font-size: 8px;
   color: #2d1f36;
-  background: #f89bb4;
+  background: #7abcc4;
   border: 1.5px solid #2d1f36;
   border-radius: 4px;
   padding: 2px 7px;
@@ -4572,7 +4577,7 @@ body, p, span, div, li, input, textarea, select {
   justify-content: space-between;
 }
 .dialogue-arrow {
-  color: #f89bb4;
+  color: #7abcc4;
   font-size: 11px;
   animation: bouncePrompt 0.8s ease-in-out infinite alternate;
 }
@@ -4629,12 +4634,12 @@ body, p, span, div, li, input, textarea, select {
   border-left: 2px solid #2d1f36;
 }
 ::-webkit-scrollbar-thumb {
-  background: #f89bb4;
+  background: #7abcc4;
   border: 2px solid #2d1f36;
   box-shadow: inset -1px -1px 0px #2d1f36, inset 1px 1px 0px #fff;
 }
 * {
-  scrollbar-color: #f89bb4 #faf6ee;
+  scrollbar-color: #7abcc4 #faf6ee;
   scrollbar-width: thin;
 }
 
@@ -4682,7 +4687,7 @@ body, p, span, div, li, input, textarea, select {
 .mentor-avatar {
   width: 38px;
   height: 38px;
-  background: #f89bb4;
+  background: #7abcc4;
   border: 2px solid #2d1f36;
   border-radius: 6px;
   display: flex;
@@ -4739,7 +4744,7 @@ body, p, span, div, li, input, textarea, select {
   right: 28px;
   width: 24px;
   height: 38px;
-  background: #f89bb4;
+  background: #9391bc;
   border: 2px solid #2d1f36;
   box-shadow: 2px 2px 0px #2d1f36;
   clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 80%, 0 100%);
@@ -4805,7 +4810,7 @@ body, p, span, div, li, input, textarea, select {
   box-shadow: 4.5px 4.5px 0px #2d1f36 !important;
 }
 .track-tab--active {
-  background: #f89bb4 !important;
+  background: #7abcc4 !important;
   transform: translate(2px, 2px) !important;
   box-shadow: 1px 1px 0px #2d1f36 !important;
 }
@@ -4824,7 +4829,7 @@ body, p, span, div, li, input, textarea, select {
   color: #2d1f36 !important;
 }
 .nominate-search button {
-  background: #f89bb4 !important;
+  background: #7abcc4 !important;
   border: 2.5px solid #2d1f36 !important;
   border-radius: 6px !important;
   box-shadow: 3px 3px 0px #2d1f36 !important;
@@ -4846,7 +4851,7 @@ body, p, span, div, li, input, textarea, select {
 .nomination-card--selected {
   border-color: #2d1f36 !important;
   background: #ede5f5 !important;
-  box-shadow: 4px 4px 0px #f89bb4 !important;
+  box-shadow: 4px 4px 0px #7abcc4 !important;
 }
 
 /* CHAPTER 07: EXPEDITIONS ROADMAP (EVENTS) */
@@ -4900,7 +4905,7 @@ body, p, span, div, li, input, textarea, select {
   color: #2d1f36 !important;
 }
 .faq__tabs button.is-active {
-  background: #f89bb4 !important;
+  background: #7abcc4 !important;
   transform: translate(1px, 1px) !important;
   box-shadow: 1px 1px 0px #2d1f36 !important;
 }
@@ -4924,7 +4929,7 @@ body, p, span, div, li, input, textarea, select {
   transition: transform 0.12s ease, box-shadow 0.12s ease !important;
 }
 .footer__socials a:hover {
-  background: #f89bb4 !important;
+  background: #7abcc4 !important;
   transform: translate(-2px, -2px) !important;
   box-shadow: 5px 5px 0px #2d1f36 !important;
 }

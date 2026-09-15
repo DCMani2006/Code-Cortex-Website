@@ -10,8 +10,8 @@
   --cream: #2d1f36;
   --ink: #2d1f36;
   --cyan: #9fd3e8;
-  --coral: #f89bb4;
-  --coral-dark: #f4829a;
+  --coral: #7abcc4;
+  --coral-dark: #62a3ab;
   --yellow: #fde88a;
   --yellow-dark: #fbc7a4;
   --lime: #9ec5a6;
@@ -34,7 +34,7 @@
   /* Bootstrap Semantic Overrides */
   --bs-body-bg: var(--navy);
   --bs-body-color: var(--cream);
-  --bs-info: #f89bb4;
+  --bs-info: #9391bc;
   --bs-secondary: #6b5b73;
   --bs-danger: #f4829a;
   --bs-success: #9ec5a6;
@@ -257,7 +257,7 @@ html, body, #root {
 .form-control:focus, .form-select:focus {
   background: #ffffff !important;
   border-color: var(--coral) !important;
-  box-shadow: 0 0 0 3px rgba(248, 155, 180, 0.35) !important;
+  box-shadow: 0 0 0 3px rgba(122, 188, 196, 0.35) !important;
   outline: none !important;
 }
 
@@ -391,7 +391,7 @@ h1, h2, h3, h4, h5, h6 {
   border-left: 2px solid #2d1f36;
 }
 ::-webkit-scrollbar-thumb {
-  background: #f89bb4;
+  background: #7abcc4;
   border: 2px solid #2d1f36;
   box-shadow: inset -1px -1px 0px #2d1f36, inset 1px 1px 0px #fff;
 }
