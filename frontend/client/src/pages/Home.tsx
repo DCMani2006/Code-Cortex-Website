@@ -1006,10 +1006,11 @@ export default function Home() {
 
         <section
           id="about"
-          className="about section-light page-pad"
+          className="about section-light page-pad tavern-scene"
           data-reveal
         >
           <div className="about__intro">
+            <span className="chapter-badge">⚔️ CHAPTER 01 // THE HACKER'S TAVERN</span>
             <SectionLabel number="01">ABOUT THE JAM</SectionLabel>
             <div className="heading-with-icon">
               <HeadingIcon icon={Info} label="About" />
@@ -1025,6 +1026,23 @@ export default function Home() {
               showcase their coding skills, and develop groundbreaking
               solutions, judged by industry experts.
             </p>
+            <div className="tavern-mentor-card">
+              <div className="tavern-mentor-header">
+                <div className="mentor-avatar">🧙‍♂️</div>
+                <div>
+                  <span className="mentor-nameplate">MENTOR ARCHIE</span>
+                  <span style={{ fontSize: "11px", color: "#6b5b73", marginLeft: "8px", fontFamily: "var(--body-pixel)" }}>Master Hacker</span>
+                </div>
+              </div>
+              <p style={{ margin: 0, fontSize: "13px", lineHeight: "1.5", fontFamily: "var(--body-pixel)", color: "#2d1f36" }}>
+                "Welcome to the tavern, traveler! The 30-hour clock starts ticking the moment you enter the arena. Choose your direction wisely and forge your masterpiece."
+              </p>
+              <div className="tavern-quest-pouches">
+                <span className="quest-pouch">⏱️ 30 HOURS NON-STOP</span>
+                <span className="quest-pouch">⚔️ 5 DUNGEONS</span>
+                <span className="quest-pouch">🏆 EPIC PRIZES</span>
+              </div>
+            </div>
             <a
               className="text-link"
               href="#tracks"
@@ -1032,12 +1050,13 @@ export default function Home() {
                 event.preventDefault();
                 jumpTo("#tracks");
               }}
+              style={{ marginTop: "16px", display: "inline-flex" }}
             >
-              Find your track <ArrowRight size={18} />
+              Find your dungeon track <ArrowRight size={18} />
             </a>
           </div>
           <div className="about__visual">
-            <div className="about__visual-label">VIT / 12°58′N 79°09′E</div>
+            <div className="about__visual-label">🏰 VIT KINGDOM / 12°58′N 79°09′E</div>
             <div className="map-card">
               <div className="map-card__rings" />
               <div className="map-card__route map-card__route--one" />
@@ -1047,9 +1066,9 @@ export default function Home() {
               <span className="map-card__pin map-card__pin--three" />
               <WireframeStamp words={["MAKE", "IT", "USEFUL"]} size="large" />
               <span className="map-card__caption">
-                A SMALL DOT
+                MAP // REALM OF BUILDERS
                 <br />
-                WITH BIG IDEAS
+                DISCOVER THE UNKNOWN
               </span>
             </div>
           </div>
@@ -1060,37 +1079,41 @@ export default function Home() {
             <GridDoodle />
           </div>
           <div className="manifesto__content">
+            <span className="chapter-badge">📜 CHAPTER 02 // THE ANCIENT TOME OF RULES</span>
             <SectionLabel number="02">WHO WE ARE</SectionLabel>
-            <div className="manifesto__columns">
-              <div>
-                <div className="heading-with-icon">
-                  <HeadingIcon icon={Sparkles} label="Who we are" />
-                  <h2>
-                    Curiosity
-                    <br />
-                    <span>with a deadline.</span>
-                  </h2>
+            <div className="ancient-tome">
+              <div className="tome-bookmark" />
+              <div className="manifesto__columns">
+                <div>
+                  <div className="heading-with-icon">
+                    <HeadingIcon icon={Sparkles} label="Who we are" />
+                    <h2>
+                      Curiosity
+                      <br />
+                      <span>with a deadline.</span>
+                    </h2>
+                  </div>
                 </div>
-              </div>
-              <div>
-                <p>
-                  The AI &amp; ML Club is a student-led initiative committed to
-                  exploring the transformative potential of AI and ML across
-                  diverse domains such as healthcare, finance, and education.
-                  Through interactive workshops, seminars with industry
-                  professionals, and hands-on projects, we empower students to
-                  deepen their technical knowledge, solve real-world challenges,
-                  and drive innovation.
-                </p>
-                <p>
-                  Together, we aim to shape the future of technology while
-                  fostering collaboration and a passion for AI and ML. Our
-                  mission is to educate, inspire, and support students in
-                  pursuing their passion for AI and ML, providing a platform to
-                  grow, innovate, make meaningful contributions, and to be a
-                  part of something extraordinary.
-                </p>
-                <span className="manifesto__signature">TAM-VIT / 2026</span>
+                <div className="tome-parchment-body">
+                  <p>
+                    The AI &amp; ML Club is a student-led initiative committed to
+                    exploring the transformative potential of AI and ML across
+                    diverse domains such as healthcare, finance, and education.
+                    Through interactive workshops, seminars with industry
+                    professionals, and hands-on projects, we empower students to
+                    deepen their technical knowledge, solve real-world challenges,
+                    and drive innovation.
+                  </p>
+                  <p>
+                    Together, we aim to shape the future of technology while
+                    fostering collaboration and a passion for AI and ML. Our
+                    mission is to educate, inspire, and support students in
+                    pursuing their passion for AI and ML, providing a platform to
+                    grow, innovate, make meaningful contributions, and to be a
+                    part of something extraordinary.
+                  </p>
+                  <span className="manifesto__signature">📜 TAM-VIT GUILD CHARTER / 2026</span>
+                </div>
               </div>
             </div>
           </div>
@@ -1099,11 +1122,12 @@ export default function Home() {
         <section className="duo-story page-pad" data-reveal>
           <article className="duo-card duo-card--vit">
             <div className="duo-card__top">
-              <SectionLabel number="03">ABOUT VIT</SectionLabel>
+              <span className="chapter-badge" style={{ marginBottom: 0 }}>🏰 CHAPTER 03</span>
               <Globe size={24} />
             </div>
+            <SectionLabel number="03">ABOUT VIT</SectionLabel>
             <h3>
-              A campus
+              The Citadel
               <br />
               with <em>range.</em>
             </h3>
@@ -1120,25 +1144,29 @@ export default function Home() {
               A++ accreditation with a score of 3.66/4.0.
             </p>
             <span className="duo-card__footer">
-              12°58′N / 79°09′E <ArrowUpRight size={18} />
+              ROYAL REALM // 12°58′N 79°09′E <ArrowUpRight size={18} />
             </span>
           </article>
           <article className="duo-card duo-card--gdg">
             <div className="duo-card__top">
-              <SectionLabel number="04">ABOUT TAM-VIT</SectionLabel>
+              <span className="chapter-badge" style={{ marginBottom: 0 }}>🛡️ CHAPTER 04</span>
               <Cpu size={24} />
             </div>
+            <SectionLabel number="04">ABOUT TAM-VIT</SectionLabel>
             <h3>
-              Build
+              The Guild
               <br />
-              <em>together.</em>
+              <em>HQ.</em>
             </h3>
             <p>
               People with different tabs open in their heads, making room for
               one another at the same table. That is the whole point.
             </p>
+            <div className="trophy-badge">
+              🏆 VETERANS OF CODE CORTEX 1.0 &amp; 2.0
+            </div>
             <span className="duo-card__footer">
-              COMMUNITY / ALWAYS OPEN <ArrowUpRight size={18} />
+              GUILD HALL // ALWAYS OPEN <ArrowUpRight size={18} />
             </span>
           </article>
         </section>
@@ -1149,12 +1177,13 @@ export default function Home() {
           data-reveal
         >
           <div className="tracks__header">
+            <span className="chapter-badge">🚪 CHAPTER 05 // SELECT YOUR DUNGEON PATH</span>
             <SectionLabel number="05">PICK A DIRECTION</SectionLabel>
             <div className="tracks__arrows">
-              <button onClick={() => moveTrack(-1)} aria-label="Previous track">
+              <button onClick={() => moveTrack(-1)} aria-label="Previous dungeon track">
                 <ChevronLeft />
               </button>
-              <button onClick={() => moveTrack(1)} aria-label="Next track">
+              <button onClick={() => moveTrack(1)} aria-label="Next dungeon track">
                 <ChevronRight />
               </button>
             </div>
@@ -1163,24 +1192,24 @@ export default function Home() {
             <div className="heading-with-icon">
               <HeadingIcon icon={Layers} label="Tracks" />
               <h2>
-                Five ways
+                Five dungeons
                 <br />
-                <span>to go deep.</span>
+                <span>to conquer.</span>
               </h2>
             </div>
             <p>
-              Follow the thing you cannot stop thinking about. Every track is a
-              different excuse to make something useful, expressive, or
-              beautifully unnecessary.
+              Follow the thing you cannot stop thinking about. Every track is an
+              epic dungeon challenge to forge something useful, expressive, or
+              beautifully extraordinary.
             </p>
           </div>
           <div className="tracks__canvas">
             <div className="tracks__object-image">
-              <WireframeStamp words={["MAKE", "IT", "FUN"]} size="small" />
+              <WireframeStamp words={["CHOOSE", "YOUR", "CLASS"]} size="small" />
             </div>
             <div className="tracks__active-card">
               <div className="tracks__active-card-top">
-                <span>{activeTrack.eyebrow}</span>
+                <span>⚔️ LEVEL 30 // {activeTrack.eyebrow}</span>
                 <span>{activeTrack.sponsor}</span>
               </div>
               <TrackGlyph track={activeTrack} large />
@@ -1193,13 +1222,13 @@ export default function Home() {
                       type="button"
                       className="text-link text-link--dark track-brief-trigger"
                     >
-                      Know more <ArrowUpRight size={18} />
+                      Enter dungeon briefing <ArrowUpRight size={18} />
                     </button>
                   </DialogTrigger>
                   <DialogContent className="track-brief-dialog">
                     <DialogHeader>
                       <DialogTitle className="track-brief-dialog__title">
-                        {activeTrack.name}
+                        ⚔️ {activeTrack.name} — QUEST BRIEFING
                       </DialogTitle>
                     </DialogHeader>
                     <div className="track-brief-dialog__body">
@@ -1211,7 +1240,7 @@ export default function Home() {
                 </Dialog>
                 {activeTrack.dataset === "pick-your-own" ? (
                   <span className="tracks__dataset-note">
-                    Pick your own dataset for this track.
+                    🎒 Pick your own custom loot dataset for this dungeon.
                   </span>
                 ) : activeTrack.dataset ? (
                   <a
@@ -1221,8 +1250,8 @@ export default function Home() {
                     rel="noreferrer"
                   >
                     {activeTrack.dataset.kind === "folder"
-                      ? "Open dataset folder"
-                      : "Download dataset"}{" "}
+                      ? "Open dataset armory"
+                      : "Download quest data"}{" "}
                     {activeTrack.dataset.kind === "folder" ? (
                       <ArrowUpRight size={16} />
                     ) : (
@@ -1231,7 +1260,7 @@ export default function Home() {
                   </a>
                 ) : (
                   <span className="tracks__dataset-note">
-                    Dataset coming soon.
+                    ⏳ Dungeon dataset coming soon.
                   </span>
                 )}
               </div>
@@ -1250,7 +1279,7 @@ export default function Home() {
                 role="tab"
                 aria-selected={index === trackIndex}
               >
-                <span className="track-tab__number">0{index + 1}</span>
+                <span className="track-tab__number">GATE 0{index + 1}</span>
                 <span>{track.name}</span>
                 <ArrowUpRight size={17} />
               </button>
@@ -1274,28 +1303,29 @@ export default function Home() {
           data-reveal
         >
           <div className="nominate__header">
+            <span className="chapter-badge">🕹️ CHAPTER 06 // THE 8-BIT ARCADE JUKEBOX</span>
             <SectionLabel number="06">THE IN-BETWEEN SET</SectionLabel>
             <span className="nominate__live">
-              <span /> LIVE NOMINATION
+              <span /> ● LIVE NOMINATION
             </span>
           </div>
           <div className="nominate__title-row">
             <div className="heading-with-icon">
               <HeadingIcon icon={Music2} label="Nominate" />
               <h2>
-                Pick the next
+                Arcade
                 <br />
                 <span>soundtrack.</span>
               </h2>
             </div>
             <div>
               <p>
-                Search Spotify's catalog and nominate a track. The leaderboard
-                below is live and shared — whoever runs the room's queue picks
-                from the top of it.
+                Insert a coin into the tavern jukebox! Search Spotify's catalog
+                and nominate a soundtrack. The leaderboard below is live and
+                shared across the hackathon floor.
               </p>
               <p className="nominate__note">
-                <Music2 size={16} /> One vote per visitor, change it anytime.
+                <Music2 size={16} /> 🪙 One coin per visitor, change it anytime.
               </p>
             </div>
           </div>
@@ -1304,11 +1334,11 @@ export default function Home() {
             <input
               value={songQuery}
               onChange={(event) => setSongQuery(event.target.value)}
-              placeholder="Search for a song or artist"
+              placeholder="Search Spotify catalog for track or artist..."
               aria-label="Search Spotify"
             />
             <button type="submit" disabled={searchQuery.isFetching}>
-              {searchQuery.isFetching ? "SEARCHING..." : "SEARCH"}
+              {searchQuery.isFetching ? "INSERTING COIN..." : "🪙 INSERT COIN / SEARCH"}
             </button>
           </form>
           {searchQuery.error && (
@@ -1320,7 +1350,7 @@ export default function Home() {
             <ul className="nominate-results">
               {searchQuery.data.length === 0 && (
                 <li className="nominate-results__empty">
-                  No tracks found — try another search.
+                  No tracks found in the arcade catalog — try another title.
                 </li>
               )}
               {searchQuery.data.map((track) => (
@@ -1338,7 +1368,7 @@ export default function Home() {
                     onClick={() => nominateTrack(track)}
                     disabled={voteMutation.isPending}
                   >
-                    NOMINATE
+                    ▶ NOMINATE
                   </button>
                 </li>
               ))}
@@ -1365,8 +1395,8 @@ export default function Home() {
                   aria-pressed={isSelected}
                 >
                   <span className="nomination-card__top">
-                    <span>{String(index + 1).padStart(2, "0")}</span>
-                    <span>{isSelected ? "YOUR PICK" : "NOMINATE"}</span>
+                    <span>RANK #{String(index + 1).padStart(2, "0")}</span>
+                    <span>{isSelected ? "⭐ YOUR PICK" : "▲ VOTE"}</span>
                   </span>
                   <span className="nomination-card__title">{track.name}</span>
                   <span className="nomination-card__note">{track.artist}</span>
@@ -1384,8 +1414,8 @@ export default function Home() {
           <div className="nominate__footer">
             <span>
               {leaderboardQuery.data?.myVote
-                ? "Your nomination is live. The room decides the rest."
-                : "Search above and nominate a track to see it here."}
+                ? "Your coin is in the arcade. The room decides the soundtrack."
+                : "Search above and nominate a track to see it in the arcade."}
             </span>
             <span>{leaderboardQuery.data?.tracks.length ?? 0} NOMINATED</span>
           </div>
@@ -1397,23 +1427,25 @@ export default function Home() {
           data-reveal
         >
           <div className="events__header">
+            <span className="chapter-badge">🗺️ CHAPTER 07 // PAST EXPEDITIONS ARCHIVE</span>
             <SectionLabel number="07">BEFORE THE JAM</SectionLabel>
             <span className="events__header-note">
-              A LITTLE ARCHIVE / BIG ENERGY
+              QUEST LOG // EXPEDITIONS ACCOMPLISHED
             </span>
           </div>
           <div className="events__title-row">
             <div className="heading-with-icon">
               <HeadingIcon icon={ImageIcon} label="Gallery" />
               <h2>
-                We’ve been
+                Past
                 <br />
-                <span>busy.</span>
+                <span>expeditions.</span>
               </h2>
             </div>
             <p>
-              Three past builds. A growing archive of proof that the most
-              interesting work starts before anybody knows what to call it.
+              Three legendary past builds. A growing chronicle proving that the
+              most extraordinary quests begin before anyone knows what to name
+              them.
             </p>
           </div>
           <div className="event-grid">
@@ -1422,7 +1454,7 @@ export default function Home() {
                 △
               </div>
               <div className="event-card__meta">
-                <span>PAST EVENT / 01</span>
+                <span>QUEST 01 // CLEAR</span>
                 <ArrowUpRight size={19} />
               </div>
               <h3>
@@ -1446,7 +1478,7 @@ export default function Home() {
                 loading="lazy"
               />
               <div className="event-card__meta">
-                <span>PAST EVENT / 02</span>
+                <span>QUEST 02 // CLEAR</span>
                 <ArrowUpRight size={19} />
               </div>
               <h3>
@@ -1464,7 +1496,7 @@ export default function Home() {
                 ✽
               </div>
               <div className="event-card__meta">
-                <span>PAST EVENT / 03</span>
+                <span>QUEST 03 // CLEAR</span>
                 <ArrowUpRight size={19} />
               </div>
               <h3>
@@ -1486,22 +1518,22 @@ export default function Home() {
           data-reveal
         >
           <div className="sponsors__header">
+            <span className="chapter-badge">🎪 CHAPTER 08 // THE MERCHANT BAZAAR</span>
             <SectionLabel number="08">POWERED BY</SectionLabel>
-            <span>THANK YOU, INTERNET</span>
+            <span>SUPPLYING THE REALM</span>
           </div>
           <div className="sponsors__title-row">
             <div className="heading-with-icon">
               <HeadingIcon icon={HandHeart} label="Sponsors" />
               <h2>
-                Good ideas
+                Merchant
                 <br />
-                <span>need friends.</span>
+                <span>allies.</span>
               </h2>
             </div>
             <p>
-              We are grateful to the teams that make room for new builders, new
-              questions, and the occasional delightfully over-engineered side
-              project.
+              We are grateful to the guilds that stock our armory, provision our
+              builders, and support deliciously over-engineered creations.
             </p>
           </div>
           <div className="sponsor-grid">
@@ -1512,13 +1544,13 @@ export default function Home() {
               rel="noreferrer"
               aria-label="Visit POLYFAB website"
             >
-              <span className="sponsor-card__rank">OFFICIAL SPONSOR</span>
+              <span className="sponsor-card__rank">OFFICIAL GUILD PARTNER</span>
               <img
                 className="sponsor-card__logo"
                 src={polyfabLogo}
                 alt="POLYFAB"
               />
-              <span className="sponsor-card__name">POLYFAB</span>
+              <span className="sponsor-card__name">POLYFAB FORGE</span>
               <span className="sponsor-card__arrow">
                 <ArrowUpRight />
               </span>
@@ -1526,34 +1558,35 @@ export default function Home() {
           </div>
           <div className="sponsors__sun">
             <span>
-              THE
+              TRADE
               <br />
-              SUN IS
+              IS
               <br />
-              ON.
+              OPEN.
             </span>
           </div>
         </section>
 
         <section id="faqs" className="faq section-light page-pad" data-reveal>
           <div className="faq__side">
+            <span className="chapter-badge">⛺ CHAPTER 09 // THE WISE ELDER'S TENT</span>
             <SectionLabel number="09">NO SILLY QUESTIONS</SectionLabel>
             <div className="heading-with-icon">
               <HeadingIcon icon={HelpCircle} label="FAQs" />
               <h2>
-                Let’s break
+                Campfire
                 <br />
-                <span>it down.</span>
+                <span>counsel.</span>
               </h2>
             </div>
             <p>
-              Still curious? That is a good sign. Pick a tab and find the
-              practical bits.
+              Still curious, traveler? Gather near the fire. Pick a dialogue
+              branch to consult the elder on rules, food, and gear.
             </p>
             <div className="faq__doodle">
-              <span>?</span>
-              <span>!</span>
-              <span>↗</span>
+              <span>🔥</span>
+              <span>📜</span>
+              <span>⚔️</span>
             </div>
           </div>
           <div className="faq__main">
@@ -1567,7 +1600,7 @@ export default function Home() {
                     setFaqOpen(0);
                   }}
                 >
-                  {mode}
+                  📜 {mode}
                 </button>
               ))}
             </div>
@@ -1599,7 +1632,7 @@ export default function Home() {
                 jumpTo("#contact");
               }}
             >
-              For more queries, raise a ticket on Discord{" "}
+              For deeper counsel, summon an elder on Discord{" "}
               <ArrowUpRight size={18} />
             </a>
           </div>
@@ -1609,14 +1642,15 @@ export default function Home() {
       <footer id="contact" className="footer section-dark page-pad" data-reveal>
         <div className="footer__main">
           <div className="footer__statement">
+            <span className="chapter-badge">🌌 CHAPTER 10 // WARP PORTAL &amp; CREDITS</span>
             <SectionLabel number="10">SAY HELLO</SectionLabel>
             <div className="heading-with-icon">
               <HeadingIcon icon={Mail} label="Contact" />
               <h2>
-                Let’s explore
+                Town Exit
                 <br />
                 <span>
-                  stack<span className="footer__cursor">→</span>
+                  Portal<span className="footer__cursor">→</span>
                 </span>
               </h2>
             </div>
@@ -1648,6 +1682,7 @@ export default function Home() {
               target="_blank"
               rel="noreferrer"
               aria-label="TAM on Instagram"
+              title="Instagram Guild Rune"
             >
               <Instagram size={20} />
             </a>
@@ -1656,6 +1691,7 @@ export default function Home() {
               target="_blank"
               rel="noreferrer"
               aria-label="TAM on GitHub"
+              title="GitHub Guild Rune"
             >
               <Github size={20} />
             </a>
@@ -1664,12 +1700,13 @@ export default function Home() {
               target="_blank"
               rel="noreferrer"
               aria-label="TAM on LinkedIn"
+              title="LinkedIn Guild Rune"
             >
               <Linkedin size={20} />
             </a>
           </div>
           <span className="footer__legal">
-            © 2026 TAM-VIT / BUILT WITH TOO MUCH COFFEE
+            © 2026 TAM-VIT // FORGED WITH TOO MUCH COFFEE // QUEST ON
           </span>
         </div>
       </footer>

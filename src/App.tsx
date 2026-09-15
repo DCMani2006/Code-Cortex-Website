@@ -1098,27 +1098,37 @@ const googleSignup = useGoogleLogin({
                 <div className="navbar-container d-flex justify-content-center align-items-center pt-4 w-100 position-relative px-3 px-md-5">
 
                   <div className="navbar-logo-left position-absolute start-0 ms-4 ms-md-5 d-none d-md-block">
-                    <img
-                      src="/tam-white-logo.png"
-                      alt="TAM Logo"
-                      style={{
-                        height: "40px",
-                        objectFit: "contain"
-                      }}
-                      onError={(e) =>
-                        (e.currentTarget.style.display = "none")
-                      }
-                    />
+                    <div style={{
+                      background: "#2d1f36",
+                      padding: "4px 10px",
+                      borderRadius: "6px",
+                      border: "2px solid #2d1f36",
+                      boxShadow: "2.5px 2.5px 0px #f89bb4",
+                      display: "inline-flex",
+                      alignItems: "center"
+                    }}>
+                      <img
+                        src="/tam-white-logo.png"
+                        alt="TAM Logo"
+                        style={{
+                          height: "26px",
+                          objectFit: "contain"
+                        }}
+                        onError={(e) =>
+                          (e.currentTarget.style.display = "none")
+                        }
+                      />
+                    </div>
                   </div>
 
                   <div className="floating-nav flex-wrap justify-content-center px-3 px-md-5 py-2 position-relative z-3">
 
                     <a href={eventSiteUrl} target="_blank" rel="noreferrer">
-                      Home ↗
+                      🏰 World Map ↗
                     </a>
 
                     <a href={`${eventSiteUrl}/#tracks`} target="_blank" rel="noreferrer">
-                      Tracks ↗
+                      ⚔️ Dungeons ↗
                     </a>
 
                     <a
@@ -1129,7 +1139,7 @@ const googleSignup = useGoogleLogin({
                           : ""
                       }
                     >
-                      Team Portal
+                      🛡️ Party Camp
                     </a>
 
                     {loggedInUser && (
@@ -1145,7 +1155,7 @@ const googleSignup = useGoogleLogin({
                         className="text-danger"
                         style={{ cursor: "pointer" }}
                       >
-                        Sign Out
+                        🚪 Exit
                       </a>
                     )}
 
@@ -1156,8 +1166,9 @@ const googleSignup = useGoogleLogin({
                       src="/code-cortex-logo.png"
                       alt="Code Cortex Logo"
                       style={{
-                        height: "45px",
-                        objectFit: "contain"
+                        height: "40px",
+                        objectFit: "contain",
+                        filter: "drop-shadow(2px 3px 0px rgba(45, 31, 54, 0.2))"
                       }}
                       onError={(e) =>
                         (e.currentTarget.style.display = "none")

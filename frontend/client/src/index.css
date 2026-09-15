@@ -4638,4 +4638,314 @@ body, p, span, div, li, input, textarea, select {
   scrollbar-width: thin;
 }
 
+/* ==========================================================================
+   GAME WORLD CHAPTER STYLES (COZY RETRO RPG & ARCADE)
+   ========================================================================== */
+
+/* Chapter Title Badges */
+.chapter-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #fde88a;
+  border: 2px solid #2d1f36;
+  border-radius: 4px;
+  padding: 4px 10px;
+  box-shadow: 2.5px 2.5px 0px #2d1f36;
+  font-family: var(--pixel);
+  font-size: 8.5px;
+  color: #2d1f36;
+  letter-spacing: 0.08em;
+  margin-bottom: 12px;
+}
+
+/* CHAPTER 01: THE HACKER'S TAVERN */
+.about {
+  background: #faf6ee !important;
+  position: relative;
+}
+.tavern-mentor-card {
+  background: #ffffff;
+  border: 3px solid #2d1f36;
+  border-radius: 10px;
+  box-shadow: 5px 5px 0px #2d1f36;
+  padding: 16px 20px;
+  margin-top: 20px;
+  position: relative;
+}
+.tavern-mentor-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.mentor-avatar {
+  width: 38px;
+  height: 38px;
+  background: #f89bb4;
+  border: 2px solid #2d1f36;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  box-shadow: 2px 2px 0px #2d1f36;
+}
+.mentor-nameplate {
+  font-family: var(--pixel);
+  font-size: 9px;
+  color: #2d1f36;
+  background: #ede5f5;
+  border: 1.5px solid #2d1f36;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+.tavern-quest-pouches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 16px;
+}
+.quest-pouch {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #fdfbf7;
+  border: 2px solid #2d1f36;
+  border-radius: 6px;
+  box-shadow: 3px 3px 0px #2d1f36;
+  padding: 6px 12px;
+  font-family: var(--pixel);
+  font-size: 9px;
+  color: #2d1f36;
+}
+
+/* CHAPTER 02: THE ANCIENT TOME OF RULES */
+.manifesto {
+  background: #f4ede3 !important;
+}
+.ancient-tome {
+  background: #ffffff;
+  border: 3.5px solid #2d1f36;
+  border-radius: 12px;
+  box-shadow: 6px 6px 0px #2d1f36;
+  padding: 24px clamp(18px, 3vw, 36px);
+  position: relative;
+  margin-top: 16px;
+}
+.tome-bookmark {
+  position: absolute;
+  top: -12px;
+  right: 28px;
+  width: 24px;
+  height: 38px;
+  background: #f89bb4;
+  border: 2px solid #2d1f36;
+  box-shadow: 2px 2px 0px #2d1f36;
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 80%, 0 100%);
+}
+.tome-parchment-body {
+  font-family: var(--body-pixel);
+  font-size: 15px;
+  line-height: 1.6;
+  color: #2d1f36;
+}
+
+/* CHAPTER 03 & 04: CITADEL & GUILD HQ */
+.duo-card--vit {
+  background: #ffffff !important;
+  border: 3px solid #2d1f36 !important;
+  border-radius: 10px !important;
+  box-shadow: 5px 5px 0px #2d1f36 !important;
+}
+.duo-card--gdg {
+  background: #ffffff !important;
+  border: 3px solid #2d1f36 !important;
+  border-radius: 10px !important;
+  box-shadow: 5px 5px 0px #2d1f36 !important;
+}
+.trophy-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #fde88a;
+  border: 1.5px solid #2d1f36;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-family: var(--pixel);
+  font-size: 8px;
+  margin-top: 10px;
+}
+
+/* CHAPTER 05: DUNGEON SELECTOR (TRACKS) */
+.tracks {
+  background: #faf6ee !important;
+}
+.tracks__active-card {
+  background: #ffffff !important;
+  border: 3.5px solid #2d1f36 !important;
+  border-radius: 12px !important;
+  box-shadow: 6px 6px 0px #2d1f36 !important;
+  padding: 28px !important;
+  position: relative;
+}
+.track-tab {
+  background: #ffffff !important;
+  border: 2.5px solid #2d1f36 !important;
+  border-radius: 6px !important;
+  box-shadow: 3px 3px 0px #2d1f36 !important;
+  font-family: var(--pixel) !important;
+  font-size: 9.5px !important;
+  color: #2d1f36 !important;
+  padding: 10px 14px !important;
+  transition: transform 0.12s ease, box-shadow 0.12s ease !important;
+}
+.track-tab:hover {
+  transform: translate(-1.5px, -1.5px) !important;
+  box-shadow: 4.5px 4.5px 0px #2d1f36 !important;
+}
+.track-tab--active {
+  background: #f89bb4 !important;
+  transform: translate(2px, 2px) !important;
+  box-shadow: 1px 1px 0px #2d1f36 !important;
+}
+
+/* CHAPTER 06: 8-BIT ARCADE JUKEBOX */
+.nominate {
+  background: #f4ede3 !important;
+}
+.nominate-search input {
+  background: #ffffff !important;
+  border: 2.5px solid #2d1f36 !important;
+  border-radius: 6px !important;
+  box-shadow: 3px 3px 0px #2d1f36 !important;
+  font-family: var(--body-pixel) !important;
+  font-size: 14px !important;
+  color: #2d1f36 !important;
+}
+.nominate-search button {
+  background: #f89bb4 !important;
+  border: 2.5px solid #2d1f36 !important;
+  border-radius: 6px !important;
+  box-shadow: 3px 3px 0px #2d1f36 !important;
+  font-family: var(--pixel) !important;
+  font-size: 9.5px !important;
+  color: #2d1f36 !important;
+}
+.nomination-card {
+  background: #ffffff !important;
+  border: 2.5px solid #2d1f36 !important;
+  border-radius: 8px !important;
+  box-shadow: 3.5px 3.5px 0px #2d1f36 !important;
+  transition: transform 0.12s ease, box-shadow 0.12s ease !important;
+}
+.nomination-card:hover {
+  transform: translate(-2px, -2px) !important;
+  box-shadow: 5px 5px 0px #2d1f36 !important;
+}
+.nomination-card--selected {
+  border-color: #2d1f36 !important;
+  background: #ede5f5 !important;
+  box-shadow: 4px 4px 0px #f89bb4 !important;
+}
+
+/* CHAPTER 07: EXPEDITIONS ROADMAP (EVENTS) */
+.events {
+  background: #faf6ee !important;
+}
+.event-card {
+  background: #ffffff !important;
+  border: 2.5px solid #2d1f36 !important;
+  border-radius: 8px !important;
+  box-shadow: 4px 4px 0px #2d1f36 !important;
+}
+.event-card:hover {
+  transform: translate(-2px, -2px) !important;
+  box-shadow: 6px 6px 0px #2d1f36 !important;
+}
+
+/* CHAPTER 08: MERCHANT BAZAAR (SPONSORS) */
+.sponsors {
+  background: #f4ede3 !important;
+}
+.sponsor-card {
+  background: #ffffff !important;
+  border: 3px solid #2d1f36 !important;
+  border-radius: 10px !important;
+  box-shadow: 5px 5px 0px #2d1f36 !important;
+}
+.sponsor-card:hover {
+  transform: translate(-2px, -2px) !important;
+  box-shadow: 7px 7px 0px #2d1f36 !important;
+}
+
+/* CHAPTER 09: WISE ELDER'S TENT (FAQS) */
+.faq {
+  background: #faf6ee !important;
+}
+.faq-item {
+  background: #ffffff !important;
+  border: 2.5px solid #2d1f36 !important;
+  border-radius: 8px !important;
+  box-shadow: 3.5px 3.5px 0px #2d1f36 !important;
+  margin-bottom: 12px !important;
+}
+.faq__tabs button {
+  background: #ffffff !important;
+  border: 2px solid #2d1f36 !important;
+  border-radius: 6px !important;
+  box-shadow: 2.5px 2.5px 0px #2d1f36 !important;
+  font-family: var(--pixel) !important;
+  font-size: 9px !important;
+  color: #2d1f36 !important;
+}
+.faq__tabs button.is-active {
+  background: #f89bb4 !important;
+  transform: translate(1px, 1px) !important;
+  box-shadow: 1px 1px 0px #2d1f36 !important;
+}
+
+/* CHAPTER 10: WARP PORTAL & CREDITS (FOOTER) */
+.footer {
+  background: #faf6ee !important;
+  border-top: 3.5px solid #2d1f36 !important;
+}
+.footer__socials a {
+  background: #ffffff !important;
+  border: 2px solid #2d1f36 !important;
+  border-radius: 6px !important;
+  box-shadow: 3px 3px 0px #2d1f36 !important;
+  color: #2d1f36 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 40px !important;
+  height: 40px !important;
+  transition: transform 0.12s ease, box-shadow 0.12s ease !important;
+}
+.footer__socials a:hover {
+  background: #f89bb4 !important;
+  transform: translate(-2px, -2px) !important;
+  box-shadow: 5px 5px 0px #2d1f36 !important;
+}
+.footer__contact a {
+  background: #ffffff !important;
+  border: 2px solid #2d1f36 !important;
+  border-radius: 6px !important;
+  box-shadow: 2.5px 2.5px 0px #2d1f36 !important;
+  padding: 8px 14px !important;
+  color: #2d1f36 !important;
+  font-family: var(--body-pixel) !important;
+  font-size: 13px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  text-decoration: none !important;
+  transition: transform 0.12s ease !important;
+}
+.footer__contact a:hover {
+  transform: translate(-1.5px, -1.5px) !important;
+  background: #ede5f5 !important;
+}
+
 
