@@ -4474,21 +4474,25 @@ body, p, span, div, li, input, textarea, select {
 .monitor-screen {
   width: 100%;
   height: 310px;
-  background: radial-gradient(circle at center, #2e3b4e 0%, #171d29 100%);
+  background: 
+    radial-gradient(ellipse 75% 70% at 50% 45%, #ffffff 0%, #e6f6f8 35%, #b4e0e6 70%, #6ba9b2 100%),
+    linear-gradient(rgba(45, 31, 54, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(45, 31, 54, 0.05) 1px, transparent 1px);
+  background-size: 100% 100%, 20px 20px, 20px 20px;
   border: 3px solid #2d1f36;
   border-radius: 8px;
-  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.6);
+  box-shadow: inset 0 0 18px rgba(45, 31, 54, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.5);
   position: relative;
   overflow: hidden;
 }
 .screen-scanlines {
   position: absolute;
   inset: 0;
-  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.2) 50%);
+  background: linear-gradient(rgba(45, 31, 54, 0) 50%, rgba(45, 31, 54, 0.06) 50%);
   background-size: 100% 4px;
   pointer-events: none;
   z-index: 5;
-  opacity: 0.65;
+  opacity: 0.6;
 }
 .monitor-screen canvas {
   width: 100% !important;

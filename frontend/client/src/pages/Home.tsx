@@ -4,7 +4,7 @@ import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import type { LucideIcon } from "lucide-react";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { useGLTF, useAnimations } from "@react-three/drei";
+import { useGLTF, useAnimations, ContactShadows, Float } from "@react-three/drei";
 import * as THREE from "three";
 import { useIsMobile } from "@/hooks/useMobile";
 import {
@@ -242,39 +242,60 @@ function MascotModel({
     const bounds = new THREE.Box3().setFromObject(clone);
     const center = bounds.getCenter(new THREE.Vector3());
     const size = bounds.getSize(new THREE.Vector3());
-    const scale = 2.4 / Math.max(size.x, size.y, size.z, 0.001);
+    const scale = 2.45 / Math.max(size.x, size.y, size.z, 0.001);
     clone.position.sub(center);
     clone.scale.setScalar(scale);
+
+    clone.traverse((child) => {
+      if ((child as THREE.Mesh).isMesh) {
+        const mesh = child as THREE.Mesh;
+        mesh.castShadow = true;
+        mesh.receiveShadow = true;
+        if (mesh.material) {
+          const mat = mesh.material as THREE.MeshStandardMaterial;
+          mat.roughness = Math.min(mat.roughness ?? 0.5, 0.52);
+          mat.metalness = Math.max(mat.metalness ?? 0.2, 0.22);
+        }
+      }
+    });
+
     return clone;
   }, [scene]);
 
   useFrame(() => {
     if (!groupRef.current) return;
+    // Natural 3D isometric orientation so facets, bevels, top crest, and side bolts pop:
+    const idleAngleY = 0.16;
+    const idleAngleX = 0.06;
     const targetX = reducedMotion
-      ? 0
-      : THREE.MathUtils.clamp(pointer.y * 0.032, -0.04, 0.04);
+      ? idleAngleX
+      : idleAngleX + THREE.MathUtils.clamp(pointer.y * 0.35, -0.38, 0.38);
     const targetY = reducedMotion
+      ? idleAngleY
+      : idleAngleY + THREE.MathUtils.clamp(pointer.x * 0.45, -0.48, 0.48);
+    const targetZ = reducedMotion
       ? 0
-      : THREE.MathUtils.clamp(pointer.x * 0.032, -0.028, 0.028);
+      : THREE.MathUtils.clamp(pointer.x * -0.1, -0.12, 0.12);
+
     groupRef.current.rotation.x = THREE.MathUtils.lerp(
       groupRef.current.rotation.x,
       targetX,
-      0.08,
+      0.09,
     );
     groupRef.current.rotation.y = THREE.MathUtils.lerp(
       groupRef.current.rotation.y,
       targetY,
-      0.08,
+      0.09,
     );
-    groupRef.current.position.y = THREE.MathUtils.lerp(
-      groupRef.current.position.y,
-      reducedMotion ? 0 : Math.sin(Date.now() * 0.0014) * 0.08,
-      0.06,
+    groupRef.current.rotation.z = THREE.MathUtils.lerp(
+      groupRef.current.rotation.z,
+      targetZ,
+      0.09,
     );
   });
 
   return (
-    <group ref={groupRef}>
+    <group ref={groupRef} position={[0, 0.06, 0]}>
       <primitive object={model} />
     </group>
   );
@@ -304,10 +325,10 @@ function TransitionRibbons() {
     "THE AIML CLUB",
   ];
   const codeMarks = [
-    "CODE CORTEX",
-    "CODE CORTEX",
-    "CODE CORTEX",
-    "CODE CORTEX",
+    "CODE CORTEX 3.0",
+    "CODE CORTEX 3.0",
+    "CODE CORTEX 3.0",
+    "CODE CORTEX 3.0",
   ];
   return (
     <div
@@ -950,25 +971,63 @@ export default function Home() {
                 >
                   <div className="screen-scanlines" />
                   <Canvas
-                    camera={{ position: [0, 0.15, 4.5], fov: 35 }}
+                    camera={{ position: [0.15, 0.2, 4.3], fov: 36 }}
                     dpr={[1, 1.5]}
                     gl={{ alpha: true, antialias: true }}
+                    shadows
                   >
-                    <ambientLight intensity={2.8} color="#ffffff" />
+                    {/* Ambient base fill */}
+                    <ambientLight intensity={1.3} color="#d8eff2" />
+
+                    {/* Key light from top-right creating crisp voxel facet highlights */}
                     <directionalLight
-                      position={[2.5, 3.5, 4]}
-                      intensity={2.6}
-                      color="#fff1db"
+                      position={[3.5, 4.5, 3.5]}
+                      intensity={3.2}
+                      color="#ffffff"
+                      castShadow
                     />
+
+                    {/* Fill light from bottom-left */}
                     <directionalLight
-                      position={[-3, 1, 2]}
-                      intensity={1.8}
-                      color="#e0f4ff"
+                      position={[-3, -0.5, 2.5]}
+                      intensity={1.4}
+                      color="#9391bc"
                     />
+
+                    {/* Powerful Rim / Backlight carving out 3D silhouette from dark background */}
+                    <directionalLight
+                      position={[-3.5, 3.5, -2.5]}
+                      intensity={4.5}
+                      color="#7abcc4"
+                    />
+
+                    {/* Top crest rim light for TAM logo */}
+                    <directionalLight
+                      position={[0, 4, -2]}
+                      intensity={3.0}
+                      color="#ffffff"
+                    />
+
                     <Suspense fallback={<MascotFallback />}>
-                      <MascotModel
-                        pointer={mascotPointer}
-                        reducedMotion={reducedMotion || coarsePointer}
+                      <Float
+                        speed={2.2}
+                        rotationIntensity={0.2}
+                        floatIntensity={0.35}
+                        floatingRange={[-0.07, 0.07]}
+                      >
+                        <MascotModel
+                          pointer={mascotPointer}
+                          reducedMotion={reducedMotion || coarsePointer}
+                        />
+                      </Float>
+                      {/* Ground contact shadow providing tangible 3D physical depth */}
+                      <ContactShadows
+                        position={[0, -1.22, 0]}
+                        opacity={0.55}
+                        scale={4.2}
+                        blur={1.6}
+                        far={3.2}
+                        color="#2d1f36"
                       />
                     </Suspense>
                   </Canvas>
