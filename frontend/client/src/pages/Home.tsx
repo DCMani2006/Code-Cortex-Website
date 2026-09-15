@@ -4,7 +4,7 @@ import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import type { LucideIcon } from "lucide-react";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { Line, useGLTF } from "@react-three/drei";
+import { useGLTF, useAnimations } from "@react-three/drei";
 import * as THREE from "three";
 import { useIsMobile } from "@/hooks/useMobile";
 import {
@@ -186,14 +186,17 @@ type TrackColor = (typeof tracks)[number]["color"];
 function Mark({ compact = false }: { compact?: boolean }) {
   return (
     <a
-      className={compact ? "brand brand--compact" : "brand"}
+      className={compact ? "brand brand--compact" : "brand brand--pixel-flashy"}
       href="#home"
       aria-label="Code cortex home"
     >
-      <img src={tamWhiteLogo} alt="TAM" className="brand__tam-logo" />
+      <div className="brand-logo-frame">
+        <span className="brand-sparkle-star">✦</span>
+        <img src={tamWhiteLogo} alt="TAM" className="brand__tam-logo" />
+      </div>
       <span className="brand__copy">
         <span className="brand__top">TAM-VIT</span>
-        <span className="brand__bottom">CODE CORTEX</span>
+        <span className="brand__bottom">THE AI & ML CLUB</span>
       </span>
     </a>
   );
@@ -222,10 +225,18 @@ function MascotModel({
   pointer: { x: number; y: number };
   reducedMotion: boolean;
 }) {
-  const { scene } = useGLTF(tamMascot);
   const groupRef = useRef<THREE.Group>(null);
-  const smileRef = useRef<THREE.Group>(null);
-  const headRef = useRef<THREE.Object3D | null>(null);
+  const { scene, animations } = useGLTF(tamMascot);
+  const { actions } = useAnimations(animations, groupRef);
+
+  useEffect(() => {
+    if (actions && !reducedMotion) {
+      Object.values(actions).forEach((action) => {
+        action?.reset().play();
+      });
+    }
+  }, [actions, reducedMotion]);
+
   const model = useMemo(() => {
     const clone = scene.clone(true);
     const bounds = new THREE.Box3().setFromObject(clone);
@@ -245,23 +256,16 @@ function MascotModel({
     const targetY = reducedMotion
       ? 0
       : THREE.MathUtils.clamp(pointer.x * 0.032, -0.028, 0.028);
-    const head = headRef.current;
-    if (head) {
-      head.rotation.x = THREE.MathUtils.lerp(head.rotation.x, targetX, 0.08);
-      head.rotation.y = THREE.MathUtils.lerp(head.rotation.y, targetY, 0.08);
-    }
-    if (smileRef.current) {
-      smileRef.current.rotation.x = THREE.MathUtils.lerp(
-        smileRef.current.rotation.x,
-        targetX,
-        0.08,
-      );
-      smileRef.current.rotation.y = THREE.MathUtils.lerp(
-        smileRef.current.rotation.y,
-        targetY,
-        0.08,
-      );
-    }
+    groupRef.current.rotation.x = THREE.MathUtils.lerp(
+      groupRef.current.rotation.x,
+      targetX,
+      0.08,
+    );
+    groupRef.current.rotation.y = THREE.MathUtils.lerp(
+      groupRef.current.rotation.y,
+      targetY,
+      0.08,
+    );
     groupRef.current.position.y = THREE.MathUtils.lerp(
       groupRef.current.position.y,
       reducedMotion ? 0 : Math.sin(Date.now() * 0.0014) * 0.08,
@@ -269,36 +273,9 @@ function MascotModel({
     );
   });
 
-  useEffect(() => {
-    let head: THREE.Object3D | null = null;
-    model.traverse((node) => {
-      if (!head && /^(cube|head|face|visor)$/i.test(node.name)) head = node;
-    });
-    headRef.current = head;
-    return () => {
-      headRef.current = null;
-    };
-  }, [model]);
-
   return (
     <group ref={groupRef}>
       <primitive object={model} />
-      <group ref={smileRef} position={[0, -0.34, 1.16]}>
-        <Line
-          points={[
-            [-0.28, 0.06, 0],
-            [-0.2, -0.01, 0],
-            [-0.1, -0.065, 0],
-            [0, -0.085, 0],
-            [0.1, -0.065, 0],
-            [0.2, -0.01, 0],
-            [0.28, 0.06, 0],
-          ]}
-          color="#fbe27f"
-          lineWidth={3.2}
-          dashed={false}
-        />
-      </group>
     </group>
   );
 }
@@ -749,48 +726,52 @@ export default function Home() {
         onPlay={() => setMusicPlaying(true)}
         onPause={() => setMusicPlaying(false)}
       />
-      <CursorTracer disabled={coarsePointer || reducedMotion} />
       <header
         className={`site-header ${scrolled ? "site-header--scrolled" : ""}`}
       >
-        <Mark />
-        <div className="header-actions">
+        <div className="site-header__left">
+          <Mark />
+        </div>
+
+        <div className="site-header__center">
           <button
-            className={`music-toggle ${musicPlaying ? "music-toggle--active" : ""}`}
+            className={`pixel-cassette ${musicPlaying ? "pixel-cassette--playing" : ""}`}
             onClick={toggleMusic}
             aria-pressed={musicPlaying}
-            aria-label={musicPlaying ? "Turn music off" : "Turn music on"}
+            aria-label={musicPlaying ? "Pause cassette audio" : "Play cassette audio"}
           >
-            <span className="music-toggle__panel" aria-hidden="true">
-              <span className="music-toggle__waveform">
-                {Array.from({ length: 17 }, (_, index) => (
-                  <i key={index} />
-                ))}
-              </span>
-            </span>
-            <span className="music-toggle__state">
-              ({musicPlaying ? "ON" : "OFF"})
-            </span>
+            <div className="cassette-body">
+              <div className="cassette-label-strip">
+                <span className="cassette-title">SIDE A · BGM</span>
+                <span className={`cassette-led ${musicPlaying ? "cassette-led--active" : ""}`} />
+              </div>
+              <div className="cassette-window">
+                <div className={`cassette-spool ${musicPlaying ? "is-spinning" : ""}`}>
+                  <span className="spool-core" />
+                </div>
+                <div className="cassette-tape-roll" />
+                <div className={`cassette-spool ${musicPlaying ? "is-spinning" : ""}`}>
+                  <span className="spool-core" />
+                </div>
+              </div>
+              <div className="cassette-status">
+                {musicPlaying ? "▶ TAPE PLAYING" : "■ TAPE STOPPED"}
+              </div>
+            </div>
+          </button>
+        </div>
+
+        <div className="site-header__right">
+          <button
+            className="pixel-nav-menu-btn"
+            onClick={openMenu}
+            aria-label="Open menu"
+          >
+            <Menu size={18} strokeWidth={2.4} />
+            <span>MENU</span>
           </button>
         </div>
       </header>
-      <div className="menu-rail">
-        <button
-          className={`menu-trigger ${menuNudgeVisible ? "menu-trigger--nudge" : ""}`}
-          onClick={openMenu}
-          aria-label="Open menu"
-        >
-          <span className="menu-trigger__word">MENU</span>
-          <span className="menu-trigger__icon">
-            <Menu size={22} strokeWidth={1.8} />
-          </span>
-        </button>
-        {menuNudgeVisible && (
-          <span className="menu-trigger__nudge-hint" aria-hidden="true">
-            Tap to explore ↗
-          </span>
-        )}
-      </div>
 
       <div
         className={`menu-panel ${menuOpen ? "menu-panel--open" : ""}`}
@@ -889,92 +870,128 @@ export default function Home() {
         <section id="home" className="hero section-dark">
           <div className="hero__noise" />
           <div className="hero__grid" />
-          <div className="hero__topline page-pad">
-            <span>TAM-VIT</span>
-            <span>TAM-VIT / INDIA</span>
-          </div>
-          <div
-            className={`hero__mascot ${scrolled ? "hero__mascot--hidden" : ""}`}
-            aria-hidden="true"
-            onPointerMove={(event) => {
-              if (!scrolled && !coarsePointer)
-                setMascotPointer({
-                  x: (event.clientX / window.innerWidth - 0.5) * 2,
-                  y: (event.clientY / window.innerHeight - 0.5) * 2,
-                });
-            }}
-          >
-            <Canvas
-              camera={{ position: [0, 0.15, 4.5], fov: 35 }}
-              dpr={[1, 1.5]}
-              gl={{ alpha: true, antialias: true }}
-            >
-              <ambientLight intensity={2.8} color="#ffffff" />
-              <directionalLight
-                position={[2.5, 3.5, 4]}
-                intensity={2.6}
-                color="#fff1db"
-              />
-              <directionalLight
-                position={[-3, 1, 2]}
-                intensity={1.8}
-                color="#e0f4ff"
-              />
-              <Suspense fallback={<MascotFallback />}>
-                <MascotModel
-                  pointer={mascotPointer}
-                  reducedMotion={reducedMotion || coarsePointer}
-                />
-              </Suspense>
-            </Canvas>
-          </div>
-          <div className="hero__copy page-pad">
-            <p className="eyebrow eyebrow--bright">
-              <span className="eyebrow__pulse" /> 30 HOURS / ONE IDEA / ZERO
-              LIMITS
-            </p>
-            <img
-              className="hero__logo"
-              src={codeCortexLogo}
-              alt="Code cortex 3.0"
-            />
-            <div className="hero__headline-row">
-              <div className="heading-with-icon heading-with-icon--hero">
-                <HeadingIcon icon={HomeIcon} label="Home" />
-                <h1>
-                  30 Hours.
-                  <br />
-                  <em>
-                    One Idea.
-                    <br />
-                    Zero Limits.
-                  </em>
-                </h1>
+
+          <div className="hero-grid-container page-pad">
+            <div className="hero-left-col">
+              <div className="hero-ticket-tag">
+                <span className="ticket-punch-hole" />
+                <span className="ticket-label">EVENT // 30 HOURS · ONE IDEA · ZERO LIMITS</span>
               </div>
-              <a
-                className="round-cta"
-                href="#tracks"
-                onClick={(event) => {
-                  event.preventDefault();
-                  jumpTo("#tracks");
-                }}
-              >
-                <span>
-                  Explore
-                  <br />
-                  Tracks
-                </span>{" "}
-                <ArrowUpRight size={22} />
-              </a>
+
+              <div className="hero-logo-wrapper">
+                <img
+                  className="hero__logo"
+                  src={codeCortexLogo}
+                  alt="Code cortex 3.0"
+                />
+              </div>
+
+              <div className="hero-headline-block">
+                <div className="heading-with-icon heading-with-icon--hero">
+                  <HeadingIcon icon={HomeIcon} label="Home" />
+                  <h1>
+                    30 Hours.
+                    <br />
+                    <em>
+                      One Idea.
+                      <br />
+                      Zero Limits.
+                    </em>
+                  </h1>
+                </div>
+              </div>
+
+              <div className="hero-actions-row">
+                <a
+                  className="hero-pixel-btn hero-pixel-btn--primary"
+                  href="#tracks"
+                  onClick={(event) => {
+                    event.preventDefault();
+                    jumpTo("#tracks");
+                  }}
+                >
+                  <span>⚔️ EXPLORE TRACKS</span>
+                  <ArrowUpRight size={18} />
+                </a>
+                <a
+                  className="hero-pixel-btn hero-pixel-btn--secondary"
+                  href={mainAppUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <span>⚡ TEAM PORTAL</span>
+                  <ExternalLink size={16} />
+                </a>
+              </div>
+            </div>
+
+            <div className="hero-right-col">
+              <div className="retro-pc-monitor">
+                <div className="monitor-bezel-top">
+                  <span className="monitor-title">★ CC_MASCOT.EXE [BUILD v3.0]</span>
+                  <div className="monitor-buttons">
+                    <span>_</span>
+                    <span>🗖</span>
+                    <span>✕</span>
+                  </div>
+                </div>
+                <div
+                  className="monitor-screen"
+                  aria-hidden="true"
+                  onPointerMove={(event) => {
+                    if (!scrolled && !coarsePointer) {
+                      const rect = event.currentTarget.getBoundingClientRect();
+                      setMascotPointer({
+                        x: ((event.clientX - rect.left) / rect.width - 0.5) * 2,
+                        y: ((event.clientY - rect.top) / rect.height - 0.5) * 2,
+                      });
+                    }
+                  }}
+                >
+                  <div className="screen-scanlines" />
+                  <Canvas
+                    camera={{ position: [0, 0.15, 4.5], fov: 35 }}
+                    dpr={[1, 1.5]}
+                    gl={{ alpha: true, antialias: true }}
+                  >
+                    <ambientLight intensity={2.8} color="#ffffff" />
+                    <directionalLight
+                      position={[2.5, 3.5, 4]}
+                      intensity={2.6}
+                      color="#fff1db"
+                    />
+                    <directionalLight
+                      position={[-3, 1, 2]}
+                      intensity={1.8}
+                      color="#e0f4ff"
+                    />
+                    <Suspense fallback={<MascotFallback />}>
+                      <MascotModel
+                        pointer={mascotPointer}
+                        reducedMotion={reducedMotion || coarsePointer}
+                      />
+                    </Suspense>
+                  </Canvas>
+                </div>
+                <div className="monitor-bezel-bottom">
+                  <div className="monitor-floppy-slot" />
+                  <span className="monitor-brand-badge">TAM-VIT · 2026</span>
+                  <div className="monitor-power-led" />
+                </div>
+                <div className="monitor-stand" />
+                <div className="monitor-base" />
+              </div>
+
+              <div className="mascot-story-bubble">
+                <div className="story-speaker">TAM BOT</div>
+                <p>
+                  "Greetings builder! Ready to construct something extraordinary?"
+                  <span className="dialogue-arrow">▼</span>
+                </p>
+              </div>
             </div>
           </div>
-          <div className="hero__orb hero__orb--one" />
-          <div className="hero__orb hero__orb--two" />
-          <div className="hero__stamp">
-            <span>MAKE</span>
-            <span>IT</span>
-            <span>WEIRD</span>
-          </div>
+
           <div className="hero__bottom page-pad">
             <a className="scroll-cue" href="#about">
               <span className="scroll-cue__line" /> Scroll to explore
