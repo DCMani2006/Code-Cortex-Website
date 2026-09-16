@@ -1781,11 +1781,6 @@ export default function Home() {
                 <span>to conquer.</span>
               </h2>
             </div>
-            <p>
-              Follow the thing you cannot stop thinking about. Every track is an
-              epic dungeon challenge to forge something useful, expressive, or
-              beautifully extraordinary.
-            </p>
           </div>
           <div className="tracks__canvas">
             <div className="tracks__object-image">
@@ -1902,16 +1897,6 @@ export default function Home() {
                 <span>soundtrack.</span>
               </h2>
             </div>
-            <div>
-              <p>
-                Insert a coin into the tavern jukebox! Search Spotify's catalog
-                and nominate a soundtrack. The leaderboard below is live and
-                shared across the hackathon floor.
-              </p>
-              <p className="nominate__note">
-                <Music2 size={16} /> 🪙 One coin per visitor, change it anytime.
-              </p>
-            </div>
           </div>
 
           <form className="nominate-search" onSubmit={submitSongSearch}>
@@ -2026,11 +2011,6 @@ export default function Home() {
                 <span>expeditions.</span>
               </h2>
             </div>
-            <p>
-              Three legendary past builds. A growing chronicle proving that the
-              most extraordinary quests begin before anyone knows what to name
-              them.
-            </p>
           </div>
           <div className="event-grid">
             <article className="event-card event-card--triangle">
@@ -2115,10 +2095,6 @@ export default function Home() {
                 <span>allies.</span>
               </h2>
             </div>
-            <p>
-              We are grateful to the guilds that stock our armory, provision our
-              builders, and support deliciously over-engineered creations.
-            </p>
           </div>
           <div className="sponsor-grid">
             <a
@@ -2134,7 +2110,6 @@ export default function Home() {
                 src={polyfabLogo}
                 alt="POLYFAB"
               />
-              <span className="sponsor-card__name">POLYFAB FORGE</span>
               <span className="sponsor-card__arrow">
                 <ArrowUpRight />
               </span>
@@ -2163,10 +2138,6 @@ export default function Home() {
                 <span>counsel.</span>
               </h2>
             </div>
-            <p>
-              Still curious, traveler? Gather near the fire. Pick a dialogue
-              branch to consult the elder on rules, food, and gear.
-            </p>
             <div className="faq__doodle">
               <span>🔥</span>
               <span>📜</span>
