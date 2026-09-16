@@ -4804,27 +4804,106 @@ body, p, span, div, li, input, textarea, select {
 }
 
 .menu-panel {
-  background: #fdfbf7 !important;
+  background: linear-gradient(175deg, #eef4f9 0%, #f6ebd8 55%, #faf6ee 100%) !important;
   border-left: 3.5px solid #2d1f36 !important;
-  box-shadow: -8px 0px 24px rgba(45, 31, 54, 0.15) !important;
+  box-shadow: -10px 0px 30px rgba(45, 31, 54, 0.18) !important;
+  position: fixed !important;
+  inset: 0 !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
 }
+
+/* Water Ripple Texture Background Layer */
+.menu-panel__water-bg {
+  position: absolute !important;
+  inset: -20px !important;
+  background-image: url('/menu_water_bg.png') !important;
+  background-size: cover !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+  opacity: 0.36 !important;
+  mix-blend-mode: multiply !important;
+  pointer-events: none !important;
+  z-index: 0 !important;
+  animation: menu-water-drift 22s ease-in-out infinite alternate !important;
+}
+
+/* Retro Pixel Grid Overlay matching Main Page */
+.menu-panel__grid-overlay {
+  position: absolute !important;
+  inset: 0 !important;
+  background-image:
+    linear-gradient(rgba(45, 31, 54, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(45, 31, 54, 0.04) 1px, transparent 1px) !important;
+  background-size: 32px 32px !important;
+  pointer-events: none !important;
+  z-index: 1 !important;
+}
+
+.menu-panel__topline,
+.menu-panel__body,
+.menu-panel__footer {
+  position: relative !important;
+  z-index: 2 !important;
+}
+
+.menu-panel__body {
+  padding-bottom: 120px !important;
+}
+
 .menu-panel__nav a {
-  background: #ffffff !important;
-  border: 2px solid #2d1f36 !important;
-  box-shadow: 3px 3px 0px #2d1f36 !important;
-  border-radius: 6px !important;
+  background: rgba(255, 255, 255, 0.93) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  border: 2.5px solid #2d1f36 !important;
+  box-shadow: 4px 4px 0px #2d1f36 !important;
+  border-radius: 8px !important;
   color: #2d1f36 !important;
-  margin-bottom: 8px !important;
+  margin-bottom: 10px !important;
+  transition: transform 0.16s ease, box-shadow 0.16s ease, background 0.16s ease, color 0.16s ease !important;
 }
+
 .menu-panel__nav a:hover {
   background: #7abcc4 !important;
   color: #2d1f36 !important;
-  transform: translate(-2px, -2px) !important;
-  box-shadow: 4px 4px 0px #2d1f36 !important;
+  transform: translate(-3px, -3px) !important;
+  box-shadow: 6px 6px 0px #2d1f36 !important;
 }
+
 .menu-panel__login-link {
-  background: #9ec5a6 !important;
+  background: rgba(158, 197, 166, 0.94) !important;
   color: #2d1f36 !important;
+}
+
+.menu-panel__footer {
+  background: linear-gradient(180deg, rgba(250, 246, 238, 0) 0%, rgba(250, 246, 238, 0.88) 40%, #faf6ee 100%) !important;
+  backdrop-filter: blur(6px) !important;
+  -webkit-backdrop-filter: blur(6px) !important;
+  border-top: 1.5px solid rgba(45, 31, 54, 0.12) !important;
+}
+
+.menu-panel__footer span {
+  color: #2d1f36 !important;
+  font-family: var(--pixel) !important;
+  font-size: 8.5px !important;
+}
+
+@keyframes menu-water-drift {
+  0% {
+    transform: scale(1) translate(0, 0);
+  }
+  50% {
+    transform: scale(1.03) translate(-8px, -6px);
+  }
+  100% {
+    transform: scale(1) translate(0, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .menu-panel__water-bg {
+    animation: none !important;
+  }
 }
 
 /* 11. Hero Layout & Structure */

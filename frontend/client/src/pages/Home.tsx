@@ -1497,6 +1497,8 @@ export default function Home() {
         className={`menu-panel ${menuOpen ? "menu-panel--open" : ""}`}
         aria-hidden={!menuOpen}
       >
+        <div className="menu-panel__water-bg" aria-hidden="true" />
+        <div className="menu-panel__grid-overlay" aria-hidden="true" />
         <div className="menu-panel__topline">
           <Mark compact />
           <button
