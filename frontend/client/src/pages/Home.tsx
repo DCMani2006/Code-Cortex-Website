@@ -87,6 +87,8 @@ const tracks = [
     name: "Finance",
     sponsor: "Open track",
     eyebrow: "Track 01",
+    tag: "CURRENCY & ECONOMY",
+    catImage: "/cat_coins.png",
     description:
       "Design a calmer, clearer future for money. Turn complex financial moments into tools people can actually understand and trust.",
     brief:
@@ -103,6 +105,8 @@ const tracks = [
     name: "Medicine & Healthcare",
     sponsor: "Open track",
     eyebrow: "Track 02",
+    tag: "HEALTH & HEALING",
+    catImage: "/cat_drink.png",
     description:
       "Build for better care. Reimagine the tools, systems, and small human moments that make health support more accessible and useful.",
     brief:
@@ -119,6 +123,8 @@ const tracks = [
     name: "Drone Tech & Aviation",
     sponsor: "Open track",
     eyebrow: "Track 03",
+    tag: "AUTONOMOUS FLIGHT",
+    catImage: "/cat_rocket.png",
     description:
       "Take the idea airborne. Explore navigation, autonomy, logistics, safety, and the next generation of movement through the sky.",
     brief:
@@ -135,6 +141,8 @@ const tracks = [
     name: "Security",
     sponsor: "Open track",
     eyebrow: "Track 04",
+    tag: "CYBER & DEFENSE",
+    catImage: "/cat_standing.png",
     description:
       "Make the digital world harder to break and easier to trust. Build tools that protect people, systems, and the ideas inside them.",
     brief:
@@ -151,6 +159,8 @@ const tracks = [
     name: "Open Innovation",
     sponsor: "Open track",
     eyebrow: "Track 05",
+    tag: "UNBOUNDED REALM",
+    catImage: "/cat_walk.png",
     description:
       "No box, no brief, no ceiling. Bring the strange idea, the stubborn problem, or the tiny detail that deserves a much bigger solution.",
     brief:
@@ -1783,96 +1793,152 @@ export default function Home() {
             </div>
           </div>
           <div className="tracks__canvas">
-            <div className="tracks__object-image">
-              <WireframeStamp words={["CHOOSE", "YOUR", "CLASS"]} size="small" />
-            </div>
-            <div className="tracks__active-card">
-              <div className="tracks__active-card-top">
-                <span>⚔️ LEVEL 30 // {activeTrack.eyebrow}</span>
-                <span>{activeTrack.sponsor}</span>
+            {/* Left Column: Dungeon Realm Selector with Pixel Cat Avatars */}
+            <div
+              className="tracks__nav-panel"
+              role="tablist"
+              aria-label="Hackathon dungeon tracks"
+            >
+              <div className="tracks__nav-panel-header">
+                <span className="tracks__nav-panel-title">⚔️ DUNGEON REALMS</span>
+                <span className="tracks__nav-panel-count">5 GATES</span>
               </div>
-              <TrackGlyph track={activeTrack} large />
-              <h3>{activeTrack.name}</h3>
-              <p>{activeTrack.description}</p>
-              <div className="tracks__active-card-actions">
-                <Dialog>
-                  <DialogTrigger asChild>
+              <div className="tracks__nav-list">
+                {tracks.map((track, index) => {
+                  const isActive = index === trackIndex;
+                  return (
                     <button
+                      key={track.name}
                       type="button"
-                      className="text-link text-link--dark track-brief-trigger"
+                      role="tab"
+                      aria-selected={isActive}
+                      className={`track-nav-btn track-nav-btn--${track.color} ${isActive ? "track-nav-btn--active" : ""}`}
+                      onClick={() => setTrackIndex(index)}
                     >
-                      Enter dungeon briefing <ArrowUpRight size={18} />
+                      <div className="track-nav-btn__avatar">
+                        <img
+                          src={track.catImage}
+                          alt={`${track.name} mascot`}
+                          className="track-nav-btn__cat-img"
+                          width={48}
+                          height={48}
+                          loading="lazy"
+                        />
+                      </div>
+                      <div className="track-nav-btn__info">
+                        <div className="track-nav-btn__meta">
+                          <span className="track-nav-btn__gate">GATE 0{index + 1}</span>
+                          <span className="track-nav-btn__tag">{track.tag}</span>
+                        </div>
+                        <span className="track-nav-btn__name">{track.name}</span>
+                      </div>
+                      <div className="track-nav-btn__status">
+                        {isActive ? (
+                          <span className="track-nav-btn__pill">ACTIVE ⚔️</span>
+                        ) : (
+                          <ArrowUpRight className="track-nav-btn__arrow" size={16} />
+                        )}
+                      </div>
                     </button>
-                  </DialogTrigger>
-                  <DialogContent className="track-brief-dialog">
-                    <DialogHeader>
-                      <DialogTitle className="track-brief-dialog__title">
-                        ⚔️ {activeTrack.name} — QUEST BRIEFING
-                      </DialogTitle>
-                    </DialogHeader>
-                    <div className="track-brief-dialog__body">
-                      {activeTrack.brief.split("\n\n").map((paragraph, index) => (
-                        <p key={index}>{paragraph}</p>
-                      ))}
-                    </div>
-                  </DialogContent>
-                </Dialog>
-                {activeTrack.dataset === "pick-your-own" ? (
-                  <span className="tracks__dataset-note">
-                    🎒 Pick your own custom loot dataset for this dungeon.
-                  </span>
-                ) : activeTrack.dataset ? (
-                  <a
-                    className="tracks__dataset-download"
-                    href={activeTrack.dataset.url}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    {activeTrack.dataset.kind === "folder"
-                      ? "Open dataset armory"
-                      : "Download quest data"}{" "}
-                    {activeTrack.dataset.kind === "folder" ? (
-                      <ArrowUpRight size={16} />
-                    ) : (
-                      <Download size={16} />
-                    )}
-                  </a>
-                ) : (
-                  <span className="tracks__dataset-note">
-                    ⏳ Dungeon dataset coming soon.
-                  </span>
-                )}
+                  );
+                })}
               </div>
             </div>
-          </div>
-          <div
-            className="tracks__rail"
-            role="tablist"
-            aria-label="Hackathon tracks"
-          >
-            {tracks.map((track, index) => (
-              <button
-                key={track.name}
-                className={`track-tab track-tab--${track.color} ${index === trackIndex ? "track-tab--active" : ""}`}
-                onClick={() => setTrackIndex(index)}
-                role="tab"
-                aria-selected={index === trackIndex}
-              >
-                <span className="track-tab__number">GATE 0{index + 1}</span>
-                <span>{track.name}</span>
-                <ArrowUpRight size={17} />
-              </button>
-            ))}
-          </div>
-          <div className="tracks__dots">
-            {tracks.map((track, index) => (
-              <button
-                key={track.name}
-                className={index === trackIndex ? "is-active" : ""}
-                onClick={() => setTrackIndex(index)}
-                aria-label={`Go to track ${index + 1}`}
-              />
-            ))}
+
+            {/* Right Column: Active Dungeon Description Card with Retro Window Header and Cat Companion */}
+            <div className="tracks__active-card">
+              <div className="tracks__window-bar">
+                <div className="tracks__window-title">
+                  <span className="tracks__window-icon">■</span>
+                  <span>QUEST LOG // GATE 0{trackIndex + 1}: {activeTrack.name.toUpperCase()}</span>
+                </div>
+                <div className="tracks__window-controls" aria-hidden="true">
+                  <span>_</span>
+                  <span>🗖</span>
+                  <span>✕</span>
+                </div>
+              </div>
+
+              <div className="tracks__active-card-body">
+                {/* Hero Spotlight Stage: Pixel Cat Companion + Meta */}
+                <div className="tracks__hero-stage">
+                  <div className="tracks__cat-spotlight">
+                    <div className="tracks__cat-spotlight-halo" />
+                    <img
+                      key={activeTrack.name}
+                      src={activeTrack.catImage}
+                      alt={`${activeTrack.name} Cat Companion`}
+                      className="tracks__active-cat-img"
+                      width={110}
+                      height={110}
+                    />
+                    <span className="tracks__cat-badge">COMPANION // LVL 30</span>
+                  </div>
+
+                  <div className="tracks__hero-details">
+                    <div className="tracks__hero-meta">
+                      <span className="tracks__hero-gate">GATE 0{trackIndex + 1}</span>
+                      <span className="tracks__hero-sponsor">{activeTrack.sponsor}</span>
+                    </div>
+                    <div className="tracks__hero-tag">{activeTrack.tag}</div>
+                    <h3 className="tracks__active-title">{activeTrack.name}</h3>
+                  </div>
+                </div>
+
+                <p className="tracks__active-desc">{activeTrack.description}</p>
+
+                <div className="tracks__active-card-actions">
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <button
+                        type="button"
+                        className="tracks__btn tracks__btn--briefing track-brief-trigger"
+                      >
+                        Enter dungeon briefing <ArrowUpRight size={17} />
+                      </button>
+                    </DialogTrigger>
+                    <DialogContent className="track-brief-dialog">
+                      <DialogHeader>
+                        <DialogTitle className="track-brief-dialog__title">
+                          ⚔️ {activeTrack.name} — QUEST BRIEFING
+                        </DialogTitle>
+                      </DialogHeader>
+                      <div className="track-brief-dialog__body">
+                        {activeTrack.brief.split("\n\n").map((paragraph, index) => (
+                          <p key={index}>{paragraph}</p>
+                        ))}
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+
+                  {activeTrack.dataset === "pick-your-own" ? (
+                    <span className="tracks__dataset-note">
+                      🎒 Pick your own custom loot dataset for this dungeon.
+                    </span>
+                  ) : activeTrack.dataset ? (
+                    <a
+                      className="tracks__btn tracks__btn--dataset"
+                      href={activeTrack.dataset.url}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      {activeTrack.dataset.kind === "folder"
+                        ? "Open dataset armory"
+                        : "Download quest data"}{" "}
+                      {activeTrack.dataset.kind === "folder" ? (
+                        <ArrowUpRight size={16} />
+                      ) : (
+                        <Download size={16} />
+                      )}
+                    </a>
+                  ) : (
+                    <span className="tracks__dataset-note">
+                      ⏳ Dungeon dataset coming soon.
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
           </div>
         </section>
 
