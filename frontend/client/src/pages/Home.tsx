@@ -35,7 +35,6 @@ import {
   HeartPulse,
   Home as HomeIcon,
   Shield,
-  Image as ImageIcon,
   Instagram,
   Layers,
   Linkedin,
@@ -65,7 +64,6 @@ const navItems = [
   { label: "About", href: "#about", icon: Info },
   { label: "Tracks", href: "#tracks", icon: Layers },
   { label: "Nominate", href: "#nominate", icon: Music2 },
-  { label: "Gallery", href: "#gallery", icon: ImageIcon },
   { label: "Sponsors", href: "#sponsors", icon: HandHeart },
   { label: "FAQs", href: "#faqs", icon: HelpCircle },
   { label: "Contact", href: "#contact", icon: Mail },
@@ -2277,99 +2275,13 @@ export default function Home() {
         </section>
 
         <section
-          id="gallery"
-          className="events section-light page-pad"
-          data-reveal
-        >
-          <div className="events__header">
-            <span className="chapter-badge">🗺️ CHAPTER 07 // PAST EXPEDITIONS ARCHIVE</span>
-            <SectionLabel number="07">BEFORE THE JAM</SectionLabel>
-            <span className="events__header-note">
-              QUEST LOG // EXPEDITIONS ACCOMPLISHED
-            </span>
-          </div>
-          <div className="events__title-row">
-            <div className="heading-with-icon">
-              <HeadingIcon icon={ImageIcon} label="Gallery" />
-              <h2>
-                Past
-                <br />
-                <span>expeditions.</span>
-              </h2>
-            </div>
-          </div>
-          <div className="event-grid">
-            <article className="event-card event-card--triangle">
-              <div className="event-card__shape event-card__shape--triangle">
-                △
-              </div>
-              <div className="event-card__meta">
-                <span>QUEST 01 // CLEAR</span>
-                <ArrowUpRight size={19} />
-              </div>
-              <h3>
-                Bida
-                <br />
-                thon
-              </h3>
-              <p>
-                A fast-moving build where ideas compete, evolve, and find their
-                sharpest form.
-              </p>
-            </article>
-            <article className="event-card event-card--circle">
-              <div className="event-card__shape event-card__shape--circle">
-                ◎
-              </div>
-              <img
-                className="event-card__cover"
-                src="/data-alchemy-cover.webp"
-                alt="TAM-VIT team gathered in a classroom for Data Alchemy"
-                loading="lazy"
-              />
-              <div className="event-card__meta">
-                <span>QUEST 02 // CLEAR</span>
-                <ArrowUpRight size={19} />
-              </div>
-              <h3>
-                Data
-                <br />
-                Alchemy
-              </h3>
-              <p>
-                Turn messy questions into clear insights, useful tools, and
-                unexpected directions.
-              </p>
-            </article>
-            <article className="event-card event-card--flower">
-              <div className="event-card__shape event-card__shape--flower">
-                ✽
-              </div>
-              <div className="event-card__meta">
-                <span>QUEST 03 // CLEAR</span>
-                <ArrowUpRight size={19} />
-              </div>
-              <h3>
-                Red
-                <br />
-                handed
-              </h3>
-              <p>
-                A sharp, playful challenge for fast thinking and ideas that
-                leave a mark.
-              </p>
-            </article>
-          </div>
-        </section>
-
-        <section
           id="sponsors"
           className="sponsors section-dark page-pad"
           data-reveal
         >
           <div className="sponsors__header">
-            <span className="chapter-badge">🎪 CHAPTER 08 // THE MERCHANT BAZAAR</span>
-            <SectionLabel number="08">POWERED BY</SectionLabel>
+            <span className="chapter-badge">🎪 CHAPTER 07 // THE MERCHANT BAZAAR</span>
+            <SectionLabel number="07">POWERED BY</SectionLabel>
             <span>SUPPLYING THE REALM</span>
           </div>
           <div className="sponsors__title-row">
@@ -2406,8 +2318,8 @@ export default function Home() {
 
         <section id="faqs" className="faq section-light page-pad" data-reveal>
           <div className="faq__side">
-            <span className="chapter-badge">⛺ CHAPTER 09 // THE WISE ELDER'S TENT</span>
-            <SectionLabel number="09">NO SILLY QUESTIONS</SectionLabel>
+            <span className="chapter-badge">⛺ CHAPTER 08 // THE WISE ELDER'S TENT</span>
+            <SectionLabel number="08">NO SILLY QUESTIONS</SectionLabel>
             <div className="heading-with-icon">
               <HeadingIcon icon={HelpCircle} label="FAQs" />
               <h2>
@@ -2475,8 +2387,8 @@ export default function Home() {
       <footer id="contact" className="footer section-dark page-pad" data-reveal>
         <div className="footer__main">
           <div className="footer__statement">
-            <span className="chapter-badge">🌌 CHAPTER 10 // WARP PORTAL &amp; CREDITS</span>
-            <SectionLabel number="10">SAY HELLO</SectionLabel>
+            <span className="chapter-badge">🌌 CHAPTER 09 // WARP PORTAL &amp; CREDITS</span>
+            <SectionLabel number="09">SAY HELLO</SectionLabel>
             <div className="heading-with-icon">
               <HeadingIcon icon={Mail} label="Contact" />
               <h2>
