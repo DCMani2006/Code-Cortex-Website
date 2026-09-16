@@ -975,6 +975,113 @@ function CoderCatStation() {
   );
 }
 
+const COFFEE_TOASTS = [
+  "☕ Warm sip... HP & focus fully restored! ✨",
+  "🎵 Listening to the arcade jukebox beats 🎧",
+  "☕ Fresh roast brewed // Ready to hack through the night!",
+  "🌿 Cozy tavern rest point unlocked 💤",
+  "🥐 Taking five. Breathe in, breathe out...",
+  "✨ Steam swirls in the warm morning sunbeam ☀️",
+];
+
+function CozyCoffeeScene() {
+  const [sips, setSips] = useState(1);
+  const [toastIndex, setToastIndex] = useState(0);
+  const [showToast, setShowToast] = useState(false);
+  const [burstKey, setBurstKey] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
+
+  const handleSip = () => {
+    setSips((prev) => prev + 1);
+    setToastIndex((prev) => (prev + 1) % COFFEE_TOASTS.length);
+    setShowToast(true);
+    setBurstKey((prev) => prev + 1);
+  };
+
+  return (
+    <div
+      className={`cozy-coffee-station ${isHovered ? "cozy-coffee-station--hover" : ""}`}
+      role="region"
+      aria-label="Interactive pixel art coffee cup steaming in warm sunlight at the tavern rest point"
+      onClick={handleSip}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      {/* Top Station HUD */}
+      <div className="cozy-coffee-hud">
+        <div className="cozy-coffee-hud__tag">
+          <span className="cozy-coffee-hud-dot" />
+          <span>☕ TAVERN_CAFE // REST_POINT</span>
+        </div>
+        <div className="cozy-coffee-hud__stats">
+          <span className="cozy-coffee-hud-chip" title="Click to sip coffee!">
+            ♨️ {sips} {sips === 1 ? "CUP" : "CUPS"}
+          </span>
+          <span className="cozy-coffee-hud-chip cozy-coffee-hud-chip--vibes">
+            🎵 LO-FI VIBES
+          </span>
+        </div>
+      </div>
+
+      {/* Main Pixel Canvas Wrapper */}
+      <div className="cozy-coffee-stage">
+        {/* Interactive Speech / Status Toast */}
+        {showToast && (
+          <div className="cozy-coffee-toast" key={burstKey}>
+            <span>{COFFEE_TOASTS[toastIndex]}</span>
+          </div>
+        )}
+
+        {/* Base Coffee Artwork */}
+        <div className="cozy-coffee-img-container">
+          <img
+            className="cozy-coffee-img"
+            src="/cozy_coffee.jpg"
+            alt="Pixel art cup of coffee steaming in warm sunlight on a wooden table"
+            width={736}
+            height={736}
+            loading="lazy"
+          />
+
+          {/* Warm Sunbeam Ambient Light Sheen */}
+          <div className="cozy-coffee-sunbeam-overlay" aria-hidden="true" />
+
+          {/* Floating Sunbeam Dust Motes (Warm golden drifting particles) */}
+          <div className="cozy-coffee-motes" aria-hidden="true">
+            <span className="coffee-mote mote-1" />
+            <span className="coffee-mote mote-2" />
+            <span className="coffee-mote mote-3" />
+            <span className="coffee-mote mote-4" />
+            <span className="coffee-mote mote-5" />
+            <span className="coffee-mote mote-6" />
+          </div>
+
+          {/* Gentle Rising Steam Plumes */}
+          <div className="cozy-coffee-steam" aria-hidden="true">
+            <span className="steam-wisp wisp-1" />
+            <span className="steam-wisp wisp-2" />
+            <span className="steam-wisp wisp-3" />
+            <span className="steam-wisp wisp-4" />
+            <span className="steam-wisp wisp-5" />
+          </div>
+
+          {/* Sip Burst Floating Pill (active when clicked) */}
+          {burstKey > 0 && (
+            <div className="cozy-coffee-burst" key={burstKey} aria-hidden="true">
+              <span className="burst-sip-pill">+1 HP RESTORED ✨</span>
+            </div>
+          )}
+        </div>
+
+        {/* Hover Cue */}
+        <div className="cozy-coffee-click-cue" aria-hidden="true">
+          ☕ CLICK CUP TO TAKE A SIP (+HP)
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function TrackGlyph({
   track,
   large = false,
@@ -1963,6 +2070,7 @@ export default function Home() {
                 <span>soundtrack.</span>
               </h2>
             </div>
+            <CozyCoffeeScene />
           </div>
 
           <form className="nominate-search" onSubmit={submitSongSearch}>
