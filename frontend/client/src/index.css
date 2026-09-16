@@ -1583,29 +1583,39 @@ h3 em {
 .manifesto {
   align-items: center;
   display: grid;
-  gap: clamp(38px, 10vw, 170px);
-  grid-template-columns: minmax(170px, 0.35fr) minmax(0, 1.65fr);
+  gap: clamp(28px, 4vw, 64px);
+  grid-template-columns: minmax(150px, 0.2fr) minmax(0, 1.8fr);
   padding-bottom: clamp(100px, 14vw, 190px);
   padding-top: clamp(100px, 14vw, 190px);
 }
 .manifesto__content {
-  max-width: 970px;
+  max-width: 1500px;
 }
 .manifesto__columns {
+  align-items: center;
   display: grid;
-  gap: clamp(40px, 7vw, 100px);
-  grid-template-columns: minmax(0, 1.1fr) minmax(240px, 0.72fr);
+  gap: clamp(28px, 3vw, 56px);
+  grid-template-columns: minmax(0, 1.2fr) minmax(340px, 0.8fr);
+}
+@media (max-width: 1200px) {
+  .manifesto__columns {
+    grid-template-columns: 1fr;
+  }
+}
+.manifesto .heading-with-icon {
+  container-type: inline-size;
 }
 .manifesto h2 {
+  font-size: min(84px, calc((100cqi - 90px) / 9));
   margin-bottom: 0;
-  margin-top: 55px;
+  margin-top: 0;
 }
 .manifesto h2 span {
   color: var(--coral);
 }
 .manifesto__columns p {
   font-size: clamp(15px, 1.35vw, 19px);
-  max-width: 385px;
+  max-width: 560px;
 }
 .manifesto__signature {
   color: var(--cyan);
@@ -1823,6 +1833,18 @@ h3 em {
 .tracks h2,
 .sponsors h2 {
   margin: 0;
+}
+.about .heading-with-icon,
+.tracks .heading-with-icon,
+.sponsors .heading-with-icon {
+  container-type: inline-size;
+}
+.about h2 {
+  font-size: min(84px, calc((100cqi - 90px) / 5));
+}
+.tracks h2,
+.sponsors h2 {
+  font-size: min(84px, calc((100cqi - 90px) / 8));
 }
 .tracks h2 span {
   color: var(--lime);
@@ -2666,11 +2688,15 @@ h3 em {
 .faq {
   display: grid;
   gap: clamp(50px, 11vw, 180px);
-  grid-template-columns: minmax(260px, 0.75fr) minmax(0, 1.25fr);
+  grid-template-columns: minmax(320px, 1fr) minmax(0, 1fr);
   padding-bottom: clamp(110px, 14vw, 190px);
   padding-top: clamp(110px, 14vw, 190px);
 }
+.faq .heading-with-icon {
+  container-type: inline-size;
+}
 .faq h2 {
+  font-size: min(84px, calc((100cqi - 90px) / 8));
   margin-bottom: 28px;
   margin-top: 58px;
 }
