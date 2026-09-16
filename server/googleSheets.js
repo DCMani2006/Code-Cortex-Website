@@ -2,7 +2,6 @@ import { GoogleSpreadsheet } from 'google-spreadsheet';
 import { JWT } from 'google-auth-library';
 import fs from 'fs';
 import path from 'path';
-import crypto from 'crypto';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -83,7 +82,7 @@ export async function initGoogleSheets() {
     },
     {
       title: 'Team',
-      headerValues: ['Team_ID', 'Team_ Name', 'Track', 'Team_Leader', 'No. of Members', 'Password']
+      headerValues: ['Team_ID', 'Team_ Name', 'Track', 'Team_Leader', 'No. of Members', 'Password', 'Team_Type']
     },
     {
       title: 'Submissions',
@@ -151,13 +150,23 @@ export async function syncAuthUser(email, name) {
       Team_ID: userRow.get('Team_ID'),
     };
   } else {
-    const userId = crypto.randomUUID();
+    // Prefer a VIT-format reg number embedded in the Google display name
+    // (e.g. "Jane Doe 21BCE1234") so internal users get a recognizable ID;
+    // fall back to the "U-####" convention the client already checks for
+    // (via `User_ID.startsWith("U-")`) when deciding whether to trust this
+    // ID or replace it with the one typed at registration.
+    const regNoMatch = String(name || '').match(/\b(\d{2}[a-zA-Z]{3}\d{4,5})\b/i);
+    const userId = regNoMatch
+      ? regNoMatch[1].toUpperCase()
+      : 'U-' + Math.floor(1000 + Math.random() * 9000);
     const newUser = {
       User_ID: userId,
       Name: name,
       Email: email,
       'Role (Participant/Admin)': 'Participant',
-      Team_ID: 'null'
+      // Empty, not the string 'null' — that string is truthy in JS and would
+      // make every brand-new user look like they already belong to a team.
+      Team_ID: ''
     };
     await sheet.addRow(newUser);
     invalidateCache('users');
@@ -227,6 +236,7 @@ export async function getTeams() {
       Track: row.get('Track'),
       Team_Leader: row.get('Team_Leader'),
       'No. of Members': row.get('No. of Members'),
+      Team_Type: row.get('Team_Type'),
     }));
   });
 }
@@ -279,17 +289,35 @@ export async function addTeam(data, additionalMembers = []) {
   
   // Extract explicit _userId if provided
   const userId = data._userId;
+  const userEmail = String(data._userEmail || '').trim().toLowerCase();
   delete data._userId;
+  delete data._userEmail;
 
   // --- STRICT MEMBERSHIP VALIDATION ---
   if (usersSheet) {
     const existingUserRows = await usersSheet.getRows();
-    
+
     // 1. Check logged-in user creating the team
     if (userId) {
       const loggedUserRow = existingUserRows.find(r => r.get('User_ID') === userId);
       if (loggedUserRow) {
         const existingTeamId = String(loggedUserRow.get('Team_ID') || '').trim();
+        if (existingTeamId) {
+          throw new Error("You are already a member of a team and cannot create or join another team.");
+        }
+      }
+    }
+
+    // 1b. Also check by email, independent of User_ID — a client-side bug
+    // or stale identity resolution can hand us a *new* User_ID for someone
+    // who already has an account (and a team) under the same email; this
+    // catches that case even when the User_ID check above doesn't.
+    if (userEmail) {
+      const existingEmailRow = existingUserRows.find(
+        r => String(r.get('Email') || '').trim().toLowerCase() === userEmail
+      );
+      if (existingEmailRow) {
+        const existingTeamId = String(existingEmailRow.get('Team_ID') || '').trim();
         if (existingTeamId) {
           throw new Error("You are already a member of a team and cannot create or join another team.");
         }
@@ -387,6 +415,7 @@ export async function addTeam(data, additionalMembers = []) {
     ensureColumn('Password', ['Team_Password', 'teamPassword', 'Team Password']);
     ensureColumn('Team_Leader', ['Team Leader', 'Leader Name']);
     ensureColumn('Track');
+    ensureColumn('Team_Type');
 
     if (newHeaders.length > headers.length) {
       await sheet.setHeaderRow(newHeaders);
