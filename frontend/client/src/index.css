@@ -6921,12 +6921,36 @@ body, p, span, div, li, input, textarea, select {
 }
 .nominate__title-row {
   display: flex !important;
-  align-items: center !important;
-  justify-content: space-between !important;
-  gap: clamp(24px, 4vw, 48px) !important;
-  flex-wrap: wrap !important;
   margin-top: 40px !important;
+  margin-bottom: 28px !important;
+}
+
+.nominate__action-row {
+  display: flex !important;
+  align-items: flex-start !important;
+  justify-content: space-between !important;
+  gap: clamp(24px, 3.5vw, 44px) !important;
+  margin-top: 24px !important;
   margin-bottom: 36px !important;
+  position: relative !important;
+  z-index: 2 !important;
+}
+
+@media (max-width: 960px) {
+  .nominate__action-row {
+    flex-direction: column !important;
+  }
+}
+
+.nominate__search-col {
+  flex: 1 !important;
+  min-width: 0 !important;
+  max-width: 620px !important;
+}
+
+.nominate__coffee-col {
+  flex-shrink: 0 !important;
+  width: clamp(280px, 28vw, 360px) !important;
 }
 
 /* Cozy Coffee Rest Point Station */
@@ -7229,9 +7253,11 @@ body, p, span, div, li, input, textarea, select {
   border-top: 1.5px solid #2d1f36 !important;
 }
 .nominate-search {
-  margin-top: 32px !important;
-  margin-bottom: 32px !important;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
   gap: 14px !important;
+  display: flex !important;
+  width: 100% !important;
 }
 .nominate-search input {
   background: #ffffff !important;

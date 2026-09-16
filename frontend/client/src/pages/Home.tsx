@@ -2070,53 +2070,60 @@ export default function Home() {
                 <span>soundtrack.</span>
               </h2>
             </div>
-            <CozyCoffeeScene />
           </div>
 
-          <form className="nominate-search" onSubmit={submitSongSearch}>
-            <input
-              value={songQuery}
-              onChange={(event) => setSongQuery(event.target.value)}
-              placeholder="Search Spotify catalog for track or artist..."
-              aria-label="Search Spotify"
-            />
-            <button type="submit" disabled={searchQuery.isFetching}>
-              {searchQuery.isFetching ? "INSERTING COIN..." : "🪙 INSERT COIN / SEARCH"}
-            </button>
-          </form>
-          {searchQuery.error && (
-            <p className="nominate-search__error" role="alert">
-              {searchQuery.error.message}
-            </p>
-          )}
-          {searchQuery.data && (
-            <ul className="nominate-results">
-              {searchQuery.data.length === 0 && (
-                <li className="nominate-results__empty">
-                  No tracks found in the arcade catalog — try another title.
-                </li>
+          <div className="nominate__action-row">
+            <div className="nominate__search-col">
+              <form className="nominate-search" onSubmit={submitSongSearch}>
+                <input
+                  value={songQuery}
+                  onChange={(event) => setSongQuery(event.target.value)}
+                  placeholder="Search Spotify catalog for track or artist..."
+                  aria-label="Search Spotify"
+                />
+                <button type="submit" disabled={searchQuery.isFetching}>
+                  {searchQuery.isFetching ? "INSERTING COIN..." : "🪙 INSERT COIN / SEARCH"}
+                </button>
+              </form>
+              {searchQuery.error && (
+                <p className="nominate-search__error" role="alert">
+                  {searchQuery.error.message}
+                </p>
               )}
-              {searchQuery.data.map((track) => (
-                <li key={track.id}>
-                  {track.albumArt ? (
-                    <img src={track.albumArt} alt="" />
-                  ) : (
-                    <span className="nominate-results__art-placeholder" />
+              {searchQuery.data && (
+                <ul className="nominate-results">
+                  {searchQuery.data.length === 0 && (
+                    <li className="nominate-results__empty">
+                      No tracks found in the arcade catalog — try another title.
+                    </li>
                   )}
-                  <span className="nominate-results__meta">
-                    <strong>{track.name}</strong>
-                    <span>{track.artist}</span>
-                  </span>
-                  <button
-                    onClick={() => nominateTrack(track)}
-                    disabled={voteMutation.isPending}
-                  >
-                    ▶ NOMINATE
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
+                  {searchQuery.data.map((track) => (
+                    <li key={track.id}>
+                      {track.albumArt ? (
+                        <img src={track.albumArt} alt="" />
+                      ) : (
+                        <span className="nominate-results__art-placeholder" />
+                      )}
+                      <span className="nominate-results__meta">
+                        <strong>{track.name}</strong>
+                        <span>{track.artist}</span>
+                      </span>
+                      <button
+                        onClick={() => nominateTrack(track)}
+                        disabled={voteMutation.isPending}
+                      >
+                        ▶ NOMINATE
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+
+            <div className="nominate__coffee-col">
+              <CozyCoffeeScene />
+            </div>
+          </div>
 
           <div className="nominate__grid">
             {(leaderboardQuery.data?.tracks ?? []).map((track, index) => {
