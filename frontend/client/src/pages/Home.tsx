@@ -1395,63 +1395,127 @@ export default function Home() {
           className="about section-light page-pad tavern-scene"
           data-reveal
         >
-          <div className="about__intro">
-            <span className="chapter-badge">⚔️ CHAPTER 01 // THE HACKER'S TAVERN</span>
-            <SectionLabel number="01">ABOUT THE JAM</SectionLabel>
-            <div className="heading-with-icon">
-              <HeadingIcon icon={Info} label="About" />
-              <h2>
-                The build
-                <br />
-                <span>starts here.</span>
-              </h2>
-            </div>
-            <p className="lead-copy">
-              A high-energy 30 hour hackathon fostering innovation and
-              collaboration, where participants address real-world challenges,
-              showcase their coding skills, and develop groundbreaking
-              solutions, judged by industry experts.
-            </p>
-          </div>
-          <div className="about__visual">
-            <BuilderForgeAnimation />
-            <CoderCatStation />
-          </div>
-
-          <div className="about__mentor-encounter">
-            <div className="tavern-mentor-card rpg-dialogue-box">
-              <div className="rpg-dialogue-tail" aria-hidden="true" />
-              <div className="tavern-mentor-header">
-                <div className="mentor-avatar">🧙‍♂️</div>
-                <div>
-                  <span className="mentor-nameplate">MENTOR ARCHIE</span>
-                  <span className="mentor-title">Master Hacker</span>
-                </div>
-                <span className="rpg-dialogue-tag">NPC // TAVERN GUIDE</span>
+          {/* ROW 1: THE BUILD STARTS HERE (LEFT: INTRO TITLE ⟷ RIGHT: BUILDER FORGE) */}
+          <div className="tavern-row tavern-row--forge">
+            <div className="tavern-col tavern-col--intro">
+              <span className="chapter-badge">⚔️ CHAPTER 01 // THE HACKER'S TAVERN</span>
+              <SectionLabel number="01">ABOUT THE JAM</SectionLabel>
+              <div className="heading-with-icon">
+                <HeadingIcon icon={Info} label="About" />
+                <h2>
+                  The build
+                  <br />
+                  <span>starts here.</span>
+                </h2>
               </div>
-              <p className="rpg-dialogue-text">
-                "Welcome to the tavern, traveler! The 30-hour clock starts ticking the moment you enter the arena. Choose your direction wisely and forge your masterpiece."
-                <span className="rpg-dialogue-cursor">▼</span>
+              <p className="lead-copy">
+                A high-energy 30-hour hackathon where curiosity turns into production code. Gather your guild, pick your domain, and craft groundbreaking solutions judged by industry experts.
               </p>
-              <div className="tavern-quest-pouches">
-                <span className="quest-pouch">⏱️ 30 HOURS NON-STOP</span>
-                <span className="quest-pouch">⚔️ 5 DUNGEONS</span>
-                <span className="quest-pouch">🏆 EPIC PRIZES</span>
+              <div className="tavern-intro-actions">
+                <a
+                  className="hero-pixel-btn"
+                  href="#tracks"
+                  onClick={(event) => {
+                    event.preventDefault();
+                    jumpTo("#tracks");
+                  }}
+                  style={{ display: "inline-flex", textDecoration: "none" }}
+                >
+                  <span>⚔️ EXPLORE 5 TRACKS</span>
+                  <ArrowRight size={16} />
+                </a>
               </div>
-              <a
-                className="text-link"
-                href="#tracks"
-                onClick={(event) => {
-                  event.preventDefault();
-                  jumpTo("#tracks");
-                }}
-                style={{ marginTop: "20px", display: "inline-flex" }}
-              >
-                Find your dungeon track <ArrowRight size={18} />
-              </a>
             </div>
 
-            <WizardOverworldScene />
+            <div className="tavern-col tavern-col--builder">
+              <BuilderForgeAnimation />
+            </div>
+          </div>
+
+          {/* ROW 2: THE DEV DEN (LEFT: CODER CAT WORKSTATION ⟷ RIGHT: MISSION & QUESTS) */}
+          <div className="tavern-row tavern-row--dev-den">
+            <div className="tavern-col tavern-col--cat">
+              <CoderCatStation />
+            </div>
+
+            <div className="tavern-col tavern-col--mission">
+              <div className="tavern-mission-card">
+                <div className="tavern-mission-card__header">
+                  <span className="mission-tag">📜 THE TAVERN QUESTS</span>
+                  <span className="mission-live-pill">LIVE ARENA</span>
+                </div>
+                <h3 className="tavern-mission-title">
+                  Three Pillars of the Forge
+                </h3>
+                <p className="tavern-mission-desc">
+                  Step into the arena where ideas transform into working MVPs. Over 30 continuous hours, your squad will tackle real industry challenges, unlock mentor checkpoints, and pitch before a panel of tech leaders.
+                </p>
+                <div className="tavern-quest-grid">
+                  <div className="tavern-quest-item">
+                    <span className="quest-item-icon">⏱️</span>
+                    <div className="quest-item-text">
+                      <strong>30 HOURS SPRINT</strong>
+                      <span>From zero to deployed prototype</span>
+                    </div>
+                  </div>
+                  <div className="tavern-quest-item">
+                    <span className="quest-item-icon">⚔️</span>
+                    <div className="quest-item-text">
+                      <strong>5 DUNGEON TRACKS</strong>
+                      <span>Aviation, AI/ML, Security, Open Tech</span>
+                    </div>
+                  </div>
+                  <div className="tavern-quest-item">
+                    <span className="quest-item-icon">🏆</span>
+                    <div className="quest-item-text">
+                      <strong>EPIC PRIZES &amp; BOUNTIES</strong>
+                      <span>Cash prizes, swag &amp; network access</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* ROW 3: THE OVERWORLD ENCOUNTER (LEFT: WIZARD OVERWORLD ⟷ RIGHT: MENTOR ARCHIE) */}
+          <div className="tavern-row tavern-row--encounter">
+            <div className="tavern-col tavern-col--wizard">
+              <WizardOverworldScene />
+            </div>
+
+            <div className="tavern-col tavern-col--dialogue">
+              <div className="tavern-mentor-card rpg-dialogue-box rpg-dialogue-box--from-left">
+                <div className="rpg-dialogue-tail rpg-dialogue-tail--left" aria-hidden="true" />
+                <div className="tavern-mentor-header">
+                  <div className="mentor-avatar">🧙‍♂️</div>
+                  <div>
+                    <span className="mentor-nameplate">MENTOR ARCHIE</span>
+                    <span className="mentor-title">Master Hacker &amp; Tavern Guide</span>
+                  </div>
+                  <span className="rpg-dialogue-tag">NPC // TAVERN GUIDE</span>
+                </div>
+                <p className="rpg-dialogue-text">
+                  "Welcome to the tavern, traveler! The 30-hour clock starts ticking the moment you enter the arena. Choose your direction wisely and forge your masterpiece."
+                  <span className="rpg-dialogue-cursor">▼</span>
+                </p>
+                <div className="tavern-quest-pouches">
+                  <span className="quest-pouch">⚔️ QUEST READY</span>
+                  <span className="quest-pouch">🧙‍♂️ MENTORS ON CALL</span>
+                  <span className="quest-pouch">✨ ZERO LIMITS</span>
+                </div>
+                <a
+                  className="text-link"
+                  href="#tracks"
+                  onClick={(event) => {
+                    event.preventDefault();
+                    jumpTo("#tracks");
+                  }}
+                  style={{ marginTop: "20px", display: "inline-flex" }}
+                >
+                  Find your dungeon track <ArrowRight size={18} />
+                </a>
+              </div>
+            </div>
           </div>
         </section>
 
