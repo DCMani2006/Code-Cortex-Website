@@ -2520,7 +2520,7 @@ export default function Home() {
               <Instagram size={20} />
             </a>
             <a
-              href="https://github.com/Tam"
+              href="https://github.com/TAM-VIT"
               target="_blank"
               rel="noreferrer"
               aria-label="TAM on GitHub"
@@ -2529,7 +2529,7 @@ export default function Home() {
               <Github size={20} />
             </a>
             <a
-              href="https://www.linkedin.com/company/tamsystems"
+              href="https://www.linkedin.com/company/tam-vit"
               target="_blank"
               rel="noreferrer"
               aria-label="TAM on LinkedIn"
