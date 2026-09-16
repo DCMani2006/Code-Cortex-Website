@@ -594,6 +594,125 @@ function BuilderForgeAnimation() {
   );
 }
 
+function WizardOverworldScene() {
+  return (
+    <div
+      className="wizard-overworld-scene"
+      role="img"
+      aria-label="Pixelated wizard roaming in an open grassy field with animated flying birds, swaying grass, and wildflowers"
+    >
+      {/* Flying Pixel Birds */}
+      <div className="overworld-birds" aria-hidden="true">
+        <div className="pixel-bird pixel-bird--one">
+          <svg className="bird-svg" viewBox="0 0 24 14" fill="none">
+            <rect x="0" y="2" width="4" height="3" fill="#1e293b" />
+            <rect x="4" y="0" width="4" height="3" fill="#1e293b" />
+            <rect x="8" y="3" width="8" height="5" fill="#334155" />
+            <rect x="16" y="0" width="4" height="3" fill="#1e293b" />
+            <rect x="20" y="2" width="4" height="3" fill="#1e293b" />
+            <rect x="11" y="8" width="4" height="4" fill="#0f172a" />
+          </svg>
+        </div>
+        <div className="pixel-bird pixel-bird--two">
+          <svg className="bird-svg" viewBox="0 0 24 14" fill="none">
+            <rect x="0" y="2" width="4" height="3" fill="#334155" />
+            <rect x="4" y="0" width="4" height="3" fill="#334155" />
+            <rect x="8" y="3" width="8" height="5" fill="#475569" />
+            <rect x="16" y="0" width="4" height="3" fill="#334155" />
+            <rect x="20" y="2" width="4" height="3" fill="#334155" />
+            <rect x="11" y="8" width="4" height="4" fill="#1e293b" />
+          </svg>
+        </div>
+      </div>
+
+      {/* Drifting Leaves / Wind Particles */}
+      <div className="overworld-particle leaf--1" aria-hidden="true" />
+      <div className="overworld-particle leaf--2" aria-hidden="true" />
+      <div className="overworld-particle leaf--3" aria-hidden="true" />
+
+      {/* Ground Dotted Pixel Path */}
+      <div className="overworld-ground" aria-hidden="true" />
+
+      {/* Swaying Pixel Grass Tufts */}
+      <div className="overworld-grass-layer" aria-hidden="true">
+        <svg className="grass-tuft grass-tuft--1" width="28" height="24" viewBox="0 0 28 24">
+          <rect x="2" y="10" width="4" height="14" fill="#65a30d" />
+          <rect x="6" y="4" width="4" height="20" fill="#84cc16" />
+          <rect x="10" y="0" width="4" height="24" fill="#4d7c0f" />
+          <rect x="14" y="6" width="4" height="18" fill="#84cc16" />
+          <rect x="18" y="12" width="4" height="12" fill="#65a30d" />
+        </svg>
+
+        <svg className="grass-tuft grass-tuft--2" width="24" height="20" viewBox="0 0 24 20">
+          <rect x="0" y="8" width="4" height="12" fill="#4d7c0f" />
+          <rect x="4" y="2" width="4" height="18" fill="#84cc16" />
+          <rect x="8" y="0" width="4" height="20" fill="#65a30d" />
+          <rect x="12" y="5" width="4" height="15" fill="#84cc16" />
+          <rect x="16" y="10" width="4" height="10" fill="#4d7c0f" />
+        </svg>
+
+        <svg className="grass-tuft grass-tuft--3" width="28" height="24" viewBox="0 0 28 24">
+          <rect x="2" y="10" width="4" height="14" fill="#65a30d" />
+          <rect x="6" y="4" width="4" height="20" fill="#84cc16" />
+          <rect x="10" y="0" width="4" height="24" fill="#4d7c0f" />
+          <rect x="14" y="6" width="4" height="18" fill="#84cc16" />
+          <rect x="18" y="12" width="4" height="12" fill="#65a30d" />
+        </svg>
+
+        <svg className="grass-tuft grass-tuft--4" width="24" height="20" viewBox="0 0 24 20">
+          <rect x="0" y="8" width="4" height="12" fill="#4d7c0f" />
+          <rect x="4" y="2" width="4" height="18" fill="#84cc16" />
+          <rect x="8" y="0" width="4" height="20" fill="#65a30d" />
+          <rect x="12" y="5" width="4" height="15" fill="#84cc16" />
+        </svg>
+      </div>
+
+      {/* Swaying Pixel Wildflowers */}
+      <svg className="overworld-flower flower--red" width="16" height="26" viewBox="0 0 16 26" aria-hidden="true">
+        <rect x="6" y="12" width="3" height="14" fill="#65a30d" />
+        <rect x="2" y="4" width="12" height="8" fill="#f43f5e" />
+        <rect x="4" y="2" width="8" height="12" fill="#e11d48" />
+        <rect x="6" y="6" width="4" height="4" fill="#fde047" />
+      </svg>
+
+      <svg className="overworld-flower flower--blue" width="16" height="24" viewBox="0 0 16 24" aria-hidden="true">
+        <rect x="6" y="10" width="3" height="14" fill="#4d7c0f" />
+        <rect x="2" y="4" width="12" height="8" fill="#38bdf8" />
+        <rect x="4" y="2" width="8" height="12" fill="#0284c7" />
+        <rect x="6" y="6" width="4" height="4" fill="#ffffff" />
+      </svg>
+
+      <svg className="overworld-flower flower--gold" width="16" height="25" viewBox="0 0 16 25" aria-hidden="true">
+        <rect x="6" y="11" width="3" height="14" fill="#65a30d" />
+        <rect x="2" y="4" width="12" height="8" fill="#fbbf24" />
+        <rect x="4" y="2" width="8" height="12" fill="#f59e0b" />
+        <rect x="6" y="6" width="4" height="4" fill="#ffffff" />
+      </svg>
+
+      {/* The Roaming Pixel Wizard */}
+      <div className="wizard-actor">
+        <div className="wizard-interact-bubble">✦ TALK [E]</div>
+        <img
+          className="wizard-sprite-img"
+          src="/wizard_sprite.png"
+          alt="Mentor Archie Pixel Wizard"
+          width="145"
+          height="182"
+          loading="lazy"
+        />
+
+        {/* Staff tip magic spark pulse */}
+        <div className="wizard-staff-magic" aria-hidden="true">
+          <svg viewBox="0 0 20 20" fill="none">
+            <polygon points="10,0 12,7 19,10 12,13 10,20 8,13 1,10 8,7" fill="#67e8f9" />
+            <circle cx="10" cy="10" r="3" fill="#ffffff" />
+          </svg>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function TrackGlyph({
   track,
   large = false,
@@ -1174,37 +1293,45 @@ export default function Home() {
               showcase their coding skills, and develop groundbreaking
               solutions, judged by industry experts.
             </p>
-            <div className="tavern-mentor-card">
+          </div>
+          <div className="about__visual">
+            <BuilderForgeAnimation />
+          </div>
+
+          <div className="about__mentor-encounter">
+            <div className="tavern-mentor-card rpg-dialogue-box">
+              <div className="rpg-dialogue-tail" aria-hidden="true" />
               <div className="tavern-mentor-header">
                 <div className="mentor-avatar">🧙‍♂️</div>
                 <div>
                   <span className="mentor-nameplate">MENTOR ARCHIE</span>
-                  <span style={{ fontSize: "11px", color: "#6b5b73", marginLeft: "8px", fontFamily: "var(--body-pixel)" }}>Master Hacker</span>
+                  <span className="mentor-title">Master Hacker</span>
                 </div>
+                <span className="rpg-dialogue-tag">NPC // TAVERN GUIDE</span>
               </div>
-              <p style={{ margin: 0, fontSize: "14px", lineHeight: "1.75", fontFamily: "var(--body-pixel)", color: "#2d1f36" }}>
+              <p className="rpg-dialogue-text">
                 "Welcome to the tavern, traveler! The 30-hour clock starts ticking the moment you enter the arena. Choose your direction wisely and forge your masterpiece."
+                <span className="rpg-dialogue-cursor">▼</span>
               </p>
               <div className="tavern-quest-pouches">
                 <span className="quest-pouch">⏱️ 30 HOURS NON-STOP</span>
                 <span className="quest-pouch">⚔️ 5 DUNGEONS</span>
                 <span className="quest-pouch">🏆 EPIC PRIZES</span>
               </div>
+              <a
+                className="text-link"
+                href="#tracks"
+                onClick={(event) => {
+                  event.preventDefault();
+                  jumpTo("#tracks");
+                }}
+                style={{ marginTop: "20px", display: "inline-flex" }}
+              >
+                Find your dungeon track <ArrowRight size={18} />
+              </a>
             </div>
-            <a
-              className="text-link"
-              href="#tracks"
-              onClick={(event) => {
-                event.preventDefault();
-                jumpTo("#tracks");
-              }}
-              style={{ marginTop: "24px", display: "inline-flex" }}
-            >
-              Find your dungeon track <ArrowRight size={18} />
-            </a>
-          </div>
-          <div className="about__visual">
-            <BuilderForgeAnimation />
+
+            <WizardOverworldScene />
           </div>
         </section>
 

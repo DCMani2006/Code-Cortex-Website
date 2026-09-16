@@ -4920,16 +4920,85 @@ body, p, span, div, li, input, textarea, select {
   background: #faf6ee !important;
   position: relative;
 }
+/* Two-column RPG Encounter row */
+.about__mentor-encounter {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: minmax(320px, 0.95fr) minmax(320px, 1.05fr);
+  gap: clamp(32px, 5vw, 64px);
+  align-items: center;
+  position: relative;
+  margin-top: clamp(24px, 4vw, 44px);
+}
+@media (max-width: 960px) {
+  .about__mentor-encounter {
+    grid-template-columns: 1fr;
+    gap: 36px;
+  }
+}
+
 .tavern-mentor-card {
   background: #ffffff;
   border: 3px solid #2d1f36;
   border-radius: 10px;
   box-shadow: 5px 5px 0px #2d1f36;
   padding: 24px 28px !important;
-  margin-top: 28px !important;
+  margin-top: 0 !important;
   position: relative;
   line-height: 1.75;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
+.tavern-mentor-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 7px 7px 0px #2d1f36;
+}
+
+/* RPG Speech Bubble Pointer pointing right towards the Wizard */
+.rpg-dialogue-tail {
+  position: absolute;
+  right: -16px;
+  top: 48px;
+  width: 0;
+  height: 0;
+  border-top: 12px solid transparent;
+  border-bottom: 12px solid transparent;
+  border-left: 16px solid #2d1f36;
+  z-index: 2;
+}
+.rpg-dialogue-tail::after {
+  content: '';
+  position: absolute;
+  right: 3px;
+  top: -9px;
+  width: 0;
+  height: 0;
+  border-top: 9px solid transparent;
+  border-bottom: 9px solid transparent;
+  border-left: 13px solid #ffffff;
+}
+
+@media (max-width: 960px) {
+  .rpg-dialogue-tail {
+    right: auto;
+    bottom: -16px;
+    top: auto;
+    left: 48px;
+    border-left: 12px solid transparent;
+    border-right: 12px solid transparent;
+    border-top: 16px solid #2d1f36;
+    border-bottom: none;
+  }
+  .rpg-dialogue-tail::after {
+    top: -19px;
+    left: -9px;
+    right: auto;
+    border-left: 9px solid transparent;
+    border-right: 9px solid transparent;
+    border-top: 13px solid #ffffff;
+    border-bottom: none;
+  }
+}
+
 .tavern-mentor-header {
   display: flex;
   align-items: center;
@@ -4957,11 +5026,48 @@ body, p, span, div, li, input, textarea, select {
   padding: 3px 9px;
   border-radius: 4px;
 }
+.mentor-title {
+  font-size: 11px;
+  color: #6b5b73;
+  margin-left: 8px;
+  font-family: var(--body-pixel);
+}
+.rpg-dialogue-tag {
+  font-family: var(--pixel);
+  font-size: 8px;
+  letter-spacing: 0.08em;
+  color: #0284c7;
+  background: rgba(2, 132, 199, 0.08);
+  padding: 3px 8px;
+  border-radius: 4px;
+  border: 1px solid rgba(2, 132, 199, 0.25);
+  margin-left: auto;
+}
+.rpg-dialogue-text {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.75;
+  font-family: var(--body-pixel);
+  color: #2d1f36;
+  position: relative;
+}
+.rpg-dialogue-cursor {
+  display: inline-block;
+  color: #3158ff;
+  margin-left: 6px;
+  font-size: 11px;
+  animation: rpgCursorBlink 0.9s steps(1) infinite;
+}
+@keyframes rpgCursorBlink {
+  0%, 50% { opacity: 1; transform: translateY(0); }
+  51%, 100% { opacity: 0; transform: translateY(2px); }
+}
+
 .tavern-quest-pouches {
   display: flex;
   flex-wrap: wrap;
   gap: 14px !important;
-  margin-top: 22px !important;
+  margin-top: 20px !important;
 }
 .quest-pouch {
   display: inline-flex;
@@ -4975,6 +5081,231 @@ body, p, span, div, li, input, textarea, select {
   font-family: var(--pixel);
   font-size: 9px;
   color: #2d1f36;
+}
+
+/* ============================================================
+   WIZARD OVERWORLD SCENE (TRANSPARENT BACKGROUND ON CREAM)
+   ============================================================ */
+.wizard-overworld-scene {
+  position: relative;
+  width: 100%;
+  height: clamp(300px, 32vw, 360px);
+  overflow: hidden;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  background: transparent;
+}
+
+/* Flying Pixel Birds */
+.overworld-birds {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 120px;
+  pointer-events: none;
+  z-index: 1;
+}
+.pixel-bird {
+  position: absolute;
+  animation: birdFly linear infinite;
+}
+.pixel-bird--one {
+  top: 25px;
+  animation-duration: 12s;
+  animation-delay: 0s;
+}
+.pixel-bird--two {
+  top: 65px;
+  animation-duration: 16s;
+  animation-delay: -7s;
+  transform: scale(0.75);
+  opacity: 0.8;
+}
+@keyframes birdFly {
+  0% { left: -60px; transform: scaleX(1); }
+  100% { left: 105%; transform: scaleX(1); }
+}
+.bird-svg {
+  width: 24px;
+  height: 14px;
+  animation: birdFlap 0.35s steps(1) infinite;
+}
+@keyframes birdFlap {
+  0%, 50% { transform: scaleY(1); }
+  51%, 100% { transform: scaleY(-0.7) translateY(-3px); }
+}
+
+/* Ground Dotted Pixel Path */
+.overworld-ground {
+  position: absolute;
+  bottom: 22px;
+  left: 10px;
+  right: 10px;
+  height: 3px;
+  background-image: repeating-linear-gradient(90deg, #d6d3c9, #d6d3c9 6px, transparent 6px, transparent 12px);
+  z-index: 2;
+}
+
+/* Swaying Grass Tufts */
+.overworld-grass-layer {
+  position: absolute;
+  bottom: 22px;
+  left: 0;
+  right: 0;
+  height: 28px;
+  pointer-events: none;
+  z-index: 3;
+}
+.grass-tuft {
+  position: absolute;
+  bottom: 0;
+  transform-origin: bottom center;
+  animation: grassSway 3s ease-in-out infinite alternate;
+}
+.grass-tuft--1 { left: 8%; animation-delay: 0s; }
+.grass-tuft--2 { left: 32%; animation-delay: -1.2s; }
+.grass-tuft--3 { left: 62%; animation-delay: -0.6s; }
+.grass-tuft--4 { left: 88%; animation-delay: -2s; }
+@keyframes grassSway {
+  0% { transform: rotate(-5deg) skewX(-3deg); }
+  100% { transform: rotate(6deg) skewX(4deg); }
+}
+
+/* Wildflowers */
+.overworld-flower {
+  position: absolute;
+  bottom: 22px;
+  transform-origin: bottom center;
+  animation: flowerBob 3.5s ease-in-out infinite alternate;
+  z-index: 3;
+}
+.flower--red { left: 20%; animation-delay: -0.8s; }
+.flower--blue { left: 48%; animation-delay: -1.8s; }
+.flower--gold { left: 78%; animation-delay: -0.3s; }
+@keyframes flowerBob {
+  0% { transform: rotate(-4deg) scale(1); }
+  100% { transform: rotate(5deg) scale(1.06); }
+}
+
+/* Drifting Leaves / Wind Particles */
+.overworld-particle {
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  background: #84cc16;
+  opacity: 0.7;
+  animation: leafDrift 7s linear infinite;
+  pointer-events: none;
+  z-index: 4;
+}
+.leaf--1 { top: 110px; animation-duration: 8s; animation-delay: 0s; }
+.leaf--2 { top: 170px; animation-duration: 6s; animation-delay: -3s; background: #60a5fa; }
+.leaf--3 { top: 60px; animation-duration: 9s; animation-delay: -5s; background: #facc15; }
+@keyframes leafDrift {
+  0% { left: -10px; transform: rotate(0deg) translateY(0); opacity: 0; }
+  15% { opacity: 0.8; }
+  85% { opacity: 0.8; }
+  100% { left: 105%; transform: rotate(360deg) translateY(40px); opacity: 0; }
+}
+
+/* Wizard Roaming Actor */
+.wizard-actor {
+  position: absolute;
+  bottom: 22px;
+  width: 145px;
+  height: 182px;
+  z-index: 5;
+  animation: wizardPatrol 14s ease-in-out infinite;
+  transform-origin: bottom center;
+  cursor: pointer;
+}
+.wizard-sprite-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  image-rendering: pixelated;
+  animation: wizardBob 1.6s steps(2) infinite;
+}
+@keyframes wizardPatrol {
+  0% {
+    left: 15%;
+    transform: scaleX(1);
+  }
+  35% {
+    left: 60%;
+    transform: scaleX(1);
+  }
+  45% {
+    left: 60%;
+    transform: scaleX(1);
+  }
+  48% {
+    left: 60%;
+    transform: scaleX(-1);
+  }
+  85% {
+    left: 15%;
+    transform: scaleX(-1);
+  }
+  95% {
+    left: 15%;
+    transform: scaleX(-1);
+  }
+  100% {
+    left: 15%;
+    transform: scaleX(1);
+  }
+}
+@keyframes wizardBob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+/* Staff Magic Sparkles */
+.wizard-staff-magic {
+  position: absolute;
+  top: 24px;
+  left: 18px;
+  width: 16px;
+  height: 16px;
+  pointer-events: none;
+  z-index: 6;
+  animation: staffPulse 2s ease-in-out infinite;
+}
+@keyframes staffPulse {
+  0%, 100% {
+    transform: scale(0.8) rotate(0deg);
+    filter: drop-shadow(0 0 4px #67e8f9);
+  }
+  50% {
+    transform: scale(1.3) rotate(45deg);
+    filter: drop-shadow(0 0 10px #38bdf8) drop-shadow(0 0 16px #fde047);
+  }
+}
+
+/* Wizard Interact Bubble */
+.wizard-interact-bubble {
+  position: absolute;
+  top: -24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #08152f;
+  color: #fde047;
+  font-family: var(--pixel);
+  font-size: 8px;
+  padding: 3px 7px;
+  border-radius: 4px;
+  border: 1px solid #fde047;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  pointer-events: none;
+}
+.wizard-actor:hover .wizard-interact-bubble {
+  opacity: 1;
+  transform: translateX(-50%) translateY(-4px);
 }
 
 /* CHAPTER 02: THE ANCIENT TOME OF RULES */
