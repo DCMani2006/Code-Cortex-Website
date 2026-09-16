@@ -1695,52 +1695,62 @@ export default function Home() {
 
         <section className="duo-story page-pad" data-reveal>
           <article className="duo-card duo-card--vit">
-            <div className="duo-card__top">
-              <span className="chapter-badge" style={{ marginBottom: 0 }}>🏰 CHAPTER 03</span>
-              <Globe size={24} />
+            <div>
+              <div className="duo-card__top">
+                <span className="chapter-badge" style={{ marginBottom: 0 }}>🏰 CHAPTER 03 // THE CITADEL</span>
+                <Globe size={20} />
+              </div>
+              <SectionLabel number="03">ABOUT VIT</SectionLabel>
+              <h3>
+                The Citadel with <em>range.</em>
+              </h3>
+              <p>
+                <strong>Renowned Institution.</strong> VIT is a distinguished
+                private university renowned for delivering world-class engineering
+                education, pioneering technological innovation, and cutting-edge research.
+              </p>
+              <p>
+                <strong>Top Ranked.</strong> Ranked 9th nationally by NIRF and 11th
+                in India for Engineering, VIT holds NAAC A++ accreditation (3.66/4.0)
+                and ranks 150th in Asia per QS World Rankings.
+              </p>
+              <div className="duo-stat-chips">
+                <span className="duo-stat-chip">🏛️ NIRF #9 UNIVERSITY</span>
+                <span className="duo-stat-chip">⭐ NAAC A++ (3.66/4.0)</span>
+              </div>
             </div>
-            <SectionLabel number="03">ABOUT VIT</SectionLabel>
-            <h3>
-              The Citadel
-              <br />
-              with <em>range.</em>
-            </h3>
-            <p>
-              <strong>Renowned Institution.</strong> VIT is a distinguished
-              private university renowned for delivering world-class engineering
-              education, pioneering technological innovation, and conducting
-              cutting-edge research.
-            </p>
-            <p>
-              <strong>Top Ranked.</strong> VIT holds the 9th position nationally
-              according to NIRF, ranks 11th in India for Engineering and 150th
-              in Asia per QS World Rankings, and maintains a distinguished NAAC
-              A++ accreditation with a score of 3.66/4.0.
-            </p>
             <span className="duo-card__footer">
-              ROYAL REALM // 12°58′N 79°09′E <ArrowUpRight size={18} />
+              ROYAL REALM // VELLORE CAMPUS <ArrowUpRight size={16} />
             </span>
           </article>
+
           <article className="duo-card duo-card--gdg">
-            <div className="duo-card__top">
-              <span className="chapter-badge" style={{ marginBottom: 0 }}>🛡️ CHAPTER 04</span>
-              <Cpu size={24} />
-            </div>
-            <SectionLabel number="04">ABOUT TAM-VIT</SectionLabel>
-            <h3>
-              The Guild
-              <br />
-              <em>HQ.</em>
-            </h3>
-            <p>
-              People with different tabs open in their heads, making room for
-              one another at the same table. That is the whole point.
-            </p>
-            <div className="trophy-badge">
-              🏆 VETERANS OF CODE CORTEX 1.0 &amp; 2.0
+            <div>
+              <div className="duo-card__top">
+                <span className="chapter-badge" style={{ marginBottom: 0 }}>🛡️ CHAPTER 04 // THE GUILD</span>
+                <Cpu size={20} />
+              </div>
+              <SectionLabel number="04">ABOUT TAM-VIT</SectionLabel>
+              <h3>
+                The Guild <em>HQ.</em>
+              </h3>
+              <p>
+                <strong>Student-Led Initiative.</strong> People with different tabs
+                open in their heads, making room for one another at the same table.
+                We bridge curiosity with real production systems.
+              </p>
+              <p>
+                <strong>Community Powered.</strong> From interactive AI/ML workshops
+                to national hackathons, we empower ambitious developers to build,
+                ship, and solve real-world industry challenges together.
+              </p>
+              <div className="duo-stat-chips">
+                <span className="duo-stat-chip duo-stat-chip--gold">🏆 VETERANS OF CODE CORTEX</span>
+                <span className="duo-stat-chip">⚡ 500+ GUILD MEMBERS</span>
+              </div>
             </div>
             <span className="duo-card__footer">
-              GUILD HALL // ALWAYS OPEN <ArrowUpRight size={18} />
+              GUILD HALL // DOORS ALWAYS OPEN <ArrowUpRight size={16} />
             </span>
           </article>
         </section>

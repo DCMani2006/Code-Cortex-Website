@@ -6327,43 +6327,147 @@ body, p, span, div, li, input, textarea, select {
   transform: translateX(-50%) translateY(-2px);
 }
 
-/* CHAPTER 03 & 04: CITADEL & GUILD HQ */
+/* ============================================================
+   CHAPTER 03 & 04: CITADEL & GUILD HQ (DUO STORY CARDS)
+   ============================================================ */
 .duo-story {
-  gap: 32px !important;
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: clamp(24px, 3.5vw, 40px) !important;
+  max-width: 1240px !important;
+  margin: 0 auto !important;
+  padding-top: clamp(48px, 6vw, 76px) !important;
+  padding-bottom: clamp(48px, 6vw, 76px) !important;
   background: #faf6ee !important;
+  align-items: stretch !important;
 }
+
+.duo-card,
 .duo-card--vit,
 .duo-card--gdg {
   background: #ffffff !important;
   border: 3px solid #2d1f36 !important;
-  border-radius: 10px !important;
-  box-shadow: 5px 5px 0px #2d1f36 !important;
-  padding: 36px 32px 50px !important;
-  min-height: 480px;
+  border-radius: 12px !important;
+  box-shadow: 6px 6px 0px #2d1f36 !important;
+  padding: clamp(22px, 3vw, 32px) !important;
+  position: relative !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+  transform: none !important; /* remove rotated tilt */
+  min-height: auto !important;
+  transition: transform 0.2s ease, box-shadow 0.2s ease !important;
 }
+
+.duo-card:hover,
+.duo-card--vit:hover,
+.duo-card--gdg:hover {
+  transform: translateY(-3px) !important;
+  box-shadow: 8px 8px 0px #2d1f36 !important;
+}
+
+.duo-card__top {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  margin-bottom: 12px !important;
+  color: #2d1f36 !important;
+}
+
 .duo-card h3 {
-  margin: 20px 0 20px !important;
+  font-family: var(--display) !important;
+  font-size: clamp(22px, 2.4vw, 30px) !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.01em !important;
   line-height: 1.25 !important;
+  margin: 14px 0 14px 0 !important;
+  color: #2d1f36 !important;
+  text-transform: uppercase !important;
+  text-shadow: 2px 2px 0px rgba(45, 31, 54, 0.08) !important;
 }
+
+.duo-card h3 em {
+  color: #3158ff !important;
+  font-style: normal !important;
+}
+
 .duo-card p {
-  margin-bottom: 18px !important;
-  line-height: 1.75 !important;
+  font-family: var(--body-pixel) !important;
+  font-size: 14px !important;
+  line-height: 1.7 !important;
+  color: #4b5563 !important;
+  margin-bottom: 12px !important;
+  max-width: 100% !important;
 }
+
+.duo-card p strong {
+  color: #1f2937 !important;
+  font-weight: 700 !important;
+}
+
 .duo-card p + p {
-  margin-top: 18px !important;
+  margin-top: 0 !important;
+  margin-bottom: 14px !important;
 }
-.trophy-badge {
-  display: inline-flex;
-  align-items: center;
+
+/* Themed Stat Chips Row */
+.duo-stat-chips {
+  display: flex;
+  flex-wrap: wrap;
   gap: 8px;
-  background: #fde88a;
+  margin-top: 14px;
+  margin-bottom: 8px;
+}
+
+.duo-stat-chip {
+  background: #f1f5f9;
   border: 1.5px solid #2d1f36;
-  padding: 6px 12px !important;
-  border-radius: 4px;
+  border-radius: 5px;
+  padding: 4px 9px;
   font-family: var(--pixel);
-  font-size: 8.5px;
+  font-size: 8px;
+  letter-spacing: 0.04em;
+  color: #1e293b;
+  box-shadow: 2px 2px 0px rgba(45, 31, 54, 0.1);
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.duo-stat-chip:hover {
+  background: #ede9fe;
+  transform: translateY(-1px);
+}
+
+.duo-stat-chip--gold {
+  background: #fef08a;
+  color: #854d0e;
+}
+
+.duo-stat-chip--gold:hover {
+  background: #fde047;
+}
+
+.duo-card__footer {
+  position: static !important;
   margin-top: 18px !important;
-  margin-bottom: 16px !important;
+  padding-top: 14px !important;
+  border-top: 1.5px dashed rgba(45, 31, 54, 0.2) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  font-family: var(--mono) !important;
+  font-size: 9.5px !important;
+  letter-spacing: 0.1em !important;
+  color: #6b7280 !important;
+  left: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+}
+
+@media (max-width: 960px) {
+  .duo-story {
+    grid-template-columns: 1fr !important;
+    gap: 28px !important;
+  }
 }
 
 /* CHAPTER 05: DUNGEON SELECTOR (TRACKS) */
