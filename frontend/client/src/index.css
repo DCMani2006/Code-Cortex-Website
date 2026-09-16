@@ -2948,24 +2948,7 @@ h3 em {
   width: 36px;
 }
 .sponsors__sun {
-  align-items: center;
-  animation: sunBob 5s ease-in-out infinite;
-  background: var(--yellow);
-  border-radius: 50%;
-  bottom: -16px;
-  color: var(--navy);
-  display: flex;
-  font-family: var(--mono);
-  font-size: 10px;
-  height: 132px;
-  justify-content: center;
-  letter-spacing: 0.16em;
-  line-height: 1.2;
-  position: absolute;
-  right: 9%;
-  text-align: center;
-  transform: rotate(11deg);
-  width: 132px;
+  display: none !important;
 }
 
 .faq {
@@ -4031,10 +4014,7 @@ h3 em {
     transform: translateY(-6px);
   }
   .sponsors__sun {
-    bottom: -35px;
-    height: 100px;
-    right: 10%;
-    width: 100px;
+    display: none !important;
   }
   .faq {
     padding-bottom: 100px;
@@ -7488,4 +7468,294 @@ body, p, span, div, li, input, textarea, select {
   gap: 16px !important;
 }
 
+/* ==========================================================================
+   Chapter 08: Frog Guardian & Master Sword in Stone Shrine Widget
+   ========================================================================== */
 
+.sponsor-grid {
+  position: relative !important;
+}
+
+.sponsor-card--polyfab {
+  position: relative !important;
+}
+
+.sponsor-card--polyfab .sponsor-card__arrow {
+  position: absolute !important;
+  top: clamp(20px, 2.5vw, 32px) !important;
+  right: clamp(20px, 2.5vw, 32px) !important;
+  margin: 0 !important;
+  z-index: 5 !important;
+}
+
+.frog-shrine {
+  position: absolute !important;
+  right: -24px !important;
+  bottom: -46px !important;
+  width: clamp(240px, 22vw, 285px) !important;
+  background: #fdf8ee !important;
+  border: 3px solid #2d1f36 !important;
+  border-radius: 12px !important;
+  box-shadow: 6px 6px 0px #2d1f36 !important;
+  overflow: hidden !important;
+  cursor: pointer !important;
+  z-index: 20 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  user-select: none !important;
+  animation: frog-shrine-bob 5s ease-in-out infinite !important;
+  transition: transform 0.16s ease, box-shadow 0.16s ease !important;
+  transform-origin: center bottom !important;
+}
+
+.frog-shrine:hover {
+  transform: translateY(-4px) rotate(-0.5deg) scale(1.02) !important;
+  box-shadow: 8px 8px 0px #2d1f36 !important;
+}
+
+.frog-shrine--jiggle {
+  animation: frog-shrine-pull-shake 0.45s ease-in-out !important;
+}
+
+.frog-shrine-hud {
+  background: #2d1f36 !important;
+  color: #ffffff !important;
+  padding: 7px 12px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  font-family: var(--pixel) !important;
+  font-size: 8.5px !important;
+  border-bottom: 2px solid #2d1f36 !important;
+  letter-spacing: 0.04em !important;
+}
+
+.frog-shrine-hud,
+.frog-shrine-hud span {
+  color: #ffffff !important;
+}
+
+.frog-shrine-hud__tag,
+.frog-shrine-hud__tag span {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  color: #73e6a0 !important;
+  font-weight: 700 !important;
+}
+
+.frog-shrine-hud-dot {
+  width: 6px;
+  height: 6px;
+  background: #50e386;
+  border-radius: 50%;
+  box-shadow: 0 0 6px #50e386;
+  animation: hud-dot-pulse 1.8s ease-in-out infinite;
+}
+
+.frog-shrine-hud__stats {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+}
+
+.frog-shrine-hud-chip {
+  background: rgba(255, 255, 255, 0.15) !important;
+  color: #ffffff !important;
+  padding: 2px 6px !important;
+  border-radius: 4px !important;
+  font-size: 8px !important;
+}
+
+.frog-shrine-hud-chip--relic,
+.frog-shrine-hud-chip--relic span {
+  color: #ffd866 !important;
+}
+
+.frog-shrine-stage {
+  position: relative !important;
+  width: 100% !important;
+  background: #14231e !important;
+  overflow: hidden !important;
+}
+
+.frog-shrine-toast {
+  position: absolute !important;
+  top: 8px !important;
+  left: 8px !important;
+  right: 8px !important;
+  background: #ffffff !important;
+  color: #2d1f36 !important;
+  border: 2px solid #2d1f36 !important;
+  border-radius: 8px !important;
+  padding: 7px 10px !important;
+  font-family: var(--pixel) !important;
+  font-size: 8.5px !important;
+  line-height: 1.35 !important;
+  z-index: 25 !important;
+  box-shadow: 3px 3px 0px rgba(45, 31, 54, 0.4) !important;
+  pointer-events: none !important;
+  animation: toast-pop 0.22s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards !important;
+}
+
+.frog-shrine-img-container {
+  position: relative !important;
+  width: 100% !important;
+  height: clamp(145px, 15vw, 175px) !important;
+  overflow: hidden !important;
+}
+
+.frog-shrine-img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: center 40% !important;
+  image-rendering: pixelated !important;
+  display: block !important;
+}
+
+/* Forest Sunlight Overlay */
+.frog-shrine-light-overlay {
+  position: absolute !important;
+  inset: 0 !important;
+  background: radial-gradient(circle at 45% 20%, rgba(255, 245, 180, 0.22) 0%, transparent 68%) !important;
+  pointer-events: none !important;
+  mix-blend-mode: screen !important;
+}
+
+/* Shimmering Sword Glint Sweep */
+.frog-shrine-sword-glint {
+  position: absolute !important;
+  top: 0 !important;
+  left: 36% !important;
+  width: 24% !important;
+  height: 100% !important;
+  background: linear-gradient(105deg, transparent 35%, rgba(255, 255, 255, 0.75) 50%, transparent 65%) !important;
+  pointer-events: none !important;
+  opacity: 0 !important;
+  animation: sword-glint-sweep 4.2s ease-in-out infinite !important;
+}
+
+/* Drifting Forest Fireflies */
+.frog-shrine-fireflies {
+  position: absolute !important;
+  inset: 0 !important;
+  pointer-events: none !important;
+  overflow: hidden !important;
+}
+
+.frog-firefly {
+  position: absolute !important;
+  border-radius: 50% !important;
+  background: #a3ffc7 !important;
+  box-shadow: 0 0 6px #73e6a0 !important;
+}
+
+.firefly-1 {
+  width: 4px !important;
+  height: 4px !important;
+  top: 35% !important;
+  left: 18% !important;
+  animation: firefly-float-1 3.8s ease-in-out infinite !important;
+}
+
+.firefly-2 {
+  width: 5px !important;
+  height: 5px !important;
+  top: 60% !important;
+  left: 32% !important;
+  animation: firefly-float-2 4.4s ease-in-out infinite 0.6s !important;
+}
+
+.firefly-3 {
+  width: 3px !important;
+  height: 3px !important;
+  top: 25% !important;
+  right: 22% !important;
+  animation: firefly-float-1 3.2s ease-in-out infinite 1.2s !important;
+}
+
+.firefly-4 {
+  width: 4px !important;
+  height: 4px !important;
+  top: 55% !important;
+  right: 14% !important;
+  animation: firefly-float-2 4.8s ease-in-out infinite 1.8s !important;
+}
+
+/* Click Burst Pill */
+.frog-shrine-burst {
+  position: absolute !important;
+  top: 40% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  pointer-events: none !important;
+  z-index: 30 !important;
+  animation: burst-float-up 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+}
+
+.burst-frog-pill {
+  background: #73e6a0 !important;
+  color: #1a2522 !important;
+  font-family: var(--pixel) !important;
+  font-size: 9.5px !important;
+  font-weight: 700 !important;
+  padding: 5px 11px !important;
+  border: 2px solid #1a2522 !important;
+  border-radius: 999px !important;
+  box-shadow: 2px 2px 0px #1a2522 !important;
+  white-space: nowrap !important;
+  display: inline-block !important;
+}
+
+/* Bottom Action Cue */
+.frog-shrine-click-cue {
+  background: #2d1f36 !important;
+  color: #73e6a0 !important;
+  font-family: var(--pixel) !important;
+  font-size: 8px !important;
+  text-align: center !important;
+  padding: 5px 8px !important;
+  letter-spacing: 0.06em !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.12) !important;
+}
+
+/* Animations */
+@keyframes frog-shrine-bob {
+  0%, 100% {
+    transform: translateY(0) rotate(1deg);
+  }
+  50% {
+    transform: translateY(-6px) rotate(0.2deg);
+  }
+}
+
+@keyframes frog-shrine-pull-shake {
+  0%, 100% {
+    transform: scale(1) rotate(0deg);
+  }
+  20% {
+    transform: scale(0.97) rotate(-3deg);
+  }
+  40% {
+    transform: scale(1.03) rotate(3deg);
+  }
+  60% {
+    transform: scale(0.99) rotate(-1.5deg);
+  }
+  80% {
+    transform: scale(1.01) rotate(1.5deg);
+  }
+}
+
+/* Responsive adjustment */
+@media (max-width: 860px) {
+  .frog-shrine {
+    position: relative !important;
+    right: auto !important;
+    bottom: auto !important;
+    margin: 28px auto 0 !important;
+    width: min(100%, 340px) !important;
+    animation: none !important;
+  }
+}

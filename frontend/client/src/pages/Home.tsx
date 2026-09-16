@@ -1082,6 +1082,111 @@ function CozyCoffeeScene() {
   );
 }
 
+const FROG_TOASTS = [
+  "🐸 *Ribbit!* You tugged the blade... It didn't budge!",
+  "⚔️ Ancient guild runes hum softly along the steel ✨",
+  "🐸 *happy open-mouth ribbit* The frog approves of your bravery!",
+  "🗡️ Guild Master Polyfab forged this sacred blade!",
+  "✨ A shimmering emerald sparkle dances across the plinth!",
+  "🐸 The guardian frog bestows a lucky clover upon you 🍀",
+  "💪 Guild ATK +5! Train on, valiant adventurer!",
+];
+
+function FrogShrineScene() {
+  const [pulls, setPulls] = useState(0);
+  const [toastIndex, setToastIndex] = useState(0);
+  const [showToast, setShowToast] = useState(false);
+  const [burstKey, setBurstKey] = useState(0);
+  const [isJiggling, setIsJiggling] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+
+  const handlePull = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    setPulls((prev) => prev + 1);
+    setToastIndex((prev) => (prev + 1) % FROG_TOASTS.length);
+    setShowToast(true);
+    setBurstKey((prev) => prev + 1);
+    setIsJiggling(true);
+    setTimeout(() => setIsJiggling(false), 450);
+  };
+
+  return (
+    <div
+      className={`frog-shrine ${isHovered ? "frog-shrine--hover" : ""} ${isJiggling ? "frog-shrine--jiggle" : ""}`}
+      role="region"
+      aria-label="Ancient sword in the stone shrine guarded by a cute green pixel frog"
+      onClick={handlePull}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      {/* Top HUD Bar */}
+      <div className="frog-shrine-hud">
+        <div className="frog-shrine-hud__tag">
+          <span className="frog-shrine-hud-dot" />
+          <span>🐸 ANCIENT SHRINE // FROG GUARDIAN</span>
+        </div>
+        <div className="frog-shrine-hud__stats">
+          <span className="frog-shrine-hud-chip" title="Click to attempt drawing the blade!">
+            ⚔️ {pulls} {pulls === 1 ? "PULL" : "PULLS"}
+          </span>
+          <span className="frog-shrine-hud-chip frog-shrine-hud-chip--relic">
+            ✨ LVL 99
+          </span>
+        </div>
+      </div>
+
+      {/* Main Pixel Canvas Stage */}
+      <div className="frog-shrine-stage">
+        {/* Floating Dialogue Toast */}
+        {showToast && (
+          <div className="frog-shrine-toast" key={burstKey}>
+            <span>{FROG_TOASTS[toastIndex]}</span>
+          </div>
+        )}
+
+        {/* Artwork Container */}
+        <div className="frog-shrine-img-container">
+          <img
+            className="frog-shrine-img"
+            src="/frog_sword.jpg"
+            alt="Pixel art of a legendary sword thrust into a stone plinth guarded by a cute green frog in an enchanted forest"
+            width={640}
+            height={438}
+            loading="lazy"
+          />
+
+          {/* Enchanted Forest Sunbeam Light Sweep */}
+          <div className="frog-shrine-light-overlay" aria-hidden="true" />
+
+          {/* Shimmering Sword Glint */}
+          <div className="frog-shrine-sword-glint" aria-hidden="true" />
+
+          {/* Floating Forest Firefly Motes */}
+          <div className="frog-shrine-fireflies" aria-hidden="true">
+            <span className="frog-firefly firefly-1" />
+            <span className="frog-firefly firefly-2" />
+            <span className="frog-firefly firefly-3" />
+            <span className="frog-firefly firefly-4" />
+          </div>
+
+          {/* Click Burst Pill */}
+          {burstKey > 0 && (
+            <div className="frog-shrine-burst" key={burstKey} aria-hidden="true">
+              <span className="burst-frog-pill">🐸 RIBBIT! +5 ATK ✨</span>
+            </div>
+          )}
+        </div>
+
+        {/* Action Cue / Footer */}
+        <div className="frog-shrine-click-cue" aria-hidden="true">
+          ⚔️ CLICK TO PULL THE BLADE (RIBBIT!)
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function TrackGlyph({
   track,
   large = false,
@@ -2295,15 +2400,7 @@ export default function Home() {
                 <ArrowUpRight />
               </span>
             </a>
-          </div>
-          <div className="sponsors__sun">
-            <span>
-              TRADE
-              <br />
-              IS
-              <br />
-              OPEN.
-            </span>
+            <FrogShrineScene />
           </div>
         </section>
 
