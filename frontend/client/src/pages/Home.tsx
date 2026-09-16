@@ -35,7 +35,6 @@ import {
   HeartPulse,
   Home as HomeIcon,
   Shield,
-  Image as ImageIcon,
   Instagram,
   Layers,
   Linkedin,
@@ -65,7 +64,6 @@ const navItems = [
   { label: "About", href: "#about", icon: Info },
   { label: "Tracks", href: "#tracks", icon: Layers },
   { label: "Nominate", href: "#nominate", icon: Music2 },
-  { label: "Gallery", href: "#gallery", icon: ImageIcon },
   { label: "Sponsors", href: "#sponsors", icon: HandHeart },
   { label: "FAQs", href: "#faqs", icon: HelpCircle },
   { label: "Contact", href: "#contact", icon: Mail },
@@ -87,6 +85,8 @@ const tracks = [
     name: "Finance",
     sponsor: "Open track",
     eyebrow: "Track 01",
+    tag: "CURRENCY & ECONOMY",
+    catImage: "/cat_coins.png",
     description:
       "Design a calmer, clearer future for money. Turn complex financial moments into tools people can actually understand and trust.",
     brief:
@@ -103,6 +103,8 @@ const tracks = [
     name: "Medicine & Healthcare",
     sponsor: "Open track",
     eyebrow: "Track 02",
+    tag: "HEALTH & HEALING",
+    catImage: "/cat_drink.png",
     description:
       "Build for better care. Reimagine the tools, systems, and small human moments that make health support more accessible and useful.",
     brief:
@@ -119,6 +121,8 @@ const tracks = [
     name: "Drone Tech & Aviation",
     sponsor: "Open track",
     eyebrow: "Track 03",
+    tag: "AUTONOMOUS FLIGHT",
+    catImage: "/cat_rocket.png",
     description:
       "Take the idea airborne. Explore navigation, autonomy, logistics, safety, and the next generation of movement through the sky.",
     brief:
@@ -135,6 +139,8 @@ const tracks = [
     name: "Security",
     sponsor: "Open track",
     eyebrow: "Track 04",
+    tag: "CYBER & DEFENSE",
+    catImage: "/cat_standing.png",
     description:
       "Make the digital world harder to break and easier to trust. Build tools that protect people, systems, and the ideas inside them.",
     brief:
@@ -151,6 +157,8 @@ const tracks = [
     name: "Open Innovation",
     sponsor: "Open track",
     eyebrow: "Track 05",
+    tag: "UNBOUNDED REALM",
+    catImage: "/cat_walk.png",
     description:
       "No box, no brief, no ceiling. Bring the strange idea, the stubborn problem, or the tiny detail that deserves a much bigger solution.",
     brief:
@@ -486,6 +494,139 @@ function GridDoodle() {
   );
 }
 
+const CAMPFIRE_TOASTS = [
+  "🪵 Stoked the fire! Crackle crackle ⚡",
+  "✨ Rested by the fire. HP & Mana restored!",
+  "🔥 Sparks swirl into the midnight sky ✨",
+  "☕ Brewing warm coffee by the embers ☕",
+  "🏕️ Safety checkpoint saved // Ready to hack!",
+  "🌲 Pine trees rustling in the night breeze...",
+];
+
+function CampfireNightScene() {
+  const [warmth, setWarmth] = useState(100);
+  const [burstKey, setBurstKey] = useState(0);
+  const [toastIndex, setToastIndex] = useState(0);
+  const [showToast, setShowToast] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+
+  const handleStoke = () => {
+    setWarmth((prev) => (prev >= 180 ? 100 : prev + 15));
+    setToastIndex((prev) => (prev + 1) % CAMPFIRE_TOASTS.length);
+    setShowToast(true);
+    setBurstKey((prev) => prev + 1);
+  };
+
+  return (
+    <div
+      className={`campfire-night-station ${isHovered ? "campfire-night-station--glow" : ""}`}
+      role="region"
+      aria-label="Interactive pixel art campfire in the pine forest with crackling flames and swaying trees"
+      onClick={handleStoke}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      {/* Top Station HUD */}
+      <div className="campfire-hud">
+        <div className="campfire-hud__tag">
+          <span className="campfire-hud-dot" />
+          <span>CC_CAMPFIRE // REST_POINT</span>
+        </div>
+        <div className="campfire-hud__stats">
+          <span className="campfire-hud-chip" title="Click to stoke the fire!">
+            ♨️ {warmth}% WARMTH
+          </span>
+          <span className="campfire-hud-chip campfire-hud-chip--weather">
+            🍃 BREEZY
+          </span>
+        </div>
+      </div>
+
+      {/* Main Pixel Canvas Wrapper */}
+      <div className="campfire-stage">
+        {/* Interactive Speech / Status Toast */}
+        {showToast && (
+          <div className="campfire-toast" key={burstKey}>
+            <span>{CAMPFIRE_TOASTS[toastIndex]}</span>
+          </div>
+        )}
+
+        {/* Base Campfire Pixel Artwork */}
+        <div className="campfire-img-container">
+          <img
+            className="campfire-img"
+            src="/campfire_scene.png"
+            alt="Pixel campfire in a starry pine forest"
+            width={736}
+            height={736}
+            loading="lazy"
+          />
+
+          {/* Twinkling Pixel Stars in Night Canopy */}
+          <div className="campfire-stars-layer" aria-hidden="true">
+            <span className="campfire-star star-1" />
+            <span className="campfire-star star-2" />
+            <span className="campfire-star star-3" />
+            <span className="campfire-star star-4" />
+            <span className="campfire-star star-5" />
+          </div>
+
+          {/* Left Forest Tree Sway Silhouette / Light Overlay */}
+          <div className="campfire-trees-sway campfire-trees-sway--left" aria-hidden="true" />
+
+          {/* Right Forest Tree Sway Silhouette / Light Overlay */}
+          <div className="campfire-trees-sway campfire-trees-sway--right" aria-hidden="true" />
+
+          {/* Wind Breeze Streaks */}
+          <div className="campfire-breeze" aria-hidden="true">
+            <span className="breeze-line breeze-1" />
+            <span className="breeze-line breeze-2" />
+          </div>
+
+          {/* Warm Hearth Ground Illumination Glow */}
+          <div className="campfire-hearth-glow" aria-hidden="true" />
+
+          {/* Animated Crackling Pixel Flame Tongue Core */}
+          <div className="campfire-flame-core" aria-hidden="true">
+            <div className="flame-tongue flame-tongue--outer" />
+            <div className="flame-tongue flame-tongue--inner" />
+            <div className="flame-spark-core" />
+          </div>
+
+          {/* Continuously Rising Pixel Embers & Sparks */}
+          <div className="campfire-embers-stream" aria-hidden="true">
+            <span className="campfire-ember ember-1" />
+            <span className="campfire-ember ember-2" />
+            <span className="campfire-ember ember-3" />
+            <span className="campfire-ember ember-4" />
+            <span className="campfire-ember ember-5" />
+            <span className="campfire-ember ember-6" />
+            <span className="campfire-ember ember-7" />
+            <span className="campfire-ember ember-8" />
+          </div>
+
+          {/* Stoke Burst Sparks (active when clicked) */}
+          {burstKey > 0 && (
+            <div className="campfire-burst-sparks" key={burstKey} aria-hidden="true">
+              <span className="burst-spark spark-a" />
+              <span className="burst-spark spark-b" />
+              <span className="burst-spark spark-c" />
+              <span className="burst-spark spark-d" />
+              <span className="burst-spark spark-e" />
+              <span className="burst-spark spark-f" />
+            </div>
+          )}
+        </div>
+
+        {/* Hover Cue Hint */}
+        <div className="campfire-click-cue" aria-hidden="true">
+          🪵 CLICK TO STOKE FIRE (+WARMTH)
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function WireframeStamp({
   words,
   size = "large",
@@ -589,6 +730,456 @@ function BuilderForgeAnimation() {
       <div className="forge-caption">
         <span>BUILD_CYCLE // 4 FRAMES</span>
         <span>STATUS: REPEAT LOOP ⚡</span>
+      </div>
+    </div>
+  );
+}
+
+function WizardOverworldScene() {
+  return (
+    <div
+      className="wizard-overworld-scene"
+      role="img"
+      aria-label="Pixelated wizard roaming in an open grassy field with animated flying birds, swaying grass, and wildflowers"
+    >
+      {/* Flying Pixel Birds */}
+      <div className="overworld-birds" aria-hidden="true">
+        <div className="pixel-bird pixel-bird--one">
+          <svg className="bird-svg" viewBox="0 0 24 14" fill="none">
+            <rect x="0" y="2" width="4" height="3" fill="#1e293b" />
+            <rect x="4" y="0" width="4" height="3" fill="#1e293b" />
+            <rect x="8" y="3" width="8" height="5" fill="#334155" />
+            <rect x="16" y="0" width="4" height="3" fill="#1e293b" />
+            <rect x="20" y="2" width="4" height="3" fill="#1e293b" />
+            <rect x="11" y="8" width="4" height="4" fill="#0f172a" />
+          </svg>
+        </div>
+        <div className="pixel-bird pixel-bird--two">
+          <svg className="bird-svg" viewBox="0 0 24 14" fill="none">
+            <rect x="0" y="2" width="4" height="3" fill="#334155" />
+            <rect x="4" y="0" width="4" height="3" fill="#334155" />
+            <rect x="8" y="3" width="8" height="5" fill="#475569" />
+            <rect x="16" y="0" width="4" height="3" fill="#334155" />
+            <rect x="20" y="2" width="4" height="3" fill="#334155" />
+            <rect x="11" y="8" width="4" height="4" fill="#1e293b" />
+          </svg>
+        </div>
+      </div>
+
+      {/* Drifting Leaves / Wind Particles */}
+      <div className="overworld-particle leaf--1" aria-hidden="true" />
+      <div className="overworld-particle leaf--2" aria-hidden="true" />
+      <div className="overworld-particle leaf--3" aria-hidden="true" />
+
+      {/* Ground Dotted Pixel Path */}
+      <div className="overworld-ground" aria-hidden="true" />
+
+      {/* Swaying Pixel Grass Tufts */}
+      <div className="overworld-grass-layer" aria-hidden="true">
+        <svg className="grass-tuft grass-tuft--1" width="28" height="24" viewBox="0 0 28 24">
+          <rect x="2" y="10" width="4" height="14" fill="#65a30d" />
+          <rect x="6" y="4" width="4" height="20" fill="#84cc16" />
+          <rect x="10" y="0" width="4" height="24" fill="#4d7c0f" />
+          <rect x="14" y="6" width="4" height="18" fill="#84cc16" />
+          <rect x="18" y="12" width="4" height="12" fill="#65a30d" />
+        </svg>
+
+        <svg className="grass-tuft grass-tuft--2" width="24" height="20" viewBox="0 0 24 20">
+          <rect x="0" y="8" width="4" height="12" fill="#4d7c0f" />
+          <rect x="4" y="2" width="4" height="18" fill="#84cc16" />
+          <rect x="8" y="0" width="4" height="20" fill="#65a30d" />
+          <rect x="12" y="5" width="4" height="15" fill="#84cc16" />
+          <rect x="16" y="10" width="4" height="10" fill="#4d7c0f" />
+        </svg>
+
+        <svg className="grass-tuft grass-tuft--3" width="28" height="24" viewBox="0 0 28 24">
+          <rect x="2" y="10" width="4" height="14" fill="#65a30d" />
+          <rect x="6" y="4" width="4" height="20" fill="#84cc16" />
+          <rect x="10" y="0" width="4" height="24" fill="#4d7c0f" />
+          <rect x="14" y="6" width="4" height="18" fill="#84cc16" />
+          <rect x="18" y="12" width="4" height="12" fill="#65a30d" />
+        </svg>
+
+        <svg className="grass-tuft grass-tuft--4" width="24" height="20" viewBox="0 0 24 20">
+          <rect x="0" y="8" width="4" height="12" fill="#4d7c0f" />
+          <rect x="4" y="2" width="4" height="18" fill="#84cc16" />
+          <rect x="8" y="0" width="4" height="20" fill="#65a30d" />
+          <rect x="12" y="5" width="4" height="15" fill="#84cc16" />
+        </svg>
+      </div>
+
+      {/* Swaying Pixel Wildflowers */}
+      <svg className="overworld-flower flower--red" width="16" height="26" viewBox="0 0 16 26" aria-hidden="true">
+        <rect x="6" y="12" width="3" height="14" fill="#65a30d" />
+        <rect x="2" y="4" width="12" height="8" fill="#f43f5e" />
+        <rect x="4" y="2" width="8" height="12" fill="#e11d48" />
+        <rect x="6" y="6" width="4" height="4" fill="#fde047" />
+      </svg>
+
+      <svg className="overworld-flower flower--blue" width="16" height="24" viewBox="0 0 16 24" aria-hidden="true">
+        <rect x="6" y="10" width="3" height="14" fill="#4d7c0f" />
+        <rect x="2" y="4" width="12" height="8" fill="#38bdf8" />
+        <rect x="4" y="2" width="8" height="12" fill="#0284c7" />
+        <rect x="6" y="6" width="4" height="4" fill="#ffffff" />
+      </svg>
+
+      <svg className="overworld-flower flower--gold" width="16" height="25" viewBox="0 0 16 25" aria-hidden="true">
+        <rect x="6" y="11" width="3" height="14" fill="#65a30d" />
+        <rect x="2" y="4" width="12" height="8" fill="#fbbf24" />
+        <rect x="4" y="2" width="8" height="12" fill="#f59e0b" />
+        <rect x="6" y="6" width="4" height="4" fill="#ffffff" />
+      </svg>
+
+      {/* The Roaming Pixel Wizard */}
+      <div className="wizard-actor">
+        <div className="wizard-interact-bubble">✦ TALK [E]</div>
+        <img
+          className="wizard-sprite-img"
+          src="/wizard_sprite.png"
+          alt="Mentor Archie Pixel Wizard"
+          width="145"
+          height="182"
+          loading="lazy"
+        />
+
+        {/* Staff tip magic spark pulse */}
+        <div className="wizard-staff-magic" aria-hidden="true">
+          <svg viewBox="0 0 20 20" fill="none">
+            <polygon points="10,0 12,7 19,10 12,13 10,20 8,13 1,10 8,7" fill="#67e8f9" />
+            <circle cx="10" cy="10" r="3" fill="#ffffff" />
+          </svg>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const CAT_DIALOGUES = [
+  "meow(); // compiling code... 🐾",
+  "it works on my machine! 💻",
+  "coffee -> code -> repeat ☕",
+  "git commit -m 'fixed bugs with paws' 🚀",
+  "30-hr hackathon? plenty of nap time 💤",
+  "purr-fect build detected! ✨",
+  "debugging at 3 AM with 100% caffeine ⚡",
+];
+
+function CoderCatStation() {
+  const [dialogueIndex, setDialogueIndex] = useState(0);
+  const [isBouncing, setIsBouncing] = useState(false);
+  const [coffeeCount, setCoffeeCount] = useState(1);
+  const [isHovered, setIsHovered] = useState(false);
+
+  const handleCatClick = () => {
+    setDialogueIndex((prev) => (prev + 1) % CAT_DIALOGUES.length);
+    setIsBouncing(true);
+    setTimeout(() => setIsBouncing(false), 260);
+  };
+
+  const handleCoffeeClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setCoffeeCount((prev) => prev + 1);
+  };
+
+  return (
+    <div
+      className={`coder-cat-station ${isHovered ? "coder-cat-station--turbo" : ""}`}
+      role="region"
+      aria-label="Interactive pixel art dev cat coding at computer desk"
+      onClick={handleCatClick}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      {/* Station HUD Header */}
+      <div className="cat-station-hud">
+        <div className="cat-station-hud__tag">
+          <span className="cat-hud-dot" />
+          <span>CC_DEV_CAT.EXE // ACTIVE</span>
+        </div>
+        <div className="cat-station-hud__stats">
+          <span className="cat-hud-chip" onClick={handleCoffeeClick} title="Click to sip coffee!">
+            ☕ {coffeeCount} CUPS
+          </span>
+          <span className="cat-hud-chip cat-hud-chip--speed">
+            {isHovered ? "⚡ 420 WPM (TURBO)" : "⌨️ 120 WPM"}
+          </span>
+        </div>
+      </div>
+
+      {/* Main Interactive Stage */}
+      <div className={`cat-stage ${isBouncing ? "cat-stage--bounce" : ""}`}>
+        {/* Interactive Speech Bubble */}
+        <div className="cat-speech-bubble" key={dialogueIndex}>
+          <span className="cat-speech-bubble__text">{CAT_DIALOGUES[dialogueIndex]}</span>
+          <div className="cat-speech-bubble__tail" aria-hidden="true" />
+        </div>
+
+        {/* Turbo Mode Badge */}
+        {isHovered && (
+          <div className="cat-turbo-badge" aria-hidden="true">
+            ⚡ TURBO HACKING MODE ACTIVATED!
+          </div>
+        )}
+
+        {/* Pixel Sprite Canvas Wrapper */}
+        <div className="cat-sprite-container">
+          <img
+            className="cat-sprite-img"
+            src="/coder_cat_sprite.png"
+            alt="Pixel art dev cat coding on computer"
+            width={457}
+            height={275}
+            loading="lazy"
+          />
+
+          {/* Animated Coffee Steam rising from the red mug */}
+          <div
+            className="cat-coffee-steam-area"
+            onClick={handleCoffeeClick}
+            title="Sip hot coffee!"
+            aria-hidden="true"
+          >
+            <div className="cat-steam-particle steam-p1" />
+            <div className="cat-steam-particle steam-p2" />
+            <div className="cat-steam-particle steam-p3" />
+          </div>
+
+          {/* CRT Monitor Code Stream Screen */}
+          <div className="cat-crt-overlay" aria-hidden="true">
+            <div className="cat-crt-scanline" />
+            <div className="cat-crt-code">
+              <span className="code-line line-1">&gt; hack.ts</span>
+              <span className="code-line line-2">&gt; dev 200</span>
+              <span className="code-line line-3">&gt; purr()</span>
+              <span className="code-line line-4">&gt; pass ⚡</span>
+            </div>
+            <div className="cat-crt-led" />
+          </div>
+
+          {/* Stepped Typing Spark Particles */}
+          <div className="cat-typing-sparks" aria-hidden="true">
+            <span className="spark spark-1">✦</span>
+            <span className="spark spark-2">⚡</span>
+            <span className="spark spark-3">✦</span>
+          </div>
+
+          {/* Click Hint */}
+          <div className="cat-click-cue">
+            <span>✦ CLICK CAT TO TALK</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const COFFEE_TOASTS = [
+  "☕ Warm sip... HP & focus fully restored! ✨",
+  "🎵 Listening to the arcade jukebox beats 🎧",
+  "☕ Fresh roast brewed // Ready to hack through the night!",
+  "🌿 Cozy tavern rest point unlocked 💤",
+  "🥐 Taking five. Breathe in, breathe out...",
+  "✨ Steam swirls in the warm morning sunbeam ☀️",
+];
+
+function CozyCoffeeScene() {
+  const [sips, setSips] = useState(1);
+  const [toastIndex, setToastIndex] = useState(0);
+  const [showToast, setShowToast] = useState(false);
+  const [burstKey, setBurstKey] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
+
+  const handleSip = () => {
+    setSips((prev) => prev + 1);
+    setToastIndex((prev) => (prev + 1) % COFFEE_TOASTS.length);
+    setShowToast(true);
+    setBurstKey((prev) => prev + 1);
+  };
+
+  return (
+    <div
+      className={`cozy-coffee-station ${isHovered ? "cozy-coffee-station--hover" : ""}`}
+      role="region"
+      aria-label="Interactive pixel art coffee cup steaming in warm sunlight at the tavern rest point"
+      onClick={handleSip}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      {/* Top Station HUD */}
+      <div className="cozy-coffee-hud">
+        <div className="cozy-coffee-hud__tag">
+          <span className="cozy-coffee-hud-dot" />
+          <span>☕ TAVERN_CAFE // REST_POINT</span>
+        </div>
+        <div className="cozy-coffee-hud__stats">
+          <span className="cozy-coffee-hud-chip" title="Click to sip coffee!">
+            ♨️ {sips} {sips === 1 ? "CUP" : "CUPS"}
+          </span>
+          <span className="cozy-coffee-hud-chip cozy-coffee-hud-chip--vibes">
+            🎵 LO-FI VIBES
+          </span>
+        </div>
+      </div>
+
+      {/* Main Pixel Canvas Wrapper */}
+      <div className="cozy-coffee-stage">
+        {/* Interactive Speech / Status Toast */}
+        {showToast && (
+          <div className="cozy-coffee-toast" key={burstKey}>
+            <span>{COFFEE_TOASTS[toastIndex]}</span>
+          </div>
+        )}
+
+        {/* Base Coffee Artwork */}
+        <div className="cozy-coffee-img-container">
+          <img
+            className="cozy-coffee-img"
+            src="/cozy_coffee.jpg"
+            alt="Pixel art cup of coffee steaming in warm sunlight on a wooden table"
+            width={736}
+            height={736}
+            loading="lazy"
+          />
+
+          {/* Warm Sunbeam Ambient Light Sheen */}
+          <div className="cozy-coffee-sunbeam-overlay" aria-hidden="true" />
+
+          {/* Floating Sunbeam Dust Motes (Warm golden drifting particles) */}
+          <div className="cozy-coffee-motes" aria-hidden="true">
+            <span className="coffee-mote mote-1" />
+            <span className="coffee-mote mote-2" />
+            <span className="coffee-mote mote-3" />
+            <span className="coffee-mote mote-4" />
+            <span className="coffee-mote mote-5" />
+            <span className="coffee-mote mote-6" />
+          </div>
+
+          {/* Gentle Rising Steam Plumes */}
+          <div className="cozy-coffee-steam" aria-hidden="true">
+            <span className="steam-wisp wisp-1" />
+            <span className="steam-wisp wisp-2" />
+            <span className="steam-wisp wisp-3" />
+            <span className="steam-wisp wisp-4" />
+            <span className="steam-wisp wisp-5" />
+          </div>
+
+          {/* Sip Burst Floating Pill (active when clicked) */}
+          {burstKey > 0 && (
+            <div className="cozy-coffee-burst" key={burstKey} aria-hidden="true">
+              <span className="burst-sip-pill">+1 HP RESTORED ✨</span>
+            </div>
+          )}
+        </div>
+
+        {/* Hover Cue */}
+        <div className="cozy-coffee-click-cue" aria-hidden="true">
+          ☕ CLICK CUP TO TAKE A SIP (+HP)
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const FROG_TOASTS = [
+  "🐸 *Ribbit!* You tugged the blade... It didn't budge!",
+  "⚔️ Ancient guild runes hum softly along the steel ✨",
+  "🐸 *happy open-mouth ribbit* The frog approves of your bravery!",
+  "🗡️ Guild Master Polyfab forged this sacred blade!",
+  "✨ A shimmering emerald sparkle dances across the plinth!",
+  "🐸 The guardian frog bestows a lucky clover upon you 🍀",
+  "💪 Guild ATK +5! Train on, valiant adventurer!",
+];
+
+function FrogShrineScene() {
+  const [pulls, setPulls] = useState(0);
+  const [toastIndex, setToastIndex] = useState(0);
+  const [showToast, setShowToast] = useState(false);
+  const [burstKey, setBurstKey] = useState(0);
+  const [isJiggling, setIsJiggling] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+
+  const handlePull = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    setPulls((prev) => prev + 1);
+    setToastIndex((prev) => (prev + 1) % FROG_TOASTS.length);
+    setShowToast(true);
+    setBurstKey((prev) => prev + 1);
+    setIsJiggling(true);
+    setTimeout(() => setIsJiggling(false), 450);
+  };
+
+  return (
+    <div
+      className={`frog-shrine ${isHovered ? "frog-shrine--hover" : ""} ${isJiggling ? "frog-shrine--jiggle" : ""}`}
+      role="region"
+      aria-label="Ancient sword in the stone shrine guarded by a cute green pixel frog"
+      onClick={handlePull}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      {/* Top HUD Bar */}
+      <div className="frog-shrine-hud">
+        <div className="frog-shrine-hud__tag">
+          <span className="frog-shrine-hud-dot" />
+          <span>🐸 ANCIENT SHRINE // FROG GUARDIAN</span>
+        </div>
+        <div className="frog-shrine-hud__stats">
+          <span className="frog-shrine-hud-chip" title="Click to attempt drawing the blade!">
+            ⚔️ {pulls} {pulls === 1 ? "PULL" : "PULLS"}
+          </span>
+          <span className="frog-shrine-hud-chip frog-shrine-hud-chip--relic">
+            ✨ LVL 99
+          </span>
+        </div>
+      </div>
+
+      {/* Main Pixel Canvas Stage */}
+      <div className="frog-shrine-stage">
+        {/* Floating Dialogue Toast */}
+        {showToast && (
+          <div className="frog-shrine-toast" key={burstKey}>
+            <span>{FROG_TOASTS[toastIndex]}</span>
+          </div>
+        )}
+
+        {/* Artwork Container */}
+        <div className="frog-shrine-img-container">
+          <img
+            className="frog-shrine-img"
+            src="/frog_sword.jpg"
+            alt="Pixel art of a legendary sword thrust into a stone plinth guarded by a cute green frog in an enchanted forest"
+            width={640}
+            height={438}
+            loading="lazy"
+          />
+
+          {/* Enchanted Forest Sunbeam Light Sweep */}
+          <div className="frog-shrine-light-overlay" aria-hidden="true" />
+
+          {/* Shimmering Sword Glint */}
+          <div className="frog-shrine-sword-glint" aria-hidden="true" />
+
+          {/* Floating Forest Firefly Motes */}
+          <div className="frog-shrine-fireflies" aria-hidden="true">
+            <span className="frog-firefly firefly-1" />
+            <span className="frog-firefly firefly-2" />
+            <span className="frog-firefly firefly-3" />
+            <span className="frog-firefly firefly-4" />
+          </div>
+
+          {/* Click Burst Pill */}
+          {burstKey > 0 && (
+            <div className="frog-shrine-burst" key={burstKey} aria-hidden="true">
+              <span className="burst-frog-pill">🐸 RIBBIT! +5 ATK ✨</span>
+            </div>
+          )}
+        </div>
+
+        {/* Action Cue / Footer */}
+        <div className="frog-shrine-click-cue" aria-hidden="true">
+          ⚔️ CLICK TO PULL THE BLADE (RIBBIT!)
+        </div>
       </div>
     </div>
   );
@@ -1176,97 +1767,166 @@ export default function Home() {
           className="about section-light page-pad tavern-scene"
           data-reveal
         >
-          <div className="about__intro">
-            <span className="chapter-badge">⚔️ CHAPTER 01 // THE HACKER'S TAVERN</span>
-            <SectionLabel number="01">ABOUT THE JAM</SectionLabel>
-            <div className="heading-with-icon">
-              <HeadingIcon icon={Info} label="About" />
-              <h2>
-                The build
-                <br />
-                <span>starts here.</span>
-              </h2>
+          {/* ROW 1: THE BUILD STARTS HERE (LEFT: INTRO TITLE ⟷ RIGHT: BUILDER FORGE) */}
+          <div className="tavern-row tavern-row--forge">
+            <div className="tavern-col tavern-col--intro">
+              <span className="chapter-badge">⚔️ CHAPTER 01 // THE HACKER'S TAVERN</span>
+              <SectionLabel number="01">ABOUT THE JAM</SectionLabel>
+              <div className="heading-with-icon">
+                <HeadingIcon icon={Info} label="About" />
+                <h2>
+                  The build
+                  <br />
+                  <span>starts here.</span>
+                </h2>
+              </div>
+              <p className="lead-copy">
+                A high-energy 30-hour hackathon where curiosity turns into production code. Gather your guild, pick your domain, and craft groundbreaking solutions judged by industry experts.
+              </p>
+              <div className="tavern-intro-actions">
+                <a
+                  className="hero-pixel-btn"
+                  href="#tracks"
+                  onClick={(event) => {
+                    event.preventDefault();
+                    jumpTo("#tracks");
+                  }}
+                  style={{ display: "inline-flex", textDecoration: "none" }}
+                >
+                  <span>⚔️ EXPLORE 5 TRACKS</span>
+                  <ArrowRight size={16} />
+                </a>
+              </div>
             </div>
-            <p className="lead-copy">
-              A high-energy 30 hour hackathon fostering innovation and
-              collaboration, where participants address real-world challenges,
-              showcase their coding skills, and develop groundbreaking
-              solutions, judged by industry experts.
-            </p>
-            <div className="tavern-mentor-card">
-              <div className="tavern-mentor-header">
-                <div className="mentor-avatar">🧙‍♂️</div>
-                <div>
-                  <span className="mentor-nameplate">MENTOR ARCHIE</span>
-                  <span style={{ fontSize: "11px", color: "#6b5b73", marginLeft: "8px", fontFamily: "var(--body-pixel)" }}>Master Hacker</span>
+
+            <div className="tavern-col tavern-col--builder">
+              <BuilderForgeAnimation />
+            </div>
+          </div>
+
+          {/* ROW 2: THE DEV DEN (LEFT: CODER CAT WORKSTATION ⟷ RIGHT: MISSION & QUESTS) */}
+          <div className="tavern-row tavern-row--dev-den">
+            <div className="tavern-col tavern-col--cat">
+              <CoderCatStation />
+            </div>
+
+            <div className="tavern-col tavern-col--mission">
+              <div className="tavern-mission-card">
+                <div className="tavern-mission-card__header">
+                  <span className="mission-tag">📜 THE TAVERN QUESTS</span>
+                  <span className="mission-live-pill">LIVE ARENA</span>
+                </div>
+                <h3 className="tavern-mission-title">
+                  Three Pillars of the Forge
+                </h3>
+                <p className="tavern-mission-desc">
+                  Step into the arena where ideas transform into working MVPs. Over 30 continuous hours, your squad will tackle real industry challenges, unlock mentor checkpoints, and pitch before a panel of tech leaders.
+                </p>
+                <div className="tavern-quest-grid">
+                  <div className="tavern-quest-item">
+                    <span className="quest-item-icon">⏱️</span>
+                    <div className="quest-item-text">
+                      <strong>30 HOURS SPRINT</strong>
+                      <span>From zero to deployed prototype</span>
+                    </div>
+                  </div>
+                  <div className="tavern-quest-item">
+                    <span className="quest-item-icon">⚔️</span>
+                    <div className="quest-item-text">
+                      <strong>5 DUNGEON TRACKS</strong>
+                      <span>Aviation, AI/ML, Security, Open Tech</span>
+                    </div>
+                  </div>
+                  <div className="tavern-quest-item">
+                    <span className="quest-item-icon">🏆</span>
+                    <div className="quest-item-text">
+                      <strong>EPIC PRIZES &amp; BOUNTIES</strong>
+                      <span>Cash prizes, swag &amp; network access</span>
+                    </div>
+                  </div>
                 </div>
               </div>
-              <p style={{ margin: 0, fontSize: "14px", lineHeight: "1.75", fontFamily: "var(--body-pixel)", color: "#2d1f36" }}>
-                "Welcome to the tavern, traveler! The 30-hour clock starts ticking the moment you enter the arena. Choose your direction wisely and forge your masterpiece."
-              </p>
-              <div className="tavern-quest-pouches">
-                <span className="quest-pouch">⏱️ 30 HOURS NON-STOP</span>
-                <span className="quest-pouch">⚔️ 5 DUNGEONS</span>
-                <span className="quest-pouch">🏆 EPIC PRIZES</span>
+            </div>
+          </div>
+
+          {/* ROW 3: THE OVERWORLD ENCOUNTER (LEFT: WIZARD OVERWORLD ⟷ RIGHT: MENTOR ARCHIE) */}
+          <div className="tavern-row tavern-row--encounter">
+            <div className="tavern-col tavern-col--wizard">
+              <WizardOverworldScene />
+            </div>
+
+            <div className="tavern-col tavern-col--dialogue">
+              <div className="tavern-mentor-card rpg-dialogue-box rpg-dialogue-box--from-left">
+                <div className="rpg-dialogue-tail rpg-dialogue-tail--left" aria-hidden="true" />
+                <div className="tavern-mentor-header">
+                  <div className="mentor-avatar">🧙‍♂️</div>
+                  <div>
+                    <span className="mentor-nameplate">MENTOR ARCHIE</span>
+                    <span className="mentor-title">Master Hacker &amp; Tavern Guide</span>
+                  </div>
+                  <span className="rpg-dialogue-tag">NPC // TAVERN GUIDE</span>
+                </div>
+                <p className="rpg-dialogue-text">
+                  "Welcome to the tavern, traveler! The 30-hour clock starts ticking the moment you enter the arena. Choose your direction wisely and forge your masterpiece."
+                  <span className="rpg-dialogue-cursor">▼</span>
+                </p>
+                <div className="tavern-quest-pouches">
+                  <span className="quest-pouch">⚔️ QUEST READY</span>
+                  <span className="quest-pouch">🧙‍♂️ MENTORS ON CALL</span>
+                  <span className="quest-pouch">✨ ZERO LIMITS</span>
+                </div>
+                <a
+                  className="text-link"
+                  href="#tracks"
+                  onClick={(event) => {
+                    event.preventDefault();
+                    jumpTo("#tracks");
+                  }}
+                  style={{ marginTop: "20px", display: "inline-flex" }}
+                >
+                  Find your dungeon track <ArrowRight size={18} />
+                </a>
               </div>
             </div>
-            <a
-              className="text-link"
-              href="#tracks"
-              onClick={(event) => {
-                event.preventDefault();
-                jumpTo("#tracks");
-              }}
-              style={{ marginTop: "24px", display: "inline-flex" }}
-            >
-              Find your dungeon track <ArrowRight size={18} />
-            </a>
-          </div>
-          <div className="about__visual">
-            <BuilderForgeAnimation />
           </div>
         </section>
 
         <section className="manifesto section-dark page-pad" data-reveal>
           <div className="manifesto__side">
-            <GridDoodle />
+            <CampfireNightScene />
           </div>
           <div className="manifesto__content">
             <span className="chapter-badge">📜 CHAPTER 02 // THE ANCIENT TOME OF RULES</span>
             <SectionLabel number="02">WHO WE ARE</SectionLabel>
             <div className="ancient-tome">
               <div className="tome-bookmark" />
-              <div className="manifesto__columns">
-                <div>
-                  <div className="heading-with-icon">
-                    <HeadingIcon icon={Sparkles} label="Who we are" />
-                    <h2>
-                      Curiosity
-                      <br />
-                      <span>with a deadline.</span>
-                    </h2>
-                  </div>
+              <div className="tome-header">
+                <div className="heading-with-icon">
+                  <HeadingIcon icon={Sparkles} label="Who we are" />
+                  <h2>
+                    Curiosity <span>with a deadline.</span>
+                  </h2>
                 </div>
-                <div className="tome-parchment-body">
-                  <p>
-                    The AI &amp; ML Club is a student-led initiative committed to
-                    exploring the transformative potential of AI and ML across
-                    diverse domains such as healthcare, finance, and education.
-                    Through interactive workshops, seminars with industry
-                    professionals, and hands-on projects, we empower students to
-                    deepen their technical knowledge, solve real-world challenges,
-                    and drive innovation.
-                  </p>
-                  <p>
-                    Together, we aim to shape the future of technology while
-                    fostering collaboration and a passion for AI and ML. Our
-                    mission is to educate, inspire, and support students in
-                    pursuing their passion for AI and ML, providing a platform to
-                    grow, innovate, make meaningful contributions, and to be a
-                    part of something extraordinary.
-                  </p>
-                  <span className="manifesto__signature">📜 TAM-VIT GUILD CHARTER / 2026</span>
-                </div>
+              </div>
+              <div className="tome-parchment-body">
+                <p>
+                  The AI &amp; ML Club is a student-led initiative committed to
+                  exploring the transformative potential of AI and ML across
+                  diverse domains such as healthcare, finance, and education.
+                  Through interactive workshops, seminars with industry
+                  professionals, and hands-on projects, we empower students to
+                  deepen their technical knowledge, solve real-world challenges,
+                  and drive innovation.
+                </p>
+                <p>
+                  Together, we aim to shape the future of technology while
+                  fostering collaboration and a passion for AI and ML. Our
+                  mission is to educate, inspire, and support students in
+                  pursuing their passion for AI and ML, providing a platform to
+                  grow, innovate, make meaningful contributions, and to be a
+                  part of something extraordinary.
+                </p>
+                <span className="manifesto__signature">📜 TAM-VIT GUILD CHARTER / 2026</span>
               </div>
             </div>
           </div>
@@ -1274,52 +1934,62 @@ export default function Home() {
 
         <section className="duo-story page-pad" data-reveal>
           <article className="duo-card duo-card--vit">
-            <div className="duo-card__top">
-              <span className="chapter-badge" style={{ marginBottom: 0 }}>🏰 CHAPTER 03</span>
-              <Globe size={24} />
+            <div>
+              <div className="duo-card__top">
+                <span className="chapter-badge" style={{ marginBottom: 0 }}>🏰 CHAPTER 03 // THE CITADEL</span>
+                <Globe size={20} />
+              </div>
+              <SectionLabel number="03">ABOUT VIT</SectionLabel>
+              <h3>
+                The Citadel with <em>range.</em>
+              </h3>
+              <p>
+                <strong>Renowned Institution.</strong> VIT is a distinguished
+                private university renowned for delivering world-class engineering
+                education, pioneering technological innovation, and cutting-edge research.
+              </p>
+              <p>
+                <strong>Top Ranked.</strong> Ranked 9th nationally by NIRF and 11th
+                in India for Engineering, VIT holds NAAC A++ accreditation (3.66/4.0)
+                and ranks 150th in Asia per QS World Rankings.
+              </p>
+              <div className="duo-stat-chips">
+                <span className="duo-stat-chip">🏛️ NIRF #9 UNIVERSITY</span>
+                <span className="duo-stat-chip">⭐ NAAC A++ (3.66/4.0)</span>
+              </div>
             </div>
-            <SectionLabel number="03">ABOUT VIT</SectionLabel>
-            <h3>
-              The Citadel
-              <br />
-              with <em>range.</em>
-            </h3>
-            <p>
-              <strong>Renowned Institution.</strong> VIT is a distinguished
-              private university renowned for delivering world-class engineering
-              education, pioneering technological innovation, and conducting
-              cutting-edge research.
-            </p>
-            <p>
-              <strong>Top Ranked.</strong> VIT holds the 9th position nationally
-              according to NIRF, ranks 11th in India for Engineering and 150th
-              in Asia per QS World Rankings, and maintains a distinguished NAAC
-              A++ accreditation with a score of 3.66/4.0.
-            </p>
             <span className="duo-card__footer">
-              ROYAL REALM // 12°58′N 79°09′E <ArrowUpRight size={18} />
+              ROYAL REALM // VELLORE CAMPUS <ArrowUpRight size={16} />
             </span>
           </article>
+
           <article className="duo-card duo-card--gdg">
-            <div className="duo-card__top">
-              <span className="chapter-badge" style={{ marginBottom: 0 }}>🛡️ CHAPTER 04</span>
-              <Cpu size={24} />
-            </div>
-            <SectionLabel number="04">ABOUT TAM-VIT</SectionLabel>
-            <h3>
-              The Guild
-              <br />
-              <em>HQ.</em>
-            </h3>
-            <p>
-              People with different tabs open in their heads, making room for
-              one another at the same table. That is the whole point.
-            </p>
-            <div className="trophy-badge">
-              🏆 VETERANS OF CODE CORTEX 1.0 &amp; 2.0
+            <div>
+              <div className="duo-card__top">
+                <span className="chapter-badge" style={{ marginBottom: 0 }}>🛡️ CHAPTER 04 // THE GUILD</span>
+                <Cpu size={20} />
+              </div>
+              <SectionLabel number="04">ABOUT TAM-VIT</SectionLabel>
+              <h3>
+                The Guild <em>HQ.</em>
+              </h3>
+              <p>
+                <strong>Student-Led Initiative.</strong> People with different tabs
+                open in their heads, making room for one another at the same table.
+                We bridge curiosity with real production systems.
+              </p>
+              <p>
+                <strong>Community Powered.</strong> From interactive AI/ML workshops
+                to national hackathons, we empower ambitious developers to build,
+                ship, and solve real-world industry challenges together.
+              </p>
+              <div className="duo-stat-chips">
+                <span className="duo-stat-chip duo-stat-chip--gold">🏆 VETERANS OF CODE CORTEX</span>
+                <span className="duo-stat-chip">⚡ 500+ GUILD MEMBERS</span>
+              </div>
             </div>
             <span className="duo-card__footer">
-              GUILD HALL // ALWAYS OPEN <ArrowUpRight size={18} />
+              GUILD HALL // DOORS ALWAYS OPEN <ArrowUpRight size={16} />
             </span>
           </article>
         </section>
@@ -1350,103 +2020,154 @@ export default function Home() {
                 <span>to conquer.</span>
               </h2>
             </div>
-            <p>
-              Follow the thing you cannot stop thinking about. Every track is an
-              epic dungeon challenge to forge something useful, expressive, or
-              beautifully extraordinary.
-            </p>
           </div>
           <div className="tracks__canvas">
-            <div className="tracks__object-image">
-              <WireframeStamp words={["CHOOSE", "YOUR", "CLASS"]} size="small" />
-            </div>
-            <div className="tracks__active-card">
-              <div className="tracks__active-card-top">
-                <span>⚔️ LEVEL 30 // {activeTrack.eyebrow}</span>
-                <span>{activeTrack.sponsor}</span>
+            {/* Left Column: Dungeon Realm Selector with Pixel Cat Avatars */}
+            <div
+              className="tracks__nav-panel"
+              role="tablist"
+              aria-label="Hackathon dungeon tracks"
+            >
+              <div className="tracks__nav-panel-header">
+                <span className="tracks__nav-panel-title">⚔️ DUNGEON REALMS</span>
+                <span className="tracks__nav-panel-count">5 GATES</span>
               </div>
-              <TrackGlyph track={activeTrack} large />
-              <h3>{activeTrack.name}</h3>
-              <p>{activeTrack.description}</p>
-              <div className="tracks__active-card-actions">
-                <Dialog>
-                  <DialogTrigger asChild>
+              <div className="tracks__nav-list">
+                {tracks.map((track, index) => {
+                  const isActive = index === trackIndex;
+                  return (
                     <button
+                      key={track.name}
                       type="button"
-                      className="text-link text-link--dark track-brief-trigger"
+                      role="tab"
+                      aria-selected={isActive}
+                      className={`track-nav-btn track-nav-btn--${track.color} ${isActive ? "track-nav-btn--active" : ""}`}
+                      onClick={() => setTrackIndex(index)}
                     >
-                      Enter dungeon briefing <ArrowUpRight size={18} />
+                      <div className="track-nav-btn__avatar">
+                        <img
+                          src={track.catImage}
+                          alt={`${track.name} mascot`}
+                          className="track-nav-btn__cat-img"
+                          width={48}
+                          height={48}
+                          loading="lazy"
+                        />
+                      </div>
+                      <div className="track-nav-btn__info">
+                        <div className="track-nav-btn__meta">
+                          <span className="track-nav-btn__gate">GATE 0{index + 1}</span>
+                          <span className="track-nav-btn__tag">{track.tag}</span>
+                        </div>
+                        <span className="track-nav-btn__name">{track.name}</span>
+                      </div>
+                      <div className="track-nav-btn__status">
+                        {isActive ? (
+                          <span className="track-nav-btn__pill">ACTIVE ⚔️</span>
+                        ) : (
+                          <ArrowUpRight className="track-nav-btn__arrow" size={16} />
+                        )}
+                      </div>
                     </button>
-                  </DialogTrigger>
-                  <DialogContent className="track-brief-dialog">
-                    <DialogHeader>
-                      <DialogTitle className="track-brief-dialog__title">
-                        ⚔️ {activeTrack.name} — QUEST BRIEFING
-                      </DialogTitle>
-                    </DialogHeader>
-                    <div className="track-brief-dialog__body">
-                      {activeTrack.brief.split("\n\n").map((paragraph, index) => (
-                        <p key={index}>{paragraph}</p>
-                      ))}
-                    </div>
-                  </DialogContent>
-                </Dialog>
-                {activeTrack.dataset === "pick-your-own" ? (
-                  <span className="tracks__dataset-note">
-                    🎒 Pick your own custom loot dataset for this dungeon.
-                  </span>
-                ) : activeTrack.dataset ? (
-                  <a
-                    className="tracks__dataset-download"
-                    href={activeTrack.dataset.url}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    {activeTrack.dataset.kind === "folder"
-                      ? "Open dataset armory"
-                      : "Download quest data"}{" "}
-                    {activeTrack.dataset.kind === "folder" ? (
-                      <ArrowUpRight size={16} />
-                    ) : (
-                      <Download size={16} />
-                    )}
-                  </a>
-                ) : (
-                  <span className="tracks__dataset-note">
-                    ⏳ Dungeon dataset coming soon.
-                  </span>
-                )}
+                  );
+                })}
               </div>
             </div>
-          </div>
-          <div
-            className="tracks__rail"
-            role="tablist"
-            aria-label="Hackathon tracks"
-          >
-            {tracks.map((track, index) => (
-              <button
-                key={track.name}
-                className={`track-tab track-tab--${track.color} ${index === trackIndex ? "track-tab--active" : ""}`}
-                onClick={() => setTrackIndex(index)}
-                role="tab"
-                aria-selected={index === trackIndex}
-              >
-                <span className="track-tab__number">GATE 0{index + 1}</span>
-                <span>{track.name}</span>
-                <ArrowUpRight size={17} />
-              </button>
-            ))}
-          </div>
-          <div className="tracks__dots">
-            {tracks.map((track, index) => (
-              <button
-                key={track.name}
-                className={index === trackIndex ? "is-active" : ""}
-                onClick={() => setTrackIndex(index)}
-                aria-label={`Go to track ${index + 1}`}
-              />
-            ))}
+
+            {/* Right Column: Active Dungeon Description Card with Retro Window Header and Cat Companion */}
+            <div className="tracks__active-card">
+              <div className="tracks__window-bar">
+                <div className="tracks__window-title">
+                  <span className="tracks__window-icon">■</span>
+                  <span>QUEST LOG // GATE 0{trackIndex + 1}: {activeTrack.name.toUpperCase()}</span>
+                </div>
+                <div className="tracks__window-controls" aria-hidden="true">
+                  <span>_</span>
+                  <span>🗖</span>
+                  <span>✕</span>
+                </div>
+              </div>
+
+              <div className="tracks__active-card-body">
+                {/* Hero Spotlight Stage: Pixel Cat Companion + Meta */}
+                <div className="tracks__hero-stage">
+                  <div className="tracks__cat-spotlight">
+                    <div className="tracks__cat-spotlight-halo" />
+                    <img
+                      key={activeTrack.name}
+                      src={activeTrack.catImage}
+                      alt={`${activeTrack.name} Cat Companion`}
+                      className="tracks__active-cat-img"
+                      width={110}
+                      height={110}
+                    />
+                    <span className="tracks__cat-badge">COMPANION // LVL 30</span>
+                  </div>
+
+                  <div className="tracks__hero-details">
+                    <div className="tracks__hero-meta">
+                      <span className="tracks__hero-gate">GATE 0{trackIndex + 1}</span>
+                      <span className="tracks__hero-sponsor">{activeTrack.sponsor}</span>
+                    </div>
+                    <div className="tracks__hero-tag">{activeTrack.tag}</div>
+                    <h3 className="tracks__active-title">{activeTrack.name}</h3>
+                  </div>
+                </div>
+
+                <p className="tracks__active-desc">{activeTrack.description}</p>
+
+                <div className="tracks__active-card-actions">
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <button
+                        type="button"
+                        className="tracks__btn tracks__btn--briefing track-brief-trigger"
+                      >
+                        Enter dungeon briefing <ArrowUpRight size={17} />
+                      </button>
+                    </DialogTrigger>
+                    <DialogContent className="track-brief-dialog">
+                      <DialogHeader>
+                        <DialogTitle className="track-brief-dialog__title">
+                          ⚔️ {activeTrack.name} — QUEST BRIEFING
+                        </DialogTitle>
+                      </DialogHeader>
+                      <div className="track-brief-dialog__body">
+                        {activeTrack.brief.split("\n\n").map((paragraph, index) => (
+                          <p key={index}>{paragraph}</p>
+                        ))}
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+
+                  {activeTrack.dataset === "pick-your-own" ? (
+                    <span className="tracks__dataset-note">
+                      🎒 Pick your own custom loot dataset for this dungeon.
+                    </span>
+                  ) : activeTrack.dataset ? (
+                    <a
+                      className="tracks__btn tracks__btn--dataset"
+                      href={activeTrack.dataset.url}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      {activeTrack.dataset.kind === "folder"
+                        ? "Open dataset armory"
+                        : "Download quest data"}{" "}
+                      {activeTrack.dataset.kind === "folder" ? (
+                        <ArrowUpRight size={16} />
+                      ) : (
+                        <Download size={16} />
+                      )}
+                    </a>
+                  ) : (
+                    <span className="tracks__dataset-note">
+                      ⏳ Dungeon dataset coming soon.
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
           </div>
         </section>
 
@@ -1471,62 +2192,60 @@ export default function Home() {
                 <span>soundtrack.</span>
               </h2>
             </div>
-            <div>
-              <p>
-                Insert a coin into the tavern jukebox! Search Spotify's catalog
-                and nominate a soundtrack. The leaderboard below is live and
-                shared across the hackathon floor.
-              </p>
-              <p className="nominate__note">
-                <Music2 size={16} /> 🪙 One coin per visitor, change it anytime.
-              </p>
-            </div>
           </div>
 
-          <form className="nominate-search" onSubmit={submitSongSearch}>
-            <input
-              value={songQuery}
-              onChange={(event) => setSongQuery(event.target.value)}
-              placeholder="Search Spotify catalog for track or artist..."
-              aria-label="Search Spotify"
-            />
-            <button type="submit" disabled={searchQuery.isFetching}>
-              {searchQuery.isFetching ? "INSERTING COIN..." : "🪙 INSERT COIN / SEARCH"}
-            </button>
-          </form>
-          {searchQuery.error && (
-            <p className="nominate-search__error" role="alert">
-              {searchQuery.error.message}
-            </p>
-          )}
-          {searchQuery.data && (
-            <ul className="nominate-results">
-              {searchQuery.data.length === 0 && (
-                <li className="nominate-results__empty">
-                  No tracks found in the arcade catalog — try another title.
-                </li>
+          <div className="nominate__action-row">
+            <div className="nominate__search-col">
+              <form className="nominate-search" onSubmit={submitSongSearch}>
+                <input
+                  value={songQuery}
+                  onChange={(event) => setSongQuery(event.target.value)}
+                  placeholder="Search Spotify catalog for track or artist..."
+                  aria-label="Search Spotify"
+                />
+                <button type="submit" disabled={searchQuery.isFetching}>
+                  {searchQuery.isFetching ? "INSERTING COIN..." : "🪙 INSERT COIN / SEARCH"}
+                </button>
+              </form>
+              {searchQuery.error && (
+                <p className="nominate-search__error" role="alert">
+                  {searchQuery.error.message}
+                </p>
               )}
-              {searchQuery.data.map((track) => (
-                <li key={track.id}>
-                  {track.albumArt ? (
-                    <img src={track.albumArt} alt="" />
-                  ) : (
-                    <span className="nominate-results__art-placeholder" />
+              {searchQuery.data && (
+                <ul className="nominate-results">
+                  {searchQuery.data.length === 0 && (
+                    <li className="nominate-results__empty">
+                      No tracks found in the arcade catalog — try another title.
+                    </li>
                   )}
-                  <span className="nominate-results__meta">
-                    <strong>{track.name}</strong>
-                    <span>{track.artist}</span>
-                  </span>
-                  <button
-                    onClick={() => nominateTrack(track)}
-                    disabled={voteMutation.isPending}
-                  >
-                    ▶ NOMINATE
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
+                  {searchQuery.data.map((track) => (
+                    <li key={track.id}>
+                      {track.albumArt ? (
+                        <img src={track.albumArt} alt="" />
+                      ) : (
+                        <span className="nominate-results__art-placeholder" />
+                      )}
+                      <span className="nominate-results__meta">
+                        <strong>{track.name}</strong>
+                        <span>{track.artist}</span>
+                      </span>
+                      <button
+                        onClick={() => nominateTrack(track)}
+                        disabled={voteMutation.isPending}
+                      >
+                        ▶ NOMINATE
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+
+            <div className="nominate__coffee-col">
+              <CozyCoffeeScene />
+            </div>
+          </div>
 
           <div className="nominate__grid">
             {(leaderboardQuery.data?.tracks ?? []).map((track, index) => {
@@ -1575,104 +2294,13 @@ export default function Home() {
         </section>
 
         <section
-          id="gallery"
-          className="events section-light page-pad"
-          data-reveal
-        >
-          <div className="events__header">
-            <span className="chapter-badge">🗺️ CHAPTER 07 // PAST EXPEDITIONS ARCHIVE</span>
-            <SectionLabel number="07">BEFORE THE JAM</SectionLabel>
-            <span className="events__header-note">
-              QUEST LOG // EXPEDITIONS ACCOMPLISHED
-            </span>
-          </div>
-          <div className="events__title-row">
-            <div className="heading-with-icon">
-              <HeadingIcon icon={ImageIcon} label="Gallery" />
-              <h2>
-                Past
-                <br />
-                <span>expeditions.</span>
-              </h2>
-            </div>
-            <p>
-              Three legendary past builds. A growing chronicle proving that the
-              most extraordinary quests begin before anyone knows what to name
-              them.
-            </p>
-          </div>
-          <div className="event-grid">
-            <article className="event-card event-card--triangle">
-              <div className="event-card__shape event-card__shape--triangle">
-                △
-              </div>
-              <div className="event-card__meta">
-                <span>QUEST 01 // CLEAR</span>
-                <ArrowUpRight size={19} />
-              </div>
-              <h3>
-                Bida
-                <br />
-                thon
-              </h3>
-              <p>
-                A fast-moving build where ideas compete, evolve, and find their
-                sharpest form.
-              </p>
-            </article>
-            <article className="event-card event-card--circle">
-              <div className="event-card__shape event-card__shape--circle">
-                ◎
-              </div>
-              <img
-                className="event-card__cover"
-                src="/data-alchemy-cover.webp"
-                alt="TAM-VIT team gathered in a classroom for Data Alchemy"
-                loading="lazy"
-              />
-              <div className="event-card__meta">
-                <span>QUEST 02 // CLEAR</span>
-                <ArrowUpRight size={19} />
-              </div>
-              <h3>
-                Data
-                <br />
-                Alchemy
-              </h3>
-              <p>
-                Turn messy questions into clear insights, useful tools, and
-                unexpected directions.
-              </p>
-            </article>
-            <article className="event-card event-card--flower">
-              <div className="event-card__shape event-card__shape--flower">
-                ✽
-              </div>
-              <div className="event-card__meta">
-                <span>QUEST 03 // CLEAR</span>
-                <ArrowUpRight size={19} />
-              </div>
-              <h3>
-                Red
-                <br />
-                handed
-              </h3>
-              <p>
-                A sharp, playful challenge for fast thinking and ideas that
-                leave a mark.
-              </p>
-            </article>
-          </div>
-        </section>
-
-        <section
           id="sponsors"
           className="sponsors section-dark page-pad"
           data-reveal
         >
           <div className="sponsors__header">
-            <span className="chapter-badge">🎪 CHAPTER 08 // THE MERCHANT BAZAAR</span>
-            <SectionLabel number="08">POWERED BY</SectionLabel>
+            <span className="chapter-badge">🎪 CHAPTER 07 // THE MERCHANT BAZAAR</span>
+            <SectionLabel number="07">POWERED BY</SectionLabel>
             <span>SUPPLYING THE REALM</span>
           </div>
           <div className="sponsors__title-row">
@@ -1684,10 +2312,6 @@ export default function Home() {
                 <span>allies.</span>
               </h2>
             </div>
-            <p>
-              We are grateful to the guilds that stock our armory, provision our
-              builders, and support deliciously over-engineered creations.
-            </p>
           </div>
           <div className="sponsor-grid">
             <a
@@ -1703,27 +2327,18 @@ export default function Home() {
                 src={polyfabLogo}
                 alt="POLYFAB"
               />
-              <span className="sponsor-card__name">POLYFAB FORGE</span>
               <span className="sponsor-card__arrow">
                 <ArrowUpRight />
               </span>
             </a>
-          </div>
-          <div className="sponsors__sun">
-            <span>
-              TRADE
-              <br />
-              IS
-              <br />
-              OPEN.
-            </span>
+            <FrogShrineScene />
           </div>
         </section>
 
         <section id="faqs" className="faq section-light page-pad" data-reveal>
           <div className="faq__side">
-            <span className="chapter-badge">⛺ CHAPTER 09 // THE WISE ELDER'S TENT</span>
-            <SectionLabel number="09">NO SILLY QUESTIONS</SectionLabel>
+            <span className="chapter-badge">⛺ CHAPTER 08 // THE WISE ELDER'S TENT</span>
+            <SectionLabel number="08">NO SILLY QUESTIONS</SectionLabel>
             <div className="heading-with-icon">
               <HeadingIcon icon={HelpCircle} label="FAQs" />
               <h2>
@@ -1732,10 +2347,6 @@ export default function Home() {
                 <span>counsel.</span>
               </h2>
             </div>
-            <p>
-              Still curious, traveler? Gather near the fire. Pick a dialogue
-              branch to consult the elder on rules, food, and gear.
-            </p>
             <div className="faq__doodle">
               <span>🔥</span>
               <span>📜</span>
@@ -1795,8 +2406,8 @@ export default function Home() {
       <footer id="contact" className="footer section-dark page-pad" data-reveal>
         <div className="footer__main">
           <div className="footer__statement">
-            <span className="chapter-badge">🌌 CHAPTER 10 // WARP PORTAL &amp; CREDITS</span>
-            <SectionLabel number="10">SAY HELLO</SectionLabel>
+            <span className="chapter-badge">🌌 CHAPTER 09 // WARP PORTAL &amp; CREDITS</span>
+            <SectionLabel number="09">SAY HELLO</SectionLabel>
             <div className="heading-with-icon">
               <HeadingIcon icon={Mail} label="Contact" />
               <h2>
