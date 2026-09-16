@@ -4809,29 +4809,36 @@ body, p, span, div, li, input, textarea, select {
   box-shadow: -10px 0px 30px rgba(45, 31, 54, 0.18) !important;
   position: fixed !important;
   inset: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
   overflow-y: auto !important;
   overflow-x: hidden !important;
+  z-index: 100 !important;
 }
 
-/* Water Ripple Texture Background Layer */
+/* Water Ripple Texture Background Layer - Fixed full-bleed coverage across entire viewport */
 .menu-panel__water-bg {
-  position: absolute !important;
-  inset: -20px !important;
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
   background-image: url('/menu_water_bg.png') !important;
   background-size: cover !important;
   background-position: center !important;
   background-repeat: no-repeat !important;
-  opacity: 0.36 !important;
+  opacity: 0.38 !important;
   mix-blend-mode: multiply !important;
   pointer-events: none !important;
   z-index: 0 !important;
   animation: menu-water-drift 22s ease-in-out infinite alternate !important;
 }
 
-/* Retro Pixel Grid Overlay matching Main Page */
+/* Retro Pixel Grid Overlay matching Main Page - Fixed full-bleed coverage */
 .menu-panel__grid-overlay {
-  position: absolute !important;
+  position: fixed !important;
   inset: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
   background-image:
     linear-gradient(rgba(45, 31, 54, 0.04) 1px, transparent 1px),
     linear-gradient(90deg, rgba(45, 31, 54, 0.04) 1px, transparent 1px) !important;
@@ -4840,7 +4847,42 @@ body, p, span, div, li, input, textarea, select {
   z-index: 1 !important;
 }
 
-.menu-panel__topline,
+.menu-panel__topline {
+  position: relative !important;
+  z-index: 10 !important;
+  align-items: center !important;
+  display: flex !important;
+  justify-content: space-between !important;
+  padding: clamp(16px, 2.5vh, 26px) clamp(22px, 4vw, 64px) !important;
+}
+
+.menu-panel__topline .brand__bottom {
+  color: #2d1f36 !important;
+}
+
+.menu-close {
+  color: #2d1f36 !important;
+  background: #ffffff !important;
+  border: 2px solid #2d1f36 !important;
+  box-shadow: 2.5px 2.5px 0px #2d1f36 !important;
+  border-radius: 6px !important;
+  padding: 6px 14px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  cursor: pointer !important;
+  font-family: var(--pixel) !important;
+  font-size: 9.5px !important;
+  letter-spacing: 0.04em !important;
+  transition: transform 0.15s ease, box-shadow 0.15s ease !important;
+}
+
+.menu-close:hover {
+  transform: translate(-1.5px, -1.5px) !important;
+  box-shadow: 4px 4px 0px #2d1f36 !important;
+  background: #feeddd !important;
+}
+
 .menu-panel__body,
 .menu-panel__footer {
   position: relative !important;
@@ -4848,26 +4890,45 @@ body, p, span, div, li, input, textarea, select {
 }
 
 .menu-panel__body {
-  padding-bottom: 120px !important;
+  padding-top: clamp(16px, 3vh, 36px) !important;
+  padding-bottom: 110px !important;
 }
 
 .menu-panel__nav a {
   background: rgba(255, 255, 255, 0.93) !important;
   backdrop-filter: blur(8px) !important;
   -webkit-backdrop-filter: blur(8px) !important;
-  border: 2.5px solid #2d1f36 !important;
-  box-shadow: 4px 4px 0px #2d1f36 !important;
-  border-radius: 8px !important;
+  border: 2px solid #2d1f36 !important;
+  box-shadow: 3px 3px 0px #2d1f36 !important;
+  border-radius: 6px !important;
   color: #2d1f36 !important;
-  margin-bottom: 10px !important;
+  padding: clamp(8px, 1.1vh, 12px) clamp(14px, 1.8vw, 22px) !important;
+  margin-bottom: 7px !important;
+  grid-template-columns: 34px 28px 1fr 26px !important;
   transition: transform 0.16s ease, box-shadow 0.16s ease, background 0.16s ease, color 0.16s ease !important;
 }
 
 .menu-panel__nav a:hover {
   background: #7abcc4 !important;
   color: #2d1f36 !important;
-  transform: translate(-3px, -3px) !important;
-  box-shadow: 6px 6px 0px #2d1f36 !important;
+  transform: translate(-2px, -2px) !important;
+  box-shadow: 5px 5px 0px #2d1f36 !important;
+}
+
+.menu-panel__item-label {
+  font-size: clamp(20px, 2.5vw, 36px) !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.05em !important;
+  line-height: 1.1 !important;
+}
+
+.menu-panel__item-icon {
+  width: 20px !important;
+  height: 20px !important;
+}
+
+.menu-panel__index {
+  font-size: 9px !important;
 }
 
 .menu-panel__login-link {
