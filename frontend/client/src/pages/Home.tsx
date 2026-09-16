@@ -486,6 +486,139 @@ function GridDoodle() {
   );
 }
 
+const CAMPFIRE_TOASTS = [
+  "🪵 Stoked the fire! Crackle crackle ⚡",
+  "✨ Rested by the fire. HP & Mana restored!",
+  "🔥 Sparks swirl into the midnight sky ✨",
+  "☕ Brewing warm coffee by the embers ☕",
+  "🏕️ Safety checkpoint saved // Ready to hack!",
+  "🌲 Pine trees rustling in the night breeze...",
+];
+
+function CampfireNightScene() {
+  const [warmth, setWarmth] = useState(100);
+  const [burstKey, setBurstKey] = useState(0);
+  const [toastIndex, setToastIndex] = useState(0);
+  const [showToast, setShowToast] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+
+  const handleStoke = () => {
+    setWarmth((prev) => (prev >= 180 ? 100 : prev + 15));
+    setToastIndex((prev) => (prev + 1) % CAMPFIRE_TOASTS.length);
+    setShowToast(true);
+    setBurstKey((prev) => prev + 1);
+  };
+
+  return (
+    <div
+      className={`campfire-night-station ${isHovered ? "campfire-night-station--glow" : ""}`}
+      role="region"
+      aria-label="Interactive pixel art campfire in the pine forest with crackling flames and swaying trees"
+      onClick={handleStoke}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      {/* Top Station HUD */}
+      <div className="campfire-hud">
+        <div className="campfire-hud__tag">
+          <span className="campfire-hud-dot" />
+          <span>CC_CAMPFIRE // REST_POINT</span>
+        </div>
+        <div className="campfire-hud__stats">
+          <span className="campfire-hud-chip" title="Click to stoke the fire!">
+            ♨️ {warmth}% WARMTH
+          </span>
+          <span className="campfire-hud-chip campfire-hud-chip--weather">
+            🍃 BREEZY
+          </span>
+        </div>
+      </div>
+
+      {/* Main Pixel Canvas Wrapper */}
+      <div className="campfire-stage">
+        {/* Interactive Speech / Status Toast */}
+        {showToast && (
+          <div className="campfire-toast" key={burstKey}>
+            <span>{CAMPFIRE_TOASTS[toastIndex]}</span>
+          </div>
+        )}
+
+        {/* Base Campfire Pixel Artwork */}
+        <div className="campfire-img-container">
+          <img
+            className="campfire-img"
+            src="/campfire_scene.png"
+            alt="Pixel campfire in a starry pine forest"
+            width={736}
+            height={736}
+            loading="lazy"
+          />
+
+          {/* Twinkling Pixel Stars in Night Canopy */}
+          <div className="campfire-stars-layer" aria-hidden="true">
+            <span className="campfire-star star-1" />
+            <span className="campfire-star star-2" />
+            <span className="campfire-star star-3" />
+            <span className="campfire-star star-4" />
+            <span className="campfire-star star-5" />
+          </div>
+
+          {/* Left Forest Tree Sway Silhouette / Light Overlay */}
+          <div className="campfire-trees-sway campfire-trees-sway--left" aria-hidden="true" />
+
+          {/* Right Forest Tree Sway Silhouette / Light Overlay */}
+          <div className="campfire-trees-sway campfire-trees-sway--right" aria-hidden="true" />
+
+          {/* Wind Breeze Streaks */}
+          <div className="campfire-breeze" aria-hidden="true">
+            <span className="breeze-line breeze-1" />
+            <span className="breeze-line breeze-2" />
+          </div>
+
+          {/* Warm Hearth Ground Illumination Glow */}
+          <div className="campfire-hearth-glow" aria-hidden="true" />
+
+          {/* Animated Crackling Pixel Flame Tongue Core */}
+          <div className="campfire-flame-core" aria-hidden="true">
+            <div className="flame-tongue flame-tongue--outer" />
+            <div className="flame-tongue flame-tongue--inner" />
+            <div className="flame-spark-core" />
+          </div>
+
+          {/* Continuously Rising Pixel Embers & Sparks */}
+          <div className="campfire-embers-stream" aria-hidden="true">
+            <span className="campfire-ember ember-1" />
+            <span className="campfire-ember ember-2" />
+            <span className="campfire-ember ember-3" />
+            <span className="campfire-ember ember-4" />
+            <span className="campfire-ember ember-5" />
+            <span className="campfire-ember ember-6" />
+            <span className="campfire-ember ember-7" />
+            <span className="campfire-ember ember-8" />
+          </div>
+
+          {/* Stoke Burst Sparks (active when clicked) */}
+          {burstKey > 0 && (
+            <div className="campfire-burst-sparks" key={burstKey} aria-hidden="true">
+              <span className="burst-spark spark-a" />
+              <span className="burst-spark spark-b" />
+              <span className="burst-spark spark-c" />
+              <span className="burst-spark spark-d" />
+              <span className="burst-spark spark-e" />
+              <span className="burst-spark spark-f" />
+            </div>
+          )}
+        </div>
+
+        {/* Hover Cue Hint */}
+        <div className="campfire-click-cue" aria-hidden="true">
+          🪵 CLICK TO STOKE FIRE (+WARMTH)
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function WireframeStamp({
   words,
   size = "large",
@@ -1521,44 +1654,40 @@ export default function Home() {
 
         <section className="manifesto section-dark page-pad" data-reveal>
           <div className="manifesto__side">
-            <GridDoodle />
+            <CampfireNightScene />
           </div>
           <div className="manifesto__content">
             <span className="chapter-badge">📜 CHAPTER 02 // THE ANCIENT TOME OF RULES</span>
             <SectionLabel number="02">WHO WE ARE</SectionLabel>
             <div className="ancient-tome">
               <div className="tome-bookmark" />
-              <div className="manifesto__columns">
-                <div>
-                  <div className="heading-with-icon">
-                    <HeadingIcon icon={Sparkles} label="Who we are" />
-                    <h2>
-                      Curiosity
-                      <br />
-                      <span>with a deadline.</span>
-                    </h2>
-                  </div>
+              <div className="tome-header">
+                <div className="heading-with-icon">
+                  <HeadingIcon icon={Sparkles} label="Who we are" />
+                  <h2>
+                    Curiosity <span>with a deadline.</span>
+                  </h2>
                 </div>
-                <div className="tome-parchment-body">
-                  <p>
-                    The AI &amp; ML Club is a student-led initiative committed to
-                    exploring the transformative potential of AI and ML across
-                    diverse domains such as healthcare, finance, and education.
-                    Through interactive workshops, seminars with industry
-                    professionals, and hands-on projects, we empower students to
-                    deepen their technical knowledge, solve real-world challenges,
-                    and drive innovation.
-                  </p>
-                  <p>
-                    Together, we aim to shape the future of technology while
-                    fostering collaboration and a passion for AI and ML. Our
-                    mission is to educate, inspire, and support students in
-                    pursuing their passion for AI and ML, providing a platform to
-                    grow, innovate, make meaningful contributions, and to be a
-                    part of something extraordinary.
-                  </p>
-                  <span className="manifesto__signature">📜 TAM-VIT GUILD CHARTER / 2026</span>
-                </div>
+              </div>
+              <div className="tome-parchment-body">
+                <p>
+                  The AI &amp; ML Club is a student-led initiative committed to
+                  exploring the transformative potential of AI and ML across
+                  diverse domains such as healthcare, finance, and education.
+                  Through interactive workshops, seminars with industry
+                  professionals, and hands-on projects, we empower students to
+                  deepen their technical knowledge, solve real-world challenges,
+                  and drive innovation.
+                </p>
+                <p>
+                  Together, we aim to shape the future of technology while
+                  fostering collaboration and a passion for AI and ML. Our
+                  mission is to educate, inspire, and support students in
+                  pursuing their passion for AI and ML, providing a platform to
+                  grow, innovate, make meaningful contributions, and to be a
+                  part of something extraordinary.
+                </p>
+                <span className="manifesto__signature">📜 TAM-VIT GUILD CHARTER / 2026</span>
               </div>
             </div>
           </div>

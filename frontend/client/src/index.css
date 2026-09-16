@@ -5807,18 +5807,55 @@ body, p, span, div, li, input, textarea, select {
   transform: translateX(-50%) translateY(-4px);
 }
 
-/* CHAPTER 02: THE ANCIENT TOME OF RULES */
+/* ============================================================
+   CHAPTER 02: THE ANCIENT TOME OF RULES (MANIFESTO & CAMPFIRE)
+   ============================================================ */
 .manifesto {
   background: #f4ede3 !important;
+  display: grid !important;
+  grid-template-columns: minmax(320px, 0.82fr) minmax(0, 1.18fr) !important;
+  gap: clamp(32px, 4.5vw, 64px) !important;
+  align-items: center !important;
+  padding-top: clamp(80px, 10vw, 150px) !important;
+  padding-bottom: clamp(80px, 10vw, 150px) !important;
 }
+.manifesto__side {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+.manifesto__content {
+  width: 100%;
+  max-width: 970px;
+}
+
+@media (max-width: 960px) {
+  .manifesto {
+    grid-template-columns: 1fr !important;
+    gap: 40px !important;
+  }
+  .manifesto__side {
+    order: 2;
+  }
+  .manifesto__content {
+    order: 1;
+  }
+}
+
+/* The Ancient Tome Card */
 .ancient-tome {
   background: #ffffff;
   border: 3.5px solid #2d1f36;
   border-radius: 12px;
   box-shadow: 6px 6px 0px #2d1f36;
-  padding: 36px clamp(24px, 4vw, 52px) !important;
+  padding: clamp(28px, 4vw, 44px) !important;
   position: relative;
-  margin-top: 24px !important;
+  margin-top: 20px !important;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.ancient-tome:hover {
+  transform: translateY(-2px);
+  box-shadow: 8px 8px 0px #2d1f36;
 }
 .tome-bookmark {
   position: absolute;
@@ -5831,18 +5868,463 @@ body, p, span, div, li, input, textarea, select {
   box-shadow: 2px 2px 0px #2d1f36;
   clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 80%, 0 100%);
 }
+.tome-header {
+  margin-bottom: 22px;
+}
+.ancient-tome h2 {
+  font-family: var(--display) !important;
+  font-size: clamp(26px, 3.2vw, 38px) !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.01em !important;
+  line-height: 1.25 !important;
+  margin: 0 !important;
+  color: #2d1f36 !important;
+  text-shadow: 2px 2px 0px rgba(45, 31, 54, 0.1) !important;
+  text-transform: uppercase;
+}
+.ancient-tome h2 span {
+  color: #3158ff !important;
+}
+
+/* Tome Parchment Body with Generous Width */
 .tome-parchment-body {
   font-family: var(--body-pixel);
-  font-size: 15px;
+  font-size: 15.5px;
   line-height: 1.8 !important;
   color: #2d1f36;
+  max-width: 100%;
 }
 .tome-parchment-body p {
-  margin-bottom: 20px !important;
+  margin: 0 0 18px 0 !important;
+  max-width: none !important;
+  color: #374151;
 }
 .manifesto__signature {
-  margin-top: 32px !important;
+  margin-top: 24px !important;
   display: inline-block;
+  font-family: var(--pixel);
+  font-size: 9px;
+  color: #2d1f36;
+  background: #ede5f5;
+  border: 1.5px solid #2d1f36;
+  padding: 5px 12px;
+  border-radius: 4px;
+  box-shadow: 2px 2px 0px #2d1f36;
+}
+
+/* ============================================================
+   CAMPFIRE NIGHT SCENE (CHAPTER 02 REST STATION)
+   ============================================================ */
+.campfire-night-station {
+  position: relative;
+  width: 100%;
+  max-width: 440px;
+  margin: 0 auto;
+  background: #0d1527;
+  border: 3px solid #2d1f36;
+  border-radius: 12px;
+  box-shadow: 6px 6px 0px #2d1f36;
+  overflow: hidden;
+  cursor: pointer;
+  user-select: none;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+.campfire-night-station:hover {
+  transform: translateY(-3px);
+  box-shadow: 8px 8px 0px #2d1f36;
+}
+.campfire-night-station--glow {
+  border-color: #f97316;
+  box-shadow: 8px 8px 0px #f97316;
+}
+
+/* Top HUD Bar */
+.campfire-hud {
+  align-items: center;
+  background: rgba(13, 21, 39, 0.95);
+  border-bottom: 2px solid rgba(249, 115, 22, 0.4);
+  color: #fed7aa !important;
+  display: flex;
+  font-family: var(--pixel) !important;
+  font-size: 8.5px;
+  justify-content: space-between;
+  padding: 10px 14px;
+  letter-spacing: 0.08em;
+  position: relative;
+  z-index: 10;
+}
+.campfire-hud__tag {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #fed7aa !important;
+}
+.campfire-hud__tag span {
+  color: #fed7aa !important;
+}
+.campfire-hud-dot {
+  width: 7px;
+  height: 7px;
+  background: #f97316;
+  border-radius: 50%;
+  box-shadow: 0 0 8px #f97316;
+  animation: liveBlink 1s infinite alternate;
+}
+.campfire-hud__stats {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.campfire-hud-chip {
+  background: rgba(30, 41, 59, 0.9);
+  border: 1px solid rgba(249, 115, 22, 0.5);
+  border-radius: 4px;
+  padding: 3px 7px;
+  font-size: 8px;
+  color: #ffedd5 !important;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+.campfire-hud-chip:hover {
+  background: #ea580c;
+  color: #ffffff !important;
+  transform: scale(1.05);
+}
+.campfire-hud-chip--weather {
+  border-color: rgba(147, 197, 253, 0.5);
+  color: #bfdbfe !important;
+}
+
+/* Main Stage */
+.campfire-stage {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+}
+
+/* Interactive Toast Message */
+.campfire-toast {
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #fef08a;
+  border: 2px solid #2d1f36;
+  border-radius: 6px;
+  box-shadow: 3px 3px 0px #2d1f36;
+  padding: 6px 12px;
+  font-family: var(--body-pixel);
+  font-size: 12px;
+  font-weight: 700;
+  color: #1e1b4b;
+  white-space: nowrap;
+  z-index: 20;
+  pointer-events: none;
+  animation: toastPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+@keyframes toastPop {
+  0% { transform: translateX(-50%) translateY(-8px) scale(0.9); opacity: 0; }
+  100% { transform: translateX(-50%) translateY(0) scale(1); opacity: 1; }
+}
+
+/* Image Container */
+.campfire-img-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+.campfire-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+/* Star Canopy Twinkles */
+.campfire-stars-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 38%;
+  pointer-events: none;
+  z-index: 2;
+}
+.campfire-star {
+  position: absolute;
+  background: #ffffff;
+  border-radius: 50%;
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.8);
+  animation: starTwinkle 2.4s infinite alternate;
+}
+.star-1 { top: 15%; left: 32%; width: 4px; height: 4px; animation-delay: 0s; }
+.star-2 { top: 12%; right: 28%; width: 3px; height: 3px; animation-delay: 0.8s; }
+.star-3 { top: 24%; left: 22%; width: 3px; height: 3px; animation-delay: 1.4s; }
+.star-4 { top: 22%; right: 38%; width: 4px; height: 4px; animation-delay: 1.9s; }
+.star-5 { top: 8%; left: 52%; width: 3px; height: 3px; animation-delay: 0.4s; }
+@keyframes starTwinkle {
+  0% { opacity: 0.3; transform: scale(0.7); }
+  50% { opacity: 1; transform: scale(1.3); }
+  100% { opacity: 0.4; transform: scale(0.8); }
+}
+
+/* Swaying Pine Tree Overlays */
+.campfire-trees-sway {
+  position: absolute;
+  top: 20%;
+  height: 55%;
+  pointer-events: none;
+  z-index: 2;
+  transform-origin: bottom center;
+}
+.campfire-trees-sway--left {
+  left: 8%;
+  width: 32%;
+  background: radial-gradient(ellipse at center, rgba(16, 185, 129, 0.08) 0%, transparent 70%);
+  animation: treeSwayLeft 4.8s ease-in-out infinite alternate;
+}
+.campfire-trees-sway--right {
+  right: 8%;
+  width: 32%;
+  background: radial-gradient(ellipse at center, rgba(16, 185, 129, 0.08) 0%, transparent 70%);
+  animation: treeSwayRight 5.4s ease-in-out infinite alternate;
+}
+@keyframes treeSwayLeft {
+  0% { transform: rotate(-2.5deg) skewX(-2deg); }
+  100% { transform: rotate(2.2deg) skewX(2deg); }
+}
+@keyframes treeSwayRight {
+  0% { transform: rotate(2deg) skewX(1.8deg); }
+  100% { transform: rotate(-2.8deg) skewX(-2.2deg); }
+}
+
+/* Wind Breeze Streaks */
+.campfire-breeze {
+  position: absolute;
+  top: 25%;
+  left: 0;
+  right: 0;
+  height: 120px;
+  pointer-events: none;
+  z-index: 3;
+}
+.breeze-line {
+  position: absolute;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(186, 230, 253, 0.45), transparent);
+  border-radius: 2px;
+  animation: breezeDrift linear infinite;
+}
+.breeze-1 {
+  top: 20px;
+  width: 90px;
+  animation-duration: 7s;
+  animation-delay: 0s;
+}
+.breeze-2 {
+  top: 65px;
+  width: 120px;
+  animation-duration: 9s;
+  animation-delay: -3.5s;
+}
+@keyframes breezeDrift {
+  0% { left: -140px; opacity: 0; transform: scaleX(0.7); }
+  25% { opacity: 0.6; }
+  75% { opacity: 0.6; }
+  100% { left: 105%; opacity: 0; transform: scaleX(1.2); }
+}
+
+/* Warm Hearth Ground Glow */
+.campfire-hearth-glow {
+  position: absolute;
+  left: 28%;
+  bottom: 12%;
+  width: 44%;
+  height: 28%;
+  background: radial-gradient(ellipse at center, rgba(249, 115, 22, 0.45) 0%, rgba(234, 88, 12, 0.22) 45%, transparent 75%);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 3;
+  animation: hearthPulse 1.8s ease-in-out infinite alternate;
+}
+@keyframes hearthPulse {
+  0% { transform: scale(0.92); opacity: 0.7; filter: drop-shadow(0 0 12px rgba(249, 115, 22, 0.5)); }
+  100% { transform: scale(1.08); opacity: 1; filter: drop-shadow(0 0 24px rgba(251, 146, 60, 0.9)); }
+}
+
+/* Animated Crackling Flame Tongue Core */
+.campfire-flame-core {
+  position: absolute;
+  left: 45%;
+  bottom: 27%;
+  width: 10%;
+  height: 18%;
+  pointer-events: none;
+  z-index: 4;
+}
+.flame-tongue {
+  position: absolute;
+  inset: 0;
+  border-radius: 50% 50% 30% 30%;
+  animation: flameFlicker 0.6s steps(2) infinite alternate;
+}
+.flame-tongue--outer {
+  background: radial-gradient(ellipse at bottom, rgba(253, 224, 71, 0.55) 10%, rgba(249, 115, 22, 0.35) 60%, transparent 90%);
+  filter: blur(2px) drop-shadow(0 -4px 8px #f97316);
+}
+.flame-tongue--inner {
+  inset: 18% 14% 10% 14%;
+  background: radial-gradient(ellipse at bottom, #ffffff 15%, #fef08a 60%, transparent 95%);
+  animation: flameFlicker 0.4s steps(3) infinite alternate-reverse;
+}
+.flame-spark-core {
+  position: absolute;
+  top: 15%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 5px;
+  height: 5px;
+  background: #ffffff;
+  box-shadow: 0 0 6px #fde047;
+  animation: flamePop 0.25s infinite alternate;
+}
+@keyframes flameFlicker {
+  0% { transform: scale(0.96) translateY(2px) skewX(-2deg); }
+  50% { transform: scale(1.05) translateY(-3px) skewX(2deg); }
+  100% { transform: scale(1.02) translateY(0) skewX(-1deg); }
+}
+@keyframes flamePop {
+  0% { opacity: 0.6; transform: translateX(-50%) scale(0.8); }
+  100% { opacity: 1; transform: translateX(-50%) scale(1.3); }
+}
+
+/* Continuously Rising Pixel Embers */
+.campfire-embers-stream {
+  position: absolute;
+  left: 42%;
+  bottom: 30%;
+  width: 16%;
+  height: 50%;
+  pointer-events: none;
+  z-index: 4;
+}
+.campfire-ember {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: #fde047;
+  box-shadow: 0 0 4px #f97316;
+  border-radius: 1px;
+  opacity: 0;
+  animation: emberFloat linear infinite;
+}
+.ember-1 { left: 20%; animation-duration: 2.8s; animation-delay: 0s; }
+.ember-2 { left: 45%; animation-duration: 2.3s; animation-delay: 0.5s; background: #fb923c; }
+.ember-3 { left: 70%; animation-duration: 3.1s; animation-delay: 1.1s; width: 3px; height: 3px; }
+.ember-4 { left: 35%; animation-duration: 2.6s; animation-delay: 1.6s; }
+.ember-5 { left: 58%; animation-duration: 2.9s; animation-delay: 2.1s; background: #ea580c; }
+.ember-6 { left: 15%; animation-duration: 3.4s; animation-delay: 0.9s; width: 3px; height: 3px; }
+.ember-7 { left: 80%; animation-duration: 2.5s; animation-delay: 1.8s; }
+.ember-8 { left: 50%; animation-duration: 2.2s; animation-delay: 2.5s; background: #ffffff; }
+
+@keyframes emberFloat {
+  0% {
+    bottom: 0;
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+  40% {
+    opacity: 0.9;
+    transform: translateX(8px) scale(1.1);
+  }
+  75% {
+    opacity: 0.6;
+    transform: translateX(-10px) scale(0.85);
+  }
+  100% {
+    bottom: 95%;
+    opacity: 0;
+    transform: translateX(14px) scale(0.4);
+  }
+}
+
+/* Click Stoke Burst Sparks */
+.campfire-burst-sparks {
+  position: absolute;
+  left: 42%;
+  bottom: 32%;
+  width: 16%;
+  height: 40%;
+  pointer-events: none;
+  z-index: 5;
+}
+.burst-spark {
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  background: #ffffff;
+  box-shadow: 0 0 8px #fde047;
+  animation: burstFly 0.8s ease-out forwards;
+}
+.spark-a { left: 30%; animation-name: burstA; }
+.spark-b { left: 50%; animation-name: burstB; }
+.spark-c { left: 70%; animation-name: burstC; }
+.spark-d { left: 20%; animation-name: burstD; }
+.spark-e { left: 60%; animation-name: burstE; }
+.spark-f { left: 40%; animation-name: burstF; }
+
+@keyframes burstA {
+  0% { transform: translate(0, 0) scale(1.5); opacity: 1; }
+  100% { transform: translate(-30px, -70px) scale(0.3); opacity: 0; }
+}
+@keyframes burstB {
+  0% { transform: translate(0, 0) scale(1.5); opacity: 1; }
+  100% { transform: translate(4px, -90px) scale(0.3); opacity: 0; }
+}
+@keyframes burstC {
+  0% { transform: translate(0, 0) scale(1.5); opacity: 1; }
+  100% { transform: translate(32px, -65px) scale(0.3); opacity: 0; }
+}
+@keyframes burstD {
+  0% { transform: translate(0, 0) scale(1.5); opacity: 1; }
+  100% { transform: translate(-20px, -50px) scale(0.3); opacity: 0; }
+}
+@keyframes burstE {
+  0% { transform: translate(0, 0) scale(1.5); opacity: 1; }
+  100% { transform: translate(25px, -80px) scale(0.3); opacity: 0; }
+}
+@keyframes burstF {
+  0% { transform: translate(0, 0) scale(1.5); opacity: 1; }
+  100% { transform: translate(-8px, -100px) scale(0.3); opacity: 0; }
+}
+
+/* Hover Cue Hint */
+.campfire-click-cue {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #08152f;
+  color: #fde047;
+  font-family: var(--pixel);
+  font-size: 7.5px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  border: 1px solid #fde047;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  z-index: 10;
+}
+.campfire-night-station:hover .campfire-click-cue {
+  opacity: 1;
+  transform: translateX(-50%) translateY(-2px);
 }
 
 /* CHAPTER 03 & 04: CITADEL & GUILD HQ */
