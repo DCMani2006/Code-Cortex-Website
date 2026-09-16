@@ -800,6 +800,25 @@ export default function Home() {
     );
   };
 
+  useEffect(() => {
+    // A URL hash (e.g. "#tracks" from the root SPA's nav, or from the "View
+    // track brief" dashboard link) only auto-scrolls on load for static HTML
+    // — this is a client-rendered SPA, so the browser tries to jump to it
+    // before React has even mounted the section and gives up. Re-create that
+    // jump ourselves, using the exact same smooth scroll as the "Explore
+    // Tracks" button (jumpTo) — fired on "load" so the hero's images/3D
+    // model have already finished reflowing the page by the time it runs.
+    const hash = window.location.hash;
+    if (!hash) return;
+    const scrollToHash = () => jumpTo(hash);
+    if (document.readyState === "complete") {
+      const timer = window.setTimeout(scrollToHash, 150);
+      return () => window.clearTimeout(timer);
+    }
+    window.addEventListener("load", scrollToHash);
+    return () => window.removeEventListener("load", scrollToHash);
+  }, []);
+
   const openMenu = () => {
     setMenuOpen(true);
     setMenuNudgeVisible(false);

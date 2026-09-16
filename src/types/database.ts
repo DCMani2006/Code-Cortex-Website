@@ -14,6 +14,7 @@ export interface Team {
   Track: string;
   Team_Leader: string;
   'No. of Members': string;
+  Team_Type?: string; // "Internal" (VIT) or "External"
 }
 
 export interface Submission {

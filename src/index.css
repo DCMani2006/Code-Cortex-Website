@@ -377,12 +377,27 @@ h1, h2, h3, h4, h5, h6 {
   color: #2d1f36 !important;
 }
 
+/* Bootstrap's own --bs-light-rgb was never repointed at this palette, so
+   .text-light fell back to Bootstrap's stock near-white and disappeared
+   against the light cream/white cards (e.g. team member names). */
+.text-light {
+  color: #2d1f36 !important;
+}
+
 .text-secondary {
   color: #6b5b73 !important;
 }
 
 .text-muted {
   color: #8c7b94 !important;
+}
+
+/* For alphanumeric codes (Team IDs) rather than prose — Pixelify Sans's
+   cursive-ish glyphs make mixed letters/digits hard to tell apart at a
+   glance; Silkscreen's blocky monospace digits read far more reliably. */
+.id-code {
+  font-family: var(--mono) !important;
+  letter-spacing: 0.06em !important;
 }
 
 /* Tables / Leaderboard */

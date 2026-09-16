@@ -10,8 +10,7 @@ import {
   getReviews,
   getTeamMembers,
   getTeams,
-  addUser,
-  getUsers,
+  syncUserByEmail,
   addTeamMember
 } from "./services/api";
 
@@ -104,22 +103,36 @@ export default function App() {
   const [devName, setDevName] = useState("Demo Student 21BCE1234");
   const [devEmail, setDevEmail] = useState("demo.student2021@vitstudent.ac.in");
 
-  const handleDevLogin = () => {
-    const regNoRegex = /\b(\d{2}[a-zA-Z]{3}\d{4,5})\b/i;
-    const match = devName.match(regNoRegex) || devEmail.match(regNoRegex);
-    const userId = match ? match[1].toUpperCase() : "21BCE1234";
-    const user: User = {
-      User_ID: userId,
-      Name: devName.trim(),
-      Email: devEmail.trim(),
-      "Role (Participant/Admin)": "Participant",
-      Team_ID: ""
-    };
-    updateLoggedInUser(user);
-    if (user.Name) setRegLeaderName(user.Name);
-    setRegLeaderRegNo(userId);
-    setActivePage("team-portal");
-    showToast(`Logged in as ${user.Name}`, "success");
+  // Asked once before login: internal (VIT) participants must sign in with a
+  // @vitstudent.ac.in email and a VIT-format registration number; external
+  // participants skip both requirements and get an "EC-" team code instead
+  // of "CC-" so they're distinguishable in the Team sheet (Team_Type column).
+  const [participantType, setParticipantType] = useState<"internal" | "external" | null>(null);
+  const isExternalParticipant = participantType === "external";
+  const regNoFormatRegex = /^\d{2}[a-zA-Z]{3}\d{4,5}$/;
+  const isValidRegNo = (value: string) =>
+    isExternalParticipant ? value.trim().length > 0 : regNoFormatRegex.test(value);
+
+  const handleDevLogin = async () => {
+    if (!devName.trim() || !devEmail.trim()) {
+      showToast("Please enter a name and email.", "danger");
+      return;
+    }
+    try {
+      // Goes through the same server-authoritative find-or-create as real
+      // Google sign-in — previously this fabricated a fresh {Team_ID: ""}
+      // user locally every time, so logging in with an email that already
+      // had a team never showed it, and the "already registered" guard
+      // never had a chance to trip.
+      const user = await syncUserByEmail(devEmail, devName);
+      updateLoggedInUser(user);
+      if (user.Name) setRegLeaderName(user.Name);
+      if (!user.User_ID.startsWith("U-")) setRegLeaderRegNo(user.User_ID);
+      setActivePage("team-portal");
+      showToast(`Logged in as ${user.Name}`, "success");
+    } catch (error) {
+      showToast(error instanceof Error ? error.message : "Dev login failed.", "danger");
+    }
   };
 
   // =====================================================
@@ -548,38 +561,14 @@ const googleSignup = useGoogleLogin({
         throw new Error("Google account did not return an email.");
       }
 
-      if (!email.toLowerCase().endsWith("@vitstudent.ac.in")) {
-        throw new Error("Only @vitstudent.ac.in emails are allowed.");
+      if (!isExternalParticipant && !email.toLowerCase().endsWith("@vitstudent.ac.in")) {
+        throw new Error("Only @vitstudent.ac.in emails are allowed for internal (VIT) participants.");
       }
 
-      const existingUsers = await getUsers();
-      let user = existingUsers.find(
-        (u) => u.Email.trim().toLowerCase() === email.toLowerCase()
-      );
-
-      if (!user) {
-        // Extract registration number from the end of the name if present (e.g. 25BDS0055)
-        let actualName = name;
-        let newUserId = "";
-        
-        const regNoMatch = name.match(/\b(\d{2}[a-zA-Z]{3}\d{4,5})\b/i);
-        if (regNoMatch) {
-          newUserId = regNoMatch[1].toUpperCase();
-          actualName = name.replace(regNoMatch[0], "").trim();
-        } else {
-          newUserId = "U-" + Math.floor(1000 + Math.random() * 9000);
-        }
-
-        user = {
-          User_ID: newUserId,
-          Name: actualName,
-          Email: email,
-          "Role (Participant/Admin)": "Participant",
-          Team_ID: ""
-        };
-
-        await addUser(user, "");
-      }
+      // Find-or-create against a fresh server read, not a cached client list
+      // — this is what actually stops the same email registering twice (see
+      // syncUserByEmail's doc comment for why the old approach could miss).
+      const user = await syncUserByEmail(email, name);
 
       updateLoggedInUser(user);
       if (user.Name) setRegLeaderName(user.Name);
@@ -616,11 +605,15 @@ const googleSignup = useGoogleLogin({
       return;
     }
 
-    const regNoRegex = /^\d{2}[a-zA-Z]{3}\d{4,5}$/;
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const leaderReg = regLeaderRegNo.trim().toUpperCase();
 
-    if (!leaderReg || !regNoRegex.test(leaderReg)) {
+    // External participants don't have a VIT reg number — email (already
+    // captured at Google sign-in) is the only identifier we need from them.
+    const leaderReg = isExternalParticipant
+      ? ""
+      : regLeaderRegNo.trim().toUpperCase();
+
+    if (!isExternalParticipant && (!leaderReg || !isValidRegNo(leaderReg))) {
       showToast("Please enter a valid Team Leader Registration Number (e.g. 21BCE1234).", "danger");
       return;
     }
@@ -656,55 +649,73 @@ const googleSignup = useGoogleLogin({
     }
 
     const seenRegNos = new Set<string>();
-    seenRegNos.add(leaderReg);
-    
+    if (!isExternalParticipant) seenRegNos.add(leaderReg);
+
     for (let i = 0; i < teamMembersList.length; i++) {
       const m = teamMembersList[i];
-      if (!m.name.trim() || !m.regNo.trim() || !m.email.trim()) {
+      if (!m.name.trim() || !m.email.trim() || (!isExternalParticipant && !m.regNo.trim())) {
         showToast(`Please fill all details for Member ${i + 2}.`, "danger");
-        return;
-      }
-      const memberReg = m.regNo.trim().toUpperCase();
-      if (!regNoRegex.test(memberReg)) {
-        showToast(`Invalid Registration Number for Member ${i + 2}. Expected format eg: 20ABC1234`, "danger");
         return;
       }
       if (!emailRegex.test(m.email.trim())) {
         showToast(`Invalid Email Address for Member ${i + 2}.`, "danger");
         return;
       }
-      if (memberReg === leaderReg) {
-        showToast(`Registration Number for Member ${i + 2} cannot be the same as the Team Leader's.`, "danger");
-        return;
+      if (!isExternalParticipant) {
+        const memberReg = m.regNo.trim().toUpperCase();
+        if (!isValidRegNo(memberReg)) {
+          showToast(`Invalid Registration Number for Member ${i + 2}. Expected format eg: 20ABC1234`, "danger");
+          return;
+        }
+        if (memberReg === leaderReg) {
+          showToast(`Registration Number for Member ${i + 2} cannot be the same as the Team Leader's.`, "danger");
+          return;
+        }
+        if (seenRegNos.has(memberReg)) {
+          showToast(`Duplicate Registration Number found: ${memberReg}.`, "danger");
+          return;
+        }
+        seenRegNos.add(memberReg);
       }
-      if (seenRegNos.has(memberReg)) {
-        showToast(`Duplicate Registration Number found: ${memberReg}.`, "danger");
-        return;
-      }
-      seenRegNos.add(memberReg);
     }
 
     setIsSubmittingTeam(true);
     try {
       const teamId =
-        "CC-" +
+        (isExternalParticipant ? "EC-" : "CC-") +
         Math.floor(1000 + Math.random() * 9000);
 
-      const effectiveUserId = (loggedInUser.User_ID && !loggedInUser.User_ID.startsWith("U-"))
+      // External members don't type a reg number (that field is hidden), but
+      // the backend still needs a unique User_ID per person — mint one per
+      // member rather than sending an empty string.
+      const membersToSend = isExternalParticipant
+        ? teamMembersList.map((m) => ({
+            ...m,
+            regNo: `EXT${Math.random().toString(36).slice(2, 8).toUpperCase()}`
+          }))
+        : teamMembersList;
+
+      const effectiveUserId = isExternalParticipant
         ? loggedInUser.User_ID
-        : leaderReg;
+        : (loggedInUser.User_ID && !loggedInUser.User_ID.startsWith("U-"))
+          ? loggedInUser.User_ID
+          : leaderReg;
 
       await addTeam(
         {
           Team_ID: teamId,
           "Team_ Name": regTeamName.trim(),
           Track: regTrack,
-          Team_Leader: `${regLeaderName.trim()} (${leaderReg})`,
-          "No. of Members": String(memberCount)
+          Team_Leader: isExternalParticipant
+            ? `${regLeaderName.trim()} (${loggedInUser.Email})`
+            : `${regLeaderName.trim()} (${leaderReg})`,
+          "No. of Members": String(memberCount),
+          Team_Type: isExternalParticipant ? "External" : "Internal"
         },
         regPassword,
         effectiveUserId,
-        teamMembersList
+        membersToSend,
+        loggedInUser.Email
       );
 
       updateLoggedInUser({
@@ -810,13 +821,17 @@ const googleSignup = useGoogleLogin({
   // =====================================================
 
   const handleAddMemberSubmit = async () => {
-    if (!newMemberName.trim() || !newMemberRegNo.trim() || !newMemberEmail.trim()) {
+    // Existing-team member add happens in a later session than registration,
+    // so go by the team's own stored Team_Type rather than the transient
+    // participantType picked at login — that only applies to registration.
+    const teamIsExternal = teamDetails?.Team_Type === "External";
+
+    if (!newMemberName.trim() || !newMemberEmail.trim() || (!teamIsExternal && !newMemberRegNo.trim())) {
       showToast("Please fill in all member details.", "danger");
       return;
     }
-    const regNoRegex = /^\d{2}[a-zA-Z]{3}\d{4,5}$/;
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!regNoRegex.test(newMemberRegNo.trim().toUpperCase())) {
+    if (!teamIsExternal && !/^\d{2}[a-zA-Z]{3}\d{4,5}$/.test(newMemberRegNo.trim().toUpperCase())) {
       showToast("Invalid Registration Number format. Expected e.g. 20ABC1234", "danger");
       return;
     }
@@ -829,7 +844,9 @@ const googleSignup = useGoogleLogin({
     try {
       await addTeamMember(teamIdInput.trim(), {
         name: newMemberName.trim(),
-        regNo: newMemberRegNo.trim().toUpperCase(),
+        regNo: teamIsExternal
+          ? `EXT${Math.random().toString(36).slice(2, 8).toUpperCase()}`
+          : newMemberRegNo.trim().toUpperCase(),
         email: newMemberEmail.trim()
       });
       // refresh member list
@@ -1002,9 +1019,38 @@ const googleSignup = useGoogleLogin({
   Participant Login
 </h2>
 
-<p className="text-secondary mb-4">
-  Sign in with your Google account to access your dashboard or register a team.
-</p>
+{participantType === null ? (
+  <>
+    <p className="text-secondary mb-4">
+      Are you a VIT student, or joining from outside VIT?
+    </p>
+    <button
+      type="button"
+      className="btn btn-gradient w-100 py-2 fw-bold mb-3"
+      onClick={() => setParticipantType("internal")}
+    >
+      🎓 Internal (VIT Student)
+    </button>
+    <button
+      type="button"
+      className="btn btn-outline-info w-100 py-2 fw-bold"
+      onClick={() => setParticipantType("external")}
+    >
+      🌐 External Participant
+    </button>
+  </>
+) : (
+  <>
+    <p className="text-secondary mb-2">
+      Sign in with your Google account to access your dashboard or register a team.
+    </p>
+    <button
+      type="button"
+      className="btn btn-sm text-secondary p-0 border-0 bg-transparent mb-4"
+      onClick={() => setParticipantType(null)}
+    >
+      ← {participantType === "internal" ? "Internal" : "External"} — change
+    </button>
 
 {!isGoogleConfigured && (
   <div className="alert alert-warning py-2 px-3 small mb-3 text-start" style={{ backgroundColor: "rgba(255, 193, 7, 0.12)", borderColor: "rgba(255, 193, 7, 0.35)", color: "#ffe082" }}>
@@ -1086,8 +1132,10 @@ const googleSignup = useGoogleLogin({
     </div>
   )}
 </div>
+  </>
+)}
 
-                  
+
 
                 </div>
               </div>
@@ -1249,7 +1297,7 @@ const googleSignup = useGoogleLogin({
 
                             <h2 className="fw-bold text-info mb-0">
                               Dashboard:
-                              <span className="text-white">
+                              <span className="text-white id-code">
                                 {" "}
                                 {teamIdInput}
                               </span>
@@ -1295,7 +1343,7 @@ const googleSignup = useGoogleLogin({
                                 Team ID:
                               </p>
 
-                              <p className="text-info fw-bold mb-3">
+                              <p className="text-info fw-bold mb-3 id-code">
                                 {teamIdInput}
                               </p>
 
@@ -1356,16 +1404,18 @@ const googleSignup = useGoogleLogin({
                                         value={newMemberName} 
                                         onChange={e => setNewMemberName(e.target.value)} 
                                       />
-                                      <input 
-                                        type="text" 
-                                        className="form-control form-control-sm mb-2" 
-                                        style={inputStyle} 
-                                        placeholder="Reg No (e.g. 20ABC1234)" 
-                                        value={newMemberRegNo} 
-                                        onChange={e => setNewMemberRegNo(e.target.value)} 
-                                      />
-                                      <input 
-                                        type="email" 
+                                      {teamDetails?.Team_Type !== "External" && (
+                                        <input
+                                          type="text"
+                                          className="form-control form-control-sm mb-2"
+                                          style={inputStyle}
+                                          placeholder="Reg No (e.g. 20ABC1234)"
+                                          value={newMemberRegNo}
+                                          onChange={e => setNewMemberRegNo(e.target.value)}
+                                        />
+                                      )}
+                                      <input
+                                        type="email"
                                         className="form-control form-control-sm mb-3" 
                                         style={inputStyle} 
                                         placeholder="Email Address" 
@@ -1612,7 +1662,7 @@ const googleSignup = useGoogleLogin({
 
                             <h4 className="text-white mb-4">
                               Your Team ID is:
-                              <span className="text-info fw-bold">
+                              <span className="text-info fw-bold id-code">
                                 {" "}
                                 {newTeamId}
                               </span>
@@ -1730,22 +1780,24 @@ const googleSignup = useGoogleLogin({
 
                               </div>
 
-                              <div className="col-md-6">
+                              {!isExternalParticipant && (
+                                <div className="col-md-6">
 
-                                <input
-                                  type="text"
-                                  className="form-control"
-                                  style={inputStyle}
-                                  placeholder="Leader Reg No (e.g. 21BCE1234)"
-                                  value={regLeaderRegNo}
-                                  onChange={(e) =>
-                                    setRegLeaderRegNo(
-                                      e.target.value.toUpperCase()
-                                    )
-                                  }
-                                />
+                                  <input
+                                    type="text"
+                                    className="form-control"
+                                    style={inputStyle}
+                                    placeholder="Leader Reg No (e.g. 21BCE1234)"
+                                    value={regLeaderRegNo}
+                                    onChange={(e) =>
+                                      setRegLeaderRegNo(
+                                        e.target.value.toUpperCase()
+                                      )
+                                    }
+                                  />
 
-                              </div>
+                                </div>
+                              )}
 
                               <div className="col-md-6">
 
@@ -1821,7 +1873,7 @@ const googleSignup = useGoogleLogin({
                                     <div className="col-12 text-secondary mb-1">
                                       Member {index + 2}
                                     </div>
-                                    <div className="col-md-4">
+                                    <div className={isExternalParticipant ? "col-md-6" : "col-md-4"}>
                                       <input
                                         type="text"
                                         className="form-control"
@@ -1831,17 +1883,19 @@ const googleSignup = useGoogleLogin({
                                         onChange={(e) => handleMemberChange(index, 'name', e.target.value)}
                                       />
                                     </div>
-                                    <div className="col-md-4">
-                                      <input
-                                        type="text"
-                                        className="form-control"
-                                        style={inputStyle}
-                                        placeholder="Reg No (e.g. 20ABC1234)"
-                                        value={member.regNo}
-                                        onChange={(e) => handleMemberChange(index, 'regNo', e.target.value)}
-                                      />
-                                    </div>
-                                    <div className="col-md-4">
+                                    {!isExternalParticipant && (
+                                      <div className="col-md-4">
+                                        <input
+                                          type="text"
+                                          className="form-control"
+                                          style={inputStyle}
+                                          placeholder="Reg No (e.g. 20ABC1234)"
+                                          value={member.regNo}
+                                          onChange={(e) => handleMemberChange(index, 'regNo', e.target.value)}
+                                        />
+                                      </div>
+                                    )}
+                                    <div className={isExternalParticipant ? "col-md-6" : "col-md-4"}>
                                       <input
                                         type="email"
                                         className="form-control"

@@ -61,6 +61,36 @@ export const addUser = async (
 // AUTHENTICATION
 // =====================================================
 
+// Finds-or-creates a user by email against a fresh (uncached) server read —
+// used for both real Google sign-in and Quick Dev Login, so "does this email
+// already have a team" is always answered by the server, not reconstructed
+// client-side from a cached user list (which is what let people register
+// twice with the same email before this existed).
+export const syncUserByEmail = async (
+  email: string,
+  name: string
+): Promise<User> => {
+  const response = await fetch(`${API_BASE}/auth`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email: email.trim(), name: name.trim() })
+  });
+
+  if (!response.ok) {
+    const body = await response.json().catch(() => null);
+    throw new Error(body?.error || 'Failed to sync user');
+  }
+
+  const user = await response.json();
+  return {
+    User_ID: String(user.User_ID ?? ''),
+    Name: String(user.Name ?? ''),
+    Email: String(user.Email ?? ''),
+    'Role (Participant/Admin)': String(user['Role (Participant/Admin)'] ?? 'Participant'),
+    Team_ID: String(user.Team_ID ?? '')
+  };
+};
+
 export const syncAuth = async (
   identifier: string,
   password: string
@@ -104,7 +134,8 @@ const mapTeam = (team: RawTeam): Team => ({
   'Team_ Name': String(team?.['Team_ Name'] ?? team?.teamName ?? ''),
   Track: String(team?.Track ?? team?.track ?? ''),
   Team_Leader: String(team?.Team_Leader ?? team?.teamLeader ?? ''),
-  'No. of Members': String(team?.['No. of Members'] ?? team?.numberOfMembers ?? '')
+  'No. of Members': String(team?.['No. of Members'] ?? team?.numberOfMembers ?? ''),
+  Team_Type: String(team?.Team_Type ?? team?.teamType ?? '')
 });
 
 export const getTeamMembers = async (teamId: string): Promise<User[]> => {
@@ -135,7 +166,8 @@ export const addTeam = async (
   team: Team,
   password: string,
   userId: string,
-  additionalMembers: {name: string, regNo: string, email: string}[] = []
+  additionalMembers: {name: string, regNo: string, email: string}[] = [],
+  userEmail?: string
 ): Promise<void> => {
   const response = await fetch(`${API_BASE}/teams`, {
     method: 'POST',
@@ -146,8 +178,10 @@ export const addTeam = async (
       Track: team.Track,
       Team_Leader: team.Team_Leader,
       'No. of Members': team['No. of Members'],
+      Team_Type: team.Team_Type,
       teamPassword: password,
       _userId: userId,
+      _userEmail: userEmail,
       additionalMembers
     })
   });
