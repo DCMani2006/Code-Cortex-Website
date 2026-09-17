@@ -1655,8 +1655,7 @@ const googleSignup = useGoogleLogin({
                                       {teamPassword && !teamPasswordError && (
                                         <button
                                           type="button"
-                                          className="btn btn-sm border-0 bg-transparent p-0 fw-bold"
-                                          style={{ fontFamily: "var(--font-heading)", fontSize: "9px", color: "#6b5b73" }}
+                                          className="password-toggle-btn fw-bold"
                                           onClick={() => setShowTeamPassword(v => !v)}
                                         >
                                           {showTeamPassword ? "HIDE" : "SHOW"}
@@ -1878,8 +1877,7 @@ const googleSignup = useGoogleLogin({
                               />
                               <button
                                 type="button"
-                                className="btn btn-sm text-secondary position-absolute end-0 top-50 translate-middle-y me-2 border-0 bg-transparent"
-                                style={{ fontFamily: "var(--pixel)", fontSize: "9px" }}
+                                className="password-toggle-btn password-toggle-btn--inline"
                                 onClick={() => setShowJoinPassword(!showJoinPassword)}
                               >
                                 {showJoinPassword ? "HIDE" : "SHOW"}
@@ -2105,8 +2103,7 @@ const googleSignup = useGoogleLogin({
                                     />
                                     <button
                                       type="button"
-                                      className="btn btn-sm text-secondary position-absolute end-0 top-50 translate-middle-y me-2 border-0 bg-transparent fw-bold"
-                                      style={{ fontFamily: "var(--font-heading)", fontSize: "10px" }}
+                                      className="password-toggle-btn password-toggle-btn--inline fw-bold"
                                       onClick={() => setShowRegPassword(!showRegPassword)}
                                     >
                                       {showRegPassword ? "HIDE" : "SHOW"}
@@ -2711,8 +2708,7 @@ const googleSignup = useGoogleLogin({
                   />
                   <button
                     type="button"
-                    className="btn btn-sm text-secondary position-absolute end-0 top-50 translate-middle-y me-2 border-0 bg-transparent"
-                    style={{ fontFamily: "var(--pixel)", fontSize: "9px" }}
+                    className="password-toggle-btn password-toggle-btn--inline"
                     onClick={() => setShowAdminPassword(!showAdminPassword)}
                   >
                     {showAdminPassword ? "HIDE" : "SHOW"}
