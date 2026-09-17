@@ -11,7 +11,9 @@ import {
   getTeamMembers,
   getTeams,
   syncUserByEmail,
-  getTeamPassword
+  getTeamPassword,
+  updateTeamSize as apiUpdateTeamSize,
+  removeTeamMember
 } from "./services/api";
 
 import type { User, Team, Submission } from "./types/database";
@@ -215,6 +217,9 @@ export default function App() {
   // =====================================================
 
   const [joinTeamId, setJoinTeamId] = useState("");
+  // Collected on join so members aren't left on a placeholder "U-####" id —
+  // only the leader used to type a registration number anywhere.
+  const [joinRegNo, setJoinRegNo] = useState("");
   const [joinPassword, setJoinPassword] = useState("");
 
 
@@ -262,6 +267,10 @@ export default function App() {
   });
 
   const [adminTeamId, setAdminTeamId] = useState("");
+  // Roster of the selected team, so an admin can detach someone who joined the
+  // wrong team without hand-editing the sheet.
+  const [adminRoster, setAdminRoster] = useState<User[]>([]);
+  const [removingMemberId, setRemovingMemberId] = useState<string | null>(null);
   const [adminTeamFilter, setAdminTeamFilter] = useState("");
 
   // Admin data
@@ -322,6 +331,7 @@ export default function App() {
   const [teamPassword, setTeamPassword] = useState<string | null>(null);
   const [showTeamPassword, setShowTeamPassword] = useState(false);
   const [teamPasswordError, setTeamPasswordError] = useState<string | null>(null);
+  const [isSavingTeamSize, setIsSavingTeamSize] = useState(false);
 
   useEffect(() => {
     if (!teamLoggedIn || !teamIdInput.trim()) return;
@@ -760,6 +770,67 @@ const googleSignup = useGoogleLogin({
   // JOIN TEAM
   // =====================================================
 
+  const loadAdminRoster = async (teamId: string) => {
+    if (!teamId.trim()) {
+      setAdminRoster([]);
+      return;
+    }
+    try {
+      setAdminRoster(await getTeamMembers(teamId.trim()));
+    } catch (e) {
+      console.error("Failed to load roster:", e);
+      setAdminRoster([]);
+    }
+  };
+
+  const handleRemoveMember = async (member: User) => {
+    const teamId = adminTeamId.trim();
+    if (!teamId || !member.User_ID) return;
+    if (
+      !window.confirm(
+        `Remove ${member.Name || member.User_ID} from ${teamId}? They'll be free to join another team.`
+      )
+    ) {
+      return;
+    }
+    setRemovingMemberId(member.User_ID);
+    try {
+      await removeTeamMember(teamId, member.User_ID);
+      await loadAdminRoster(teamId);
+      showToast(`${member.Name || member.User_ID} removed from ${teamId}.`, "success");
+    } catch (error) {
+      showToast(
+        error instanceof Error ? error.message : "Could not remove member.",
+        "danger"
+      );
+    } finally {
+      setRemovingMemberId(null);
+    }
+  };
+
+  const handleTeamSizeChange = async (nextSize: number) => {
+    if (!loggedInUser?.User_ID || !teamIdInput.trim()) return;
+    setIsSavingTeamSize(true);
+    try {
+      const saved = await apiUpdateTeamSize(
+        teamIdInput.trim(),
+        nextSize,
+        loggedInUser.User_ID
+      );
+      setTeamDetails((prev) =>
+        prev ? { ...prev, "No. of Members": String(saved) } : prev
+      );
+      showToast(`Team size set to ${saved}.`, "success");
+    } catch (error) {
+      showToast(
+        error instanceof Error ? error.message : "Could not update team size.",
+        "danger"
+      );
+    } finally {
+      setIsSavingTeamSize(false);
+    }
+  };
+
   const handleJoinTeam = async () => {
     setJoinTeamError(null);
 
@@ -787,27 +858,48 @@ const googleSignup = useGoogleLogin({
       return;
     }
 
+    const typedRegNo = joinRegNo.trim().toUpperCase();
+    if (!isExternalParticipant) {
+      if (!typedRegNo) {
+        setJoinTeamError("Please enter your registration number.");
+        return;
+      }
+      if (!isValidRegNo(typedRegNo)) {
+        setJoinTeamError("Invalid registration number. Expected format e.g. 24BCE1234");
+        return;
+      }
+    }
+
     try {
       const success = await joinTeam(
         joinTeamId.trim(),
         joinPassword,
-        loggedInUser.User_ID
+        loggedInUser.User_ID,
+        { email: loggedInUser.Email, regNo: isExternalParticipant ? "" : typedRegNo }
       );
 
       if (!success) {
         throw new Error("Failed to join team. Please check the Team ID and Password.");
       }
 
+      const joinedTeamId = joinTeamId.trim().toUpperCase();
       updateLoggedInUser({
         ...loggedInUser,
-        Team_ID: joinTeamId.trim()
+        // The server records the typed reg number when the account was still on
+        // a placeholder id, so mirror that here.
+        User_ID:
+          !isExternalParticipant && typedRegNo && loggedInUser.User_ID.startsWith("U-")
+            ? typedRegNo
+            : loggedInUser.User_ID,
+        Team_ID: joinedTeamId
       });
 
-      setTeamIdInput(joinTeamId.trim());
+      setTeamIdInput(joinedTeamId);
       setTeamLoggedIn(true);
 
       setJoinTeamError(null);
       setJoinPassword("");
+      setJoinRegNo("");
 
       setActivePage("team-portal");
       showToast("Joined team successfully!", "success");
@@ -1495,6 +1587,26 @@ const googleSignup = useGoogleLogin({
                                   </div>
 
                                   <div className="d-flex align-items-center justify-content-between gap-2 mb-2">
+                                    <span style={{ fontSize: "10px", color: "#6b5b73" }}>TEAM SIZE</span>
+                                    <span className="d-flex align-items-center gap-2">
+                                      <select
+                                        className="form-select form-select-sm"
+                                        style={{ width: "auto", fontSize: "12px", padding: "2px 24px 2px 8px" }}
+                                        value={String(teamDetails?.["No. of Members"] || "")}
+                                        disabled={isSavingTeamSize}
+                                        onChange={(e) => handleTeamSizeChange(Number(e.target.value))}
+                                      >
+                                        {[2, 3, 4].map((n) => (
+                                          <option key={n} value={n}>{n} members</option>
+                                        ))}
+                                      </select>
+                                      <span style={{ fontSize: "10px", color: "#6b5b73" }}>
+                                        {teamMembers.length} joined
+                                      </span>
+                                    </span>
+                                  </div>
+
+                                  <div className="d-flex align-items-center justify-content-between gap-2 mb-2">
                                     <span style={{ fontSize: "10px", color: "#6b5b73" }}>TEAM ID</span>
                                     <code style={{ fontFamily: '"IBM Plex Mono", monospace', fontSize: "13px", color: "#2d1f36" }}>
                                       {teamIdInput || loggedInUser?.Team_ID || "—"}
@@ -1747,6 +1859,25 @@ const googleSignup = useGoogleLogin({
                               </button>
                             </div>
                           </div>
+
+                          {!isExternalParticipant && (
+                            <div className="mb-3 text-start">
+                              <label className="form-label" style={{ fontSize: "10px" }}>
+                                YOUR REGISTRATION NUMBER
+                              </label>
+                              <input
+                                type="text"
+                                className="form-control"
+                                style={inputStyle}
+                                placeholder="e.g. 24BCE1234"
+                                value={joinRegNo}
+                                onChange={(e) => setJoinRegNo(e.target.value)}
+                                onKeyDown={(e) => {
+                                  if (e.key === "Enter") handleJoinTeam();
+                                }}
+                              />
+                            </div>
+                          )}
 
                           {joinTeamError && (
                             <div className="alert alert-danger py-2 px-3 mb-3 text-start" style={{ fontSize: "13px" }}>
@@ -2343,6 +2474,7 @@ const googleSignup = useGoogleLogin({
                                 setAdminTeamId(teamId);
                                 setAdminTeamFilter(teamId);
                                 setScoreReviewRound('Review 1');
+                                loadAdminRoster(teamId);
 
                                 const firstIndex = submissions.findIndex(
                                   (item) => String(item?.Team_ID || '').trim() === teamId
@@ -2368,6 +2500,55 @@ const googleSignup = useGoogleLogin({
                         })
                       )}
                     </div>
+
+                    {adminTeamId.trim() && (
+                      <>
+                        <hr className="border-secondary my-3" />
+                        <div className="d-flex justify-content-between align-items-center mb-2">
+                          <span className="fw-bold" style={{ fontSize: "11px", color: "#2d1f36" }}>
+                            ROSTER — {adminTeamId.trim()}
+                          </span>
+                          <button
+                            type="button"
+                            className="btn btn-sm btn-outline-secondary"
+                            style={{ fontSize: "9px", padding: "2px 8px" }}
+                            onClick={() => loadAdminRoster(adminTeamId)}
+                          >
+                            REFRESH
+                          </button>
+                        </div>
+
+                        {adminRoster.length === 0 ? (
+                          <div className="text-secondary" style={{ fontSize: "12px" }}>
+                            No members on this team.
+                          </div>
+                        ) : (
+                          adminRoster.map((member) => (
+                            <div
+                              key={member.User_ID}
+                              className="d-flex justify-content-between align-items-center gap-2 mb-2 p-2"
+                              style={{ background: "#fdfbf7", border: "1.5px solid #2d1f36", borderRadius: "6px" }}
+                            >
+                              <span style={{ fontSize: "12px", color: "#2d1f36", minWidth: 0 }}>
+                                <span className="fw-bold d-block text-truncate">{member.Name || "—"}</span>
+                                <span className="text-secondary" style={{ fontSize: "10px" }}>
+                                  {member.User_ID}
+                                </span>
+                              </span>
+                              <button
+                                type="button"
+                                className="btn btn-sm btn-outline-danger flex-shrink-0"
+                                style={{ fontSize: "9px", padding: "3px 8px" }}
+                                disabled={removingMemberId === member.User_ID}
+                                onClick={() => handleRemoveMember(member)}
+                              >
+                                {removingMemberId === member.User_ID ? "…" : "REMOVE"}
+                              </button>
+                            </div>
+                          ))
+                        )}
+                      </>
+                    )}
                   </div>
                 </div>
               </div>
