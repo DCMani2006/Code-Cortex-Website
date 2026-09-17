@@ -2047,14 +2047,6 @@ export default function Home() {
               );
             })}
           </div>
-          <div className="nominate__footer">
-            <span>
-              {leaderboardQuery.data?.myVote
-                ? "Your coin is in the arcade. The room decides the soundtrack."
-                : "Search above and nominate a track to see it in the arcade."}
-            </span>
-            <span>{leaderboardQuery.data?.tracks.length ?? 0} NOMINATED</span>
-          </div>
         </section>
 
         <section
@@ -2215,7 +2207,7 @@ export default function Home() {
             </a>
           </div>
           <span className="footer__legal">
-            © 2026 TAM-VIT // FORGED WITH TOO MUCH COFFEE // QUEST ON
+            © 2026 TAM-VIT
           </span>
         </div>
       </footer>

@@ -724,12 +724,6 @@ body {
 .hero__topline,
 .hero__location,
 .events__header-note,
-.sponsors__header > span {
-  font-family: var(--mono);
-  font-size: 10px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
 .menu-panel__side-note {
   writing-mode: vertical-rl;
 }
@@ -2706,9 +2700,6 @@ h3 em {
   padding-top: clamp(110px, 14vw, 190px);
 }
 .events__header-note,
-.sponsors__header > span {
-  color: var(--cobalt);
-}
 .events__title-row {
   margin-bottom: 70px;
 }
@@ -3950,9 +3941,6 @@ h3 em {
   .sponsors {
     padding-bottom: 130px;
     padding-top: 100px;
-  }
-  .sponsors__header > span {
-    display: none;
   }
   .sponsor-grid {
     grid-template-columns: 1fr;
@@ -6804,6 +6792,7 @@ body, p, span, div, li, input, textarea, select {
 .nominate {
   background: #f4ede3 !important;
   padding-top: clamp(28px, 3vw, 40px) !important;
+  padding-bottom: clamp(28px, 3vw, 40px) !important;
 }
 .nominate__title-row {
   display: flex !important;
