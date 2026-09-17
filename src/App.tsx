@@ -1420,19 +1420,6 @@ const googleSignup = useGoogleLogin({
                                   </h4>
                                 </div>
 
-                                {/* Status Card */}
-                                <div className="rpg-stat-card mb-3">
-                                  <div className="form-label mb-1">
-                                    CURRENT STATUS
-                                  </div>
-                                  <div className="d-flex align-items-center gap-2">
-                                    <span style={{ color: "#15803d", fontSize: "14px" }}>●</span>
-                                    <span className="fw-bold" style={{ fontSize: "14px", color: "#2d1f36" }}>
-                                      Active — Awaiting Review 1
-                                    </span>
-                                  </div>
-                                </div>
-
                                 {/* Team Leader */}
                                 <div className="rpg-stat-card mb-3">
                                   <div className="form-label mb-1">
