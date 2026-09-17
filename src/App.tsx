@@ -153,15 +153,6 @@ export default function App() {
     }
   };
 
-  const isGoogleConfigured = Boolean(
-    import.meta.env.VITE_GOOGLE_CLIENT_ID &&
-    import.meta.env.VITE_GOOGLE_CLIENT_ID !== "CLIENT_ID_MISSING" &&
-    !import.meta.env.VITE_GOOGLE_CLIENT_ID.includes("your_google_oauth")
-  );
-  const [showDevLogin, setShowDevLogin] = useState(!isGoogleConfigured);
-  const [devName, setDevName] = useState("Demo Student 21BCE1234");
-  const [devEmail, setDevEmail] = useState("demo.student2021@vitstudent.ac.in");
-
   // Asked once before login: internal (VIT) participants must sign in with a
   // @vitstudent.ac.in email and a VIT-format registration number; external
   // participants skip both requirements and get an "EC-" team code instead
@@ -171,28 +162,6 @@ export default function App() {
   const regNoFormatRegex = /^\d{2}[a-zA-Z]{3}\d{4,5}$/;
   const isValidRegNo = (value: string) =>
     isExternalParticipant ? value.trim().length > 0 : regNoFormatRegex.test(value);
-
-  const handleDevLogin = async () => {
-    if (!devName.trim() || !devEmail.trim()) {
-      showToast("Please enter a name and email.", "danger");
-      return;
-    }
-    try {
-      // Goes through the same server-authoritative find-or-create as real
-      // Google sign-in — previously this fabricated a fresh {Team_ID: ""}
-      // user locally every time, so logging in with an email that already
-      // had a team never showed it, and the "already registered" guard
-      // never had a chance to trip.
-      const user = await syncUserByEmail(devEmail, devName);
-      updateLoggedInUser(user);
-      if (user.Name) setRegLeaderName(user.Name);
-      if (!user.User_ID.startsWith("U-")) setRegLeaderRegNo(user.User_ID);
-      setActivePage("team-portal");
-      showToast(`Logged in as ${user.Name}`, "success");
-    } catch (error) {
-      showToast(error instanceof Error ? error.message : "Dev login failed.", "danger");
-    }
-  };
 
   // =====================================================
   // REGISTRATION
@@ -805,7 +774,6 @@ const googleSignup = useGoogleLogin({
     try {
       const teamId =
         (isExternalParticipant ? "EC-" : "CC-") +
-        // eslint-disable-next-line react-hooks/purity
         Math.floor(1000 + Math.random() * 9000);
 
       const effectiveUserId = isExternalParticipant
@@ -1209,17 +1177,6 @@ const googleSignup = useGoogleLogin({
                           ← {participantType === "internal" ? "Internal (VIT)" : "External"} — CHANGE
                         </button>
 
-                        {!isGoogleConfigured && (
-                          <div className="alert alert-warning py-3 px-3 text-start mb-3" style={{ fontSize: "14px" }}>
-                            <div className="fw-bold mb-1" style={{ fontFamily: "var(--pixel)", fontSize: "10px" }}>
-                              ⚠️ Google OAuth Client ID Not Set
-                            </div>
-                            <div style={{ lineHeight: 1.5 }}>
-                              Add <code>VITE_GOOGLE_CLIENT_ID</code> to your <code>.env</code> file for live Google Sign-In. Use <strong>Quick Dev Login</strong> below to test locally.
-                            </div>
-                          </div>
-                        )}
-
                         {googleAuthError && (
                           <div className="alert alert-danger py-2 px-3 mb-3 text-start" style={{ fontSize: "13.5px" }}>
                             {googleAuthError}
@@ -1227,77 +1184,12 @@ const googleSignup = useGoogleLogin({
                         )}
 
                         <button
-                          className="btn btn-lg-retro btn-primary w-100 mb-3"
-                          onClick={() => {
-                            if (!isGoogleConfigured) {
-                              showToast("VITE_GOOGLE_CLIENT_ID is not configured in .env. Use Quick Dev Login below to test.", "danger");
-                              setShowDevLogin(true);
-                            } else {
-                              googleSignup();
-                            }
-                          }}
+                          className="btn btn-lg-retro btn-primary w-100"
+                          onClick={() => googleSignup()}
                           disabled={googleAuthLoading}
                         >
                           {googleAuthLoading ? "SIGNING IN..." : "CONTINUE WITH GOOGLE →"}
                         </button>
-
-                        <div className="pt-3 border-top border-secondary mt-2">
-                          {!showDevLogin ? (
-                            <button
-                              type="button"
-                              className="btn btn-outline-info w-100 py-2"
-                              style={{ fontSize: "10.5px" }}
-                              onClick={() => setShowDevLogin(true)}
-                            >
-                              ⚡ QUICK DEV LOGIN (LOCAL TEST)
-                            </button>
-                          ) : (
-                            <div className="text-start p-3 rounded" style={{ background: "#fdfbf7", border: "2px solid #2d1f36", boxShadow: "3px 3px 0px #2d1f36" }}>
-                              <div className="d-flex justify-content-between align-items-center mb-2">
-                                <span className="fw-bold" style={{ fontFamily: "var(--pixel)", fontSize: "9px", color: "#d15676" }}>
-                                  ⚡ QUICK DEV LOGIN
-                                </span>
-                                {isGoogleConfigured && (
-                                  <button
-                                    type="button"
-                                    className="btn btn-sm text-secondary p-0 border-0 bg-transparent"
-                                    style={{ fontSize: "10px", fontFamily: "var(--pixel)" }}
-                                    onClick={() => setShowDevLogin(false)}
-                                  >
-                                    [CANCEL]
-                                  </button>
-                                )}
-                              </div>
-                              <div className="text-secondary mb-2" style={{ fontSize: "13.5px", lineHeight: 1.5 }}>
-                                Simulates signing in with a student identity without requiring Google Cloud setup:
-                              </div>
-                              <input
-                                type="text"
-                                className="form-control form-control-sm mb-2"
-                                style={inputStyle}
-                                placeholder="Name (e.g. John Doe 21BCE1234)"
-                                value={devName}
-                                onChange={(e) => setDevName(e.target.value)}
-                              />
-                              <input
-                                type="email"
-                                className="form-control form-control-sm mb-3"
-                                style={inputStyle}
-                                placeholder="Student Email (@vitstudent.ac.in)"
-                                value={devEmail}
-                                onChange={(e) => setDevEmail(e.target.value)}
-                              />
-                              <button
-                                type="button"
-                                className="btn btn-info w-100 fw-bold py-2"
-                                style={{ fontSize: "11px" }}
-                                onClick={handleDevLogin}
-                              >
-                                SIGN IN AS TEST STUDENT →
-                              </button>
-                            </div>
-                          )}
-                        </div>
                       </>
                     )}
                   </div>
