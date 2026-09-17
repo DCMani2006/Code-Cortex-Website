@@ -2913,40 +2913,78 @@ h3 em {
 .faq__side p {
   max-width: 300px;
 }
-.faq__doodle {
+.faq__pixel-doodles {
   align-items: center;
   display: flex;
-  gap: 24px;
-  margin-top: 70px;
+  gap: 18px;
+  margin-top: 50px;
 }
-.faq__doodle span {
+.faq__pixel-item {
   align-items: center;
-  animation: doodlePop 4s ease-in-out infinite;
-  border: 1px solid var(--cobalt);
-  border-radius: 50%;
-  color: var(--cobalt);
+  animation: pixelDoodleBob 3.5s ease-in-out infinite;
+  background: #ffffff;
+  border: 2.5px solid #2d1f36;
+  border-radius: 10px;
+  box-shadow: 3.5px 3.5px 0px #2d1f36;
+  cursor: pointer;
   display: flex;
-  font-family: Georgia, serif;
-  font-size: 28px;
-  height: 58px;
+  height: 64px;
   justify-content: center;
-  transform: rotate(-10deg);
-  width: 58px;
+  transition: transform 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
+  user-select: none;
+  width: 64px;
 }
-.faq__doodle span:nth-child(2) {
-  animation-delay: -1.5s;
-  background: var(--yellow);
-  border: 0;
-  color: var(--navy);
-  transform: rotate(11deg) translateY(18px);
+.faq__pixel-item:hover {
+  box-shadow: 5px 5px 0px #2d1f36 !important;
+  transform: translateY(-5px) scale(1.08) !important;
 }
-.faq__doodle span:nth-child(3) {
-  animation-delay: -2.8s;
-  background: var(--coral);
-  border: 0;
-  color: var(--navy);
-  transform: rotate(-2deg);
+.faq__pixel-item--fire {
+  animation-delay: 0s;
+  background: #fff7ed;
+  transform: rotate(-5deg);
 }
+.faq__pixel-item--fire:hover {
+  background: #ffedd5;
+}
+.faq__pixel-item--scroll {
+  animation-delay: -1.2s;
+  background: #fefce8;
+  transform: rotate(5deg) translateY(6px);
+}
+.faq__pixel-item--scroll:hover {
+  background: #fef08a;
+}
+.faq__pixel-item--swords {
+  animation-delay: -2.3s;
+  background: #ecfeff;
+  transform: rotate(-3deg);
+}
+.faq__pixel-item--swords:hover {
+  background: #cffafe;
+}
+.faq__pixel-img {
+  display: block;
+  filter: drop-shadow(1.5px 2px 0px rgba(45, 31, 54, 0.2));
+  height: 44px;
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+  object-fit: contain;
+  transition: transform 0.16s ease;
+  width: 44px;
+}
+.faq__pixel-item:hover .faq__pixel-img {
+  transform: scale(1.08);
+}
+@keyframes pixelDoodleBob {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-6px) scale(1.03);
+  }
+}
+
 .faq__tabs {
   border-bottom: 1px solid rgba(246, 240, 220, 0.3);
   display: flex;
@@ -7424,6 +7462,151 @@ body, p, span, div, li, input, textarea, select {
   box-shadow: 4.5px 4.5px 0px #2d1f36;
 }
 
+/* CHAPTER 05: HACKATHON ROADMAP */
+.roadmap {
+  background: #faf6ee !important;
+  padding-top: clamp(48px, 6vw, 84px) !important;
+  padding-bottom: clamp(48px, 6vw, 84px) !important;
+  position: relative !important;
+  border-top: 3px solid #2d1f36 !important;
+}
+
+.roadmap__header {
+  margin-bottom: 20px !important;
+}
+
+.roadmap__title-row {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 16px !important;
+  margin-bottom: 36px !important;
+}
+
+.roadmap__lead {
+  font-family: var(--font-sans, "Space Grotesk", sans-serif) !important;
+  font-size: clamp(1rem, 1.2vw, 1.15rem) !important;
+  line-height: 1.6 !important;
+  color: #4a3e56 !important;
+  max-width: 680px !important;
+  margin: 0 !important;
+}
+
+/* Retro Arcade Window for Roadmap */
+.roadmap__window {
+  background: #ffffff !important;
+  border: 3px solid #2d1f36 !important;
+  border-radius: 8px !important;
+  box-shadow: 6px 6px 0px #2d1f36 !important;
+  overflow: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.roadmap__window-bar {
+  background: #2d1f36 !important;
+  color: #fdf8ee !important;
+  padding: 10px 18px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  font-family: "Press Start 2P", monospace !important;
+  font-size: 0.68rem !important;
+  letter-spacing: 0.05em !important;
+  user-select: none !important;
+}
+
+.roadmap__window-title {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+}
+
+.roadmap__window-icon {
+  color: #38bdf8 !important;
+}
+
+.roadmap__window-controls {
+  display: flex !important;
+  gap: 12px !important;
+  font-size: 0.72rem !important;
+  opacity: 0.8 !important;
+}
+
+.roadmap__viewport {
+  width: 100% !important;
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  background: #00000000 !important;
+  display: flex !important;
+  justify-content: center !important;
+  padding: clamp(16px, 3vw, 32px) !important;
+}
+
+.roadmap__pixel-map {
+  width: 100% !important;
+  max-width: 1280px !important;
+  height: auto !important;
+  object-fit: contain !important;
+  image-rendering: pixelated !important;
+  image-rendering: crisp-edges !important;
+  display: block !important;
+  filter: drop-shadow(0 4px 12px rgba(45, 31, 54, 0.08)) !important;
+}
+
+@media (max-width: 768px) {
+  .roadmap__viewport {
+    justify-content: flex-start !important;
+    padding: 12px !important;
+  }
+  .roadmap__pixel-map {
+    min-width: 780px !important;
+    max-width: none !important;
+  }
+}
+
+.roadmap__status-bar {
+  background: #fbf7ee !important;
+  border-top: 2.5px solid #2d1f36 !important;
+  padding: 12px 18px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  flex-wrap: wrap !important;
+  gap: 12px !important;
+  font-family: "IBM Plex Mono", monospace !important;
+  font-size: 0.78rem !important;
+  font-weight: 600 !important;
+  color: #2d1f36 !important;
+}
+
+.roadmap__status-pill {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  background: #ecfdf5 !important;
+  border: 1.5px solid #059669 !important;
+  padding: 4px 12px !important;
+  border-radius: 4px !important;
+  color: #065f46 !important;
+  font-weight: 700 !important;
+  font-size: 0.72rem !important;
+}
+
+.roadmap__status-dot {
+  width: 7px !important;
+  height: 7px !important;
+  background: #10b981 !important;
+  border-radius: 50% !important;
+  display: inline-block !important;
+  animation: pulse 2s infinite !important;
+}
+
+.roadmap__status-hint {
+  color: #6b5d75 !important;
+  font-size: 0.75rem !important;
+  letter-spacing: 0.03em !important;
+}
+
 /* CHAPTER 06: 8-BIT ARCADE JUKEBOX */
 .nominate {
   background: #f4ede3 !important;
@@ -7861,7 +8044,7 @@ body, p, span, div, li, input, textarea, select {
   line-height: 1.75 !important;
 }
 
-/* CHAPTER 08: MERCHANT BAZAAR (SPONSORS) */
+/* CHAPTER 07: MERCHANT BAZAAR (SPONSORS) */
 .sponsors {
   background: #f4ede3 !important;
 }
@@ -7890,7 +8073,7 @@ body, p, span, div, li, input, textarea, select {
   margin-top: 18px !important;
 }
 
-/* CHAPTER 09: WISE ELDER'S TENT (FAQS) */
+/* CHAPTER 08: WISE ELDER'S TENT (FAQS) */
 .faq {
   background: #faf6ee !important;
   gap: clamp(40px, 6vw, 84px) !important;
@@ -7945,7 +8128,7 @@ body, p, span, div, li, input, textarea, select {
   color: #7abcc4 !important;
 }
 
-/* CHAPTER 10: WARP PORTAL & CREDITS (FOOTER) */
+/* CHAPTER 09: WARP PORTAL & CREDITS (FOOTER / CONTACT) */
 .footer {
   background: #faf6ee !important;
   border-top: 3.5px solid #2d1f36 !important;

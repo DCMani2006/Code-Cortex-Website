@@ -25,6 +25,7 @@ import {
   ChevronRight,
   Cloud,
   Code2,
+  Compass,
   Database,
   Download,
   ExternalLink,
@@ -62,6 +63,7 @@ const navItems = [
   { label: "Home", href: "#home", icon: HomeIcon },
   { label: "About", href: "#about", icon: Info },
   { label: "Tracks", href: "#tracks", icon: Layers },
+  { label: "Roadmap", href: "#roadmap", icon: Compass },
   { label: "Arcade", href: "#nominate", icon: Music2 },
   { label: "Sponsors", href: "#sponsors", icon: HandHeart },
   { label: "FAQs", href: "#faqs", icon: HelpCircle },
@@ -2145,12 +2147,70 @@ export default function Home() {
         </section>
 
         <section
+          id="roadmap"
+          className="roadmap section-light page-pad"
+          data-reveal
+        >
+          <div className="roadmap__header">
+            <span className="chapter-badge">🗺️ CHAPTER 05 // HACKATHON ROADMAP</span>
+          </div>
+          <div className="roadmap__title-row">
+            <div className="heading-with-icon">
+              <HeadingIcon icon={Compass} label="Roadmap" />
+              <h2>
+                The 30-hour
+                <br />
+                <span>quest trail.</span>
+              </h2>
+            </div>
+            <p className="roadmap__lead">
+              Follow the expedition route from opening ceremonies through intense build sprints, midnight elimination checkpoints, and the final grand boss evaluation.
+            </p>
+          </div>
+
+          <div className="roadmap__window">
+            <div className="roadmap__window-bar">
+              <div className="roadmap__window-title">
+                <span className="roadmap__window-icon">■</span>
+                <span>EXPEDITION MAP // 30-HOUR HACKATHON OVERWORLD</span>
+              </div>
+              <div className="roadmap__window-controls" aria-hidden="true">
+                <span>_</span>
+                <span>🗖</span>
+                <span>✕</span>
+              </div>
+            </div>
+
+            <div className="roadmap__viewport">
+              <img
+                src="/roadmap_pixel.png"
+                alt="Code Cortex Hackathon Roadmap — 13 Checkpoints Overworld Map"
+                className="roadmap__pixel-map"
+                width={2048}
+                height={1024}
+                loading="lazy"
+              />
+            </div>
+
+            <div className="roadmap__status-bar">
+              <div className="roadmap__status-pill">
+                <span className="roadmap__status-dot" />
+                <span>EXPEDITION: 13 CHECKPOINTS</span>
+              </div>
+              <span className="roadmap__status-hint">
+                📜 2 ELIMINATION REVIEWS // 30 CONTINUOUS HOURS
+              </span>
+            </div>
+          </div>
+        </section>
+
+        <section
           id="nominate"
           className="nominate section-dark page-pad"
           data-reveal
         >
           <div className="nominate__header">
-            <span className="chapter-badge">🕹️ CHAPTER 05 // JUKEBOX</span>
+            <span className="chapter-badge">🕹️ CHAPTER 06 // JUKEBOX</span>
           </div>
           <div className="nominate__title-row">
             <div className="heading-with-icon">
@@ -2260,7 +2320,7 @@ export default function Home() {
           data-reveal
         >
           <div className="sponsors__header">
-            <span className="chapter-badge">🎪 CHAPTER 06 // SPONSOR</span>
+            <span className="chapter-badge">🎪 CHAPTER 07 // SPONSOR</span>
           </div>
           <div className="sponsors__title-row">
             <div className="heading-with-icon">
@@ -2297,7 +2357,7 @@ export default function Home() {
 
         <section id="faqs" className="faq section-light page-pad" data-reveal>
           <div className="faq__side">
-            <span className="chapter-badge">⛺ CHAPTER 07 // THE WISE ELDER'S TENT</span>
+            <span className="chapter-badge">⛺ CHAPTER 08 // THE WISE ELDER'S TENT</span>
             <div className="heading-with-icon">
               <HeadingIcon icon={HelpCircle} label="FAQs" />
               <h2>
@@ -2306,10 +2366,37 @@ export default function Home() {
                 <span>counsel.</span>
               </h2>
             </div>
-            <div className="faq__doodle">
-              <span>🔥</span>
-              <span>📜</span>
-              <span>⚔️</span>
+            <div className="faq__pixel-doodles" aria-hidden="true">
+              <div className="faq__pixel-item faq__pixel-item--fire" title="Campfire Flame">
+                <img
+                  src="/pixel_campfire.png"
+                  alt="Pixel Campfire"
+                  className="faq__pixel-img"
+                  width="64"
+                  height="64"
+                  loading="eager"
+                />
+              </div>
+              <div className="faq__pixel-item faq__pixel-item--scroll" title="Ancient Tome Scroll">
+                <img
+                  src="/pixel_scroll.png"
+                  alt="Pixel Ancient Scroll"
+                  className="faq__pixel-img"
+                  width="64"
+                  height="64"
+                  loading="eager"
+                />
+              </div>
+              <div className="faq__pixel-item faq__pixel-item--swords" title="Crossed Guild Blades">
+                <img
+                  src="/pixel_swords.png"
+                  alt="Pixel Guild Swords"
+                  className="faq__pixel-img"
+                  width="64"
+                  height="64"
+                  loading="eager"
+                />
+              </div>
             </div>
           </div>
           <div className="faq__main">
@@ -2354,7 +2441,7 @@ export default function Home() {
       <footer id="contact" className="footer section-dark page-pad" data-reveal>
         <div className="footer__main">
           <div className="footer__statement">
-            <span className="chapter-badge">🌌 CHAPTER 08 // CONTACT</span>
+            <span className="chapter-badge">🌌 CHAPTER 09 // CONTACT</span>
             <div className="heading-with-icon">
               <HeadingIcon icon={Mail} label="Contact" />
               <h2>
