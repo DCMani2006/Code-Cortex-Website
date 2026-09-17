@@ -62,16 +62,41 @@ export const AdminDashboard = ({
   lockedByOther
 }: Props) => {
   const isLocked = !!lockedByOther;
-  const totalScore =
-    (Number(uiUx) || 0) +
-    (Number(usp) || 0) +
-    (Number(scalabilityFeasibility) || 0) +
-    (Number(implementation) || 0) +
-    (Number(progress) || 0) +
-    (Number(architecture) || 0) +
-    (Number(machineLearning) || 0) +
-    (Number(datasetUtilisation) || 0) +
-    (Number(techStack) || 0);
+  const isReview2 = reviewRound === "Review 2";
+
+  const handleClampedChange = (val: string, max: number, setter: (v: string) => void) => {
+    if (val === "") {
+      setter("");
+      return;
+    }
+    const num = Number(val);
+    if (isNaN(num)) return;
+    if (num < 0) {
+      setter("0");
+    } else if (num > max) {
+      setter(String(max));
+    } else {
+      setter(val);
+    }
+  };
+
+  const totalScore = isReview2
+    ? (Number(uiUx) || 0) +
+      (Number(implementation) || 0) +
+      (Number(progress) || 0) +
+      (Number(architecture) || 0) +
+      (Number(machineLearning) || 0) +
+      (Number(datasetUtilisation) || 0) +
+      (Number(techStack) || 0)
+    : (Number(uiUx) || 0) +
+      (Number(usp) || 0) +
+      (Number(scalabilityFeasibility) || 0) +
+      (Number(implementation) || 0) +
+      (Number(progress) || 0) +
+      (Number(architecture) || 0) +
+      (Number(machineLearning) || 0) +
+      (Number(datasetUtilisation) || 0) +
+      (Number(techStack) || 0);
 
   return (
     <div className="retro-window w-100 fade-in">
@@ -94,7 +119,7 @@ export const AdminDashboard = ({
         <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
           <div>
             <span className="badge mb-2" style={{ background: "#7abcc4", color: "#2d1f36", fontSize: "8.5px" }}>
-              ⚔️ JUDGING RUBRIC
+              ⚔️ {reviewRound.toUpperCase()} RUBRIC
             </span>
             <h3 className="glow-text mb-1 fw-bold" style={{ fontSize: "clamp(18px, 2.2vw, 24px)" }}>
               BOARD JUDGING PORTAL
@@ -206,175 +231,309 @@ export const AdminDashboard = ({
             </select>
           </div>
 
-          {/* 1. UI / UX */}
-          <div className="col-md-6">
-            <div className="d-flex justify-content-between align-items-center mb-1">
-              <label className="form-label mb-0">UI / UX</label>
-              <span className="badge" style={{ background: "#e8f3f5", color: "#2d1f36", fontSize: "8px" }}>0 - 20 PTS</span>
-            </div>
-            <input
-              value={uiUx}
-              onChange={(e) => setUiUx(e.target.value)}
-              type="number"
-              max={20}
-              min={0}
-              disabled={isLocked}
-              className="form-control"
-              placeholder="Score 0 - 20"
-            />
-          </div>
+          {/* ===================== REVIEW 2 (7 CRITERIA) ===================== */}
+          {isReview2 ? (
+            <>
+              {/* UI / UX (20) */}
+              <div className="col-md-6">
+                <div className="d-flex justify-content-between align-items-center mb-1">
+                  <label className="form-label mb-0">UI / UX</label>
+                  <span className="badge" style={{ background: "#e8f3f5", color: "#2d1f36", fontSize: "8px" }}>0 - 20 PTS</span>
+                </div>
+                <input
+                  value={uiUx}
+                  onChange={(e) => handleClampedChange(e.target.value, 20, setUiUx)}
+                  type="number"
+                  max={20}
+                  min={0}
+                  disabled={isLocked}
+                  className="form-control"
+                  placeholder="Score 0 - 20"
+                />
+              </div>
 
-          {/* 2. USP */}
-          <div className="col-md-6">
-            <div className="d-flex justify-content-between align-items-center mb-1">
-              <label className="form-label mb-0">USP</label>
-              <span className="badge" style={{ background: "#e8f3f5", color: "#2d1f36", fontSize: "8px" }}>0 - 10 PTS</span>
-            </div>
-            <input
-              value={usp}
-              onChange={(e) => setUsp(e.target.value)}
-              type="number"
-              max={10}
-              min={0}
-              disabled={isLocked}
-              className="form-control"
-              placeholder="Score 0 - 10"
-            />
-          </div>
+              {/* Implementation (20) */}
+              <div className="col-md-6">
+                <div className="d-flex justify-content-between align-items-center mb-1">
+                  <label className="form-label mb-0">Implementation</label>
+                  <span className="badge" style={{ background: "#e8f3f5", color: "#2d1f36", fontSize: "8px" }}>0 - 20 PTS</span>
+                </div>
+                <input
+                  value={implementation}
+                  onChange={(e) => handleClampedChange(e.target.value, 20, setImplementation)}
+                  type="number"
+                  max={20}
+                  min={0}
+                  disabled={isLocked}
+                  className="form-control"
+                  placeholder="Score 0 - 20"
+                />
+              </div>
 
-          {/* 3. Scalability / Feasibility */}
-          <div className="col-md-6">
-            <div className="d-flex justify-content-between align-items-center mb-1">
-              <label className="form-label mb-0">Scalability / Feasibility</label>
-              <span className="badge" style={{ background: "#e8f3f5", color: "#2d1f36", fontSize: "8px" }}>0 - 10 PTS</span>
-            </div>
-            <input
-              value={scalabilityFeasibility}
-              onChange={(e) => setScalabilityFeasibility(e.target.value)}
-              type="number"
-              max={10}
-              min={0}
-              disabled={isLocked}
-              className="form-control"
-              placeholder="Score 0 - 10"
-            />
-          </div>
+              {/* Progress (20) */}
+              <div className="col-md-6">
+                <div className="d-flex justify-content-between align-items-center mb-1">
+                  <label className="form-label mb-0">Progress</label>
+                  <span className="badge" style={{ background: "#e8f3f5", color: "#2d1f36", fontSize: "8px" }}>0 - 20 PTS</span>
+                </div>
+                <input
+                  value={progress}
+                  onChange={(e) => handleClampedChange(e.target.value, 20, setProgress)}
+                  type="number"
+                  max={20}
+                  min={0}
+                  disabled={isLocked}
+                  className="form-control"
+                  placeholder="Score 0 - 20"
+                />
+              </div>
 
-          {/* 4. Implementation */}
-          <div className="col-md-6">
-            <div className="d-flex justify-content-between align-items-center mb-1">
-              <label className="form-label mb-0">Implementation</label>
-              <span className="badge" style={{ background: "#e8f3f5", color: "#2d1f36", fontSize: "8px" }}>0 - 10 PTS</span>
-            </div>
-            <input
-              value={implementation}
-              onChange={(e) => setImplementation(e.target.value)}
-              type="number"
-              max={10}
-              min={0}
-              disabled={isLocked}
-              className="form-control"
-              placeholder="Score 0 - 10"
-            />
-          </div>
+              {/* Architecture (10) */}
+              <div className="col-md-6">
+                <div className="d-flex justify-content-between align-items-center mb-1">
+                  <label className="form-label mb-0">Architecture</label>
+                  <span className="badge" style={{ background: "#e8f3f5", color: "#2d1f36", fontSize: "8px" }}>0 - 10 PTS</span>
+                </div>
+                <input
+                  value={architecture}
+                  onChange={(e) => handleClampedChange(e.target.value, 10, setArchitecture)}
+                  type="number"
+                  max={10}
+                  min={0}
+                  disabled={isLocked}
+                  className="form-control"
+                  placeholder="Score 0 - 10"
+                />
+              </div>
 
-          {/* 5. Progress */}
-          <div className="col-md-6">
-            <div className="d-flex justify-content-between align-items-center mb-1">
-              <label className="form-label mb-0">Progress</label>
-              <span className="badge" style={{ background: "#e8f3f5", color: "#2d1f36", fontSize: "8px" }}>0 - 10 PTS</span>
-            </div>
-            <input
-              value={progress}
-              onChange={(e) => setProgress(e.target.value)}
-              type="number"
-              max={10}
-              min={0}
-              disabled={isLocked}
-              className="form-control"
-              placeholder="Score 0 - 10"
-            />
-          </div>
+              {/* Machine Learning (10) */}
+              <div className="col-md-6">
+                <div className="d-flex justify-content-between align-items-center mb-1">
+                  <label className="form-label mb-0">Machine Learning</label>
+                  <span className="badge" style={{ background: "#e8f3f5", color: "#2d1f36", fontSize: "8px" }}>0 - 10 PTS</span>
+                </div>
+                <input
+                  value={machineLearning}
+                  onChange={(e) => handleClampedChange(e.target.value, 10, setMachineLearning)}
+                  type="number"
+                  max={10}
+                  min={0}
+                  disabled={isLocked}
+                  className="form-control"
+                  placeholder="Score 0 - 10"
+                />
+              </div>
 
-          {/* 6. Architecture */}
-          <div className="col-md-6">
-            <div className="d-flex justify-content-between align-items-center mb-1">
-              <label className="form-label mb-0">Architecture</label>
-              <span className="badge" style={{ background: "#e8f3f5", color: "#2d1f36", fontSize: "8px" }}>0 - 10 PTS</span>
-            </div>
-            <input
-              value={architecture}
-              onChange={(e) => setArchitecture(e.target.value)}
-              type="number"
-              max={10}
-              min={0}
-              disabled={isLocked}
-              className="form-control"
-              placeholder="Score 0 - 10"
-            />
-          </div>
+              {/* Dataset Utilisation (10) */}
+              <div className="col-md-6">
+                <div className="d-flex justify-content-between align-items-center mb-1">
+                  <label className="form-label mb-0">Dataset Utilisation</label>
+                  <span className="badge" style={{ background: "#e8f3f5", color: "#2d1f36", fontSize: "8px" }}>0 - 10 PTS</span>
+                </div>
+                <input
+                  value={datasetUtilisation}
+                  onChange={(e) => handleClampedChange(e.target.value, 10, setDatasetUtilisation)}
+                  type="number"
+                  max={10}
+                  min={0}
+                  disabled={isLocked}
+                  className="form-control"
+                  placeholder="Score 0 - 10"
+                />
+              </div>
 
-          {/* 7. Machine Learning */}
-          <div className="col-md-6">
-            <div className="d-flex justify-content-between align-items-center mb-1">
-              <label className="form-label mb-0">Machine Learning</label>
-              <span className="badge" style={{ background: "#e8f3f5", color: "#2d1f36", fontSize: "8px" }}>0 - 10 PTS</span>
-            </div>
-            <input
-              value={machineLearning}
-              onChange={(e) => setMachineLearning(e.target.value)}
-              type="number"
-              max={10}
-              min={0}
-              disabled={isLocked}
-              className="form-control"
-              placeholder="Score 0 - 10"
-            />
-          </div>
+              {/* Tech Stack (10) */}
+              <div className="col-md-6">
+                <div className="d-flex justify-content-between align-items-center mb-1">
+                  <label className="form-label mb-0">Tech Stack</label>
+                  <span className="badge" style={{ background: "#e8f3f5", color: "#2d1f36", fontSize: "8px" }}>0 - 10 PTS</span>
+                </div>
+                <input
+                  value={techStack}
+                  onChange={(e) => handleClampedChange(e.target.value, 10, setTechStack)}
+                  type="number"
+                  max={10}
+                  min={0}
+                  disabled={isLocked}
+                  className="form-control"
+                  placeholder="Score 0 - 10"
+                />
+              </div>
+            </>
+          ) : (
+            /* ===================== REVIEW 1 (9 CRITERIA) ===================== */
+            <>
+              {/* 1. UI / UX (20) */}
+              <div className="col-md-6">
+                <div className="d-flex justify-content-between align-items-center mb-1">
+                  <label className="form-label mb-0">UI / UX</label>
+                  <span className="badge" style={{ background: "#e8f3f5", color: "#2d1f36", fontSize: "8px" }}>0 - 20 PTS</span>
+                </div>
+                <input
+                  value={uiUx}
+                  onChange={(e) => handleClampedChange(e.target.value, 20, setUiUx)}
+                  type="number"
+                  max={20}
+                  min={0}
+                  disabled={isLocked}
+                  className="form-control"
+                  placeholder="Score 0 - 20"
+                />
+              </div>
 
-          {/* 8. Dataset Utilisation */}
-          <div className="col-md-6">
-            <div className="d-flex justify-content-between align-items-center mb-1">
-              <label className="form-label mb-0">Dataset Utilisation</label>
-              <span className="badge" style={{ background: "#e8f3f5", color: "#2d1f36", fontSize: "8px" }}>0 - 10 PTS</span>
-            </div>
-            <input
-              value={datasetUtilisation}
-              onChange={(e) => setDatasetUtilisation(e.target.value)}
-              type="number"
-              max={10}
-              min={0}
-              disabled={isLocked}
-              className="form-control"
-              placeholder="Score 0 - 10"
-            />
-          </div>
+              {/* 2. USP (10) */}
+              <div className="col-md-6">
+                <div className="d-flex justify-content-between align-items-center mb-1">
+                  <label className="form-label mb-0">USP</label>
+                  <span className="badge" style={{ background: "#e8f3f5", color: "#2d1f36", fontSize: "8px" }}>0 - 10 PTS</span>
+                </div>
+                <input
+                  value={usp}
+                  onChange={(e) => handleClampedChange(e.target.value, 10, setUsp)}
+                  type="number"
+                  max={10}
+                  min={0}
+                  disabled={isLocked}
+                  className="form-control"
+                  placeholder="Score 0 - 10"
+                />
+              </div>
 
-          {/* 9. Tech Stack */}
-          <div className="col-md-6">
-            <div className="d-flex justify-content-between align-items-center mb-1">
-              <label className="form-label mb-0">Tech Stack</label>
-              <span className="badge" style={{ background: "#e8f3f5", color: "#2d1f36", fontSize: "8px" }}>0 - 10 PTS</span>
-            </div>
-            <input
-              value={techStack}
-              onChange={(e) => setTechStack(e.target.value)}
-              type="number"
-              max={10}
-              min={0}
-              disabled={isLocked}
-              className="form-control"
-              placeholder="Score 0 - 10"
-            />
-          </div>
+              {/* 3. Scalability / Feasibility (10) */}
+              <div className="col-md-6">
+                <div className="d-flex justify-content-between align-items-center mb-1">
+                  <label className="form-label mb-0">Scalability / Feasibility</label>
+                  <span className="badge" style={{ background: "#e8f3f5", color: "#2d1f36", fontSize: "8px" }}>0 - 10 PTS</span>
+                </div>
+                <input
+                  value={scalabilityFeasibility}
+                  onChange={(e) => handleClampedChange(e.target.value, 10, setScalabilityFeasibility)}
+                  type="number"
+                  max={10}
+                  min={0}
+                  disabled={isLocked}
+                  className="form-control"
+                  placeholder="Score 0 - 10"
+                />
+              </div>
+
+              {/* 4. Implementation (10) */}
+              <div className="col-md-6">
+                <div className="d-flex justify-content-between align-items-center mb-1">
+                  <label className="form-label mb-0">Implementation</label>
+                  <span className="badge" style={{ background: "#e8f3f5", color: "#2d1f36", fontSize: "8px" }}>0 - 10 PTS</span>
+                </div>
+                <input
+                  value={implementation}
+                  onChange={(e) => handleClampedChange(e.target.value, 10, setImplementation)}
+                  type="number"
+                  max={10}
+                  min={0}
+                  disabled={isLocked}
+                  className="form-control"
+                  placeholder="Score 0 - 10"
+                />
+              </div>
+
+              {/* 5. Progress (10) */}
+              <div className="col-md-6">
+                <div className="d-flex justify-content-between align-items-center mb-1">
+                  <label className="form-label mb-0">Progress</label>
+                  <span className="badge" style={{ background: "#e8f3f5", color: "#2d1f36", fontSize: "8px" }}>0 - 10 PTS</span>
+                </div>
+                <input
+                  value={progress}
+                  onChange={(e) => handleClampedChange(e.target.value, 10, setProgress)}
+                  type="number"
+                  max={10}
+                  min={0}
+                  disabled={isLocked}
+                  className="form-control"
+                  placeholder="Score 0 - 10"
+                />
+              </div>
+
+              {/* 6. Architecture (10) */}
+              <div className="col-md-6">
+                <div className="d-flex justify-content-between align-items-center mb-1">
+                  <label className="form-label mb-0">Architecture</label>
+                  <span className="badge" style={{ background: "#e8f3f5", color: "#2d1f36", fontSize: "8px" }}>0 - 10 PTS</span>
+                </div>
+                <input
+                  value={architecture}
+                  onChange={(e) => handleClampedChange(e.target.value, 10, setArchitecture)}
+                  type="number"
+                  max={10}
+                  min={0}
+                  disabled={isLocked}
+                  className="form-control"
+                  placeholder="Score 0 - 10"
+                />
+              </div>
+
+              {/* 7. Machine Learning (10) */}
+              <div className="col-md-6">
+                <div className="d-flex justify-content-between align-items-center mb-1">
+                  <label className="form-label mb-0">Machine Learning</label>
+                  <span className="badge" style={{ background: "#e8f3f5", color: "#2d1f36", fontSize: "8px" }}>0 - 10 PTS</span>
+                </div>
+                <input
+                  value={machineLearning}
+                  onChange={(e) => handleClampedChange(e.target.value, 10, setMachineLearning)}
+                  type="number"
+                  max={10}
+                  min={0}
+                  disabled={isLocked}
+                  className="form-control"
+                  placeholder="Score 0 - 10"
+                />
+              </div>
+
+              {/* 8. Dataset Utilisation (10) */}
+              <div className="col-md-6">
+                <div className="d-flex justify-content-between align-items-center mb-1">
+                  <label className="form-label mb-0">Dataset Utilisation</label>
+                  <span className="badge" style={{ background: "#e8f3f5", color: "#2d1f36", fontSize: "8px" }}>0 - 10 PTS</span>
+                </div>
+                <input
+                  value={datasetUtilisation}
+                  onChange={(e) => handleClampedChange(e.target.value, 10, setDatasetUtilisation)}
+                  type="number"
+                  max={10}
+                  min={0}
+                  disabled={isLocked}
+                  className="form-control"
+                  placeholder="Score 0 - 10"
+                />
+              </div>
+
+              {/* 9. Tech Stack (10) */}
+              <div className="col-md-6">
+                <div className="d-flex justify-content-between align-items-center mb-1">
+                  <label className="form-label mb-0">Tech Stack</label>
+                  <span className="badge" style={{ background: "#e8f3f5", color: "#2d1f36", fontSize: "8px" }}>0 - 10 PTS</span>
+                </div>
+                <input
+                  value={techStack}
+                  onChange={(e) => handleClampedChange(e.target.value, 10, setTechStack)}
+                  type="number"
+                  max={10}
+                  min={0}
+                  disabled={isLocked}
+                  className="form-control"
+                  placeholder="Score 0 - 10"
+                />
+              </div>
+            </>
+          )}
 
           {/* Submit Button */}
-          <div className="col-md-6 d-flex align-items-end">
+          <div className="col-12 mt-3">
             <button
               type="button"
               onClick={onSubmit}
               disabled={isLocked}
-              className="btn btn-lg-retro btn-primary w-100 fw-bold"
+              className="btn btn-lg-retro btn-primary w-100 fw-bold py-3"
               style={isLocked ? { opacity: 0.6, cursor: "not-allowed" } : undefined}
             >
               {isLocked ? "🔒 LOCKED — READ ONLY" : "💾 SAVE EVALUATION"}

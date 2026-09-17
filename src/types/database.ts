@@ -34,7 +34,9 @@ export interface ReviewScore {
   'USP (10)'?: string;
   'Scalability/Feasibility (10)'?: string;
   'Implementation (10)'?: string;
+  'Implementation (20)'?: string;
   'Progress (10)'?: string;
+  'Progress (20)'?: string;
   'Architecture (10)'?: string;
   'Machine Learning (10)'?: string;
   'Dataset Utilisation (10)'?: string;

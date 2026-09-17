@@ -513,11 +513,12 @@ const selectedReviewSubmission =
           existing = existingReviews.find((r) => matchesTeam(r) && !(r.Review_Round || '').trim());
         }
 
+        const isR2 = scoreReviewRound === 'Review 2';
         setScoreUiUx(existing?.['UI/UX (20)'] || existing?.['Design (20)'] || '');
-        setScoreUsp(existing?.['USP (10)'] || existing?.['USP (20)'] || '');
-        setScoreScalabilityFeasibility(existing?.['Scalability/Feasibility (10)'] || existing?.['Scalability (10)'] || '');
-        setScoreImplementation(existing?.['Implementation (10)'] || '');
-        setScoreProgress(existing?.['Progress (10)'] || '');
+        setScoreUsp(isR2 ? '' : (existing?.['USP (10)'] || existing?.['USP (20)'] || ''));
+        setScoreScalabilityFeasibility(isR2 ? '' : (existing?.['Scalability/Feasibility (10)'] || existing?.['Scalability (10)'] || ''));
+        setScoreImplementation(existing?.['Implementation (20)'] || existing?.['Implementation (10)'] || '');
+        setScoreProgress(existing?.['Progress (20)'] || existing?.['Progress (10)'] || '');
         setScoreArchitecture(existing?.['Architecture (10)'] || '');
         setScoreMachineLearning(existing?.['Machine Learning (10)'] || '');
         setScoreDatasetUtilisation(existing?.['Dataset Utilisation (10)'] || '');
@@ -549,6 +550,7 @@ const selectedReviewSubmission =
       return;
     }
 
+    const isR2 = scoreReviewRound === 'Review 2';
     const uiUx = Number(scoreUiUx || 0);
     const usp = Number(scoreUsp || 0);
     const scalabilityFeasibility = Number(scoreScalabilityFeasibility || 0);
@@ -563,22 +565,35 @@ const selectedReviewSubmission =
       alert('UI/UX score must be between 0 and 20.');
       return;
     }
-    if (!Number.isFinite(usp) || usp < 0 || usp > 10) {
-      alert('USP score must be between 0 and 10.');
-      return;
+
+    if (isR2) {
+      if (!Number.isFinite(implementation) || implementation < 0 || implementation > 20) {
+        alert('Implementation score must be between 0 and 20.');
+        return;
+      }
+      if (!Number.isFinite(progress) || progress < 0 || progress > 20) {
+        alert('Progress score must be between 0 and 20.');
+        return;
+      }
+    } else {
+      if (!Number.isFinite(usp) || usp < 0 || usp > 10) {
+        alert('USP score must be between 0 and 10.');
+        return;
+      }
+      if (!Number.isFinite(scalabilityFeasibility) || scalabilityFeasibility < 0 || scalabilityFeasibility > 10) {
+        alert('Scalability/Feasibility score must be between 0 and 10.');
+        return;
+      }
+      if (!Number.isFinite(implementation) || implementation < 0 || implementation > 10) {
+        alert('Implementation score must be between 0 and 10.');
+        return;
+      }
+      if (!Number.isFinite(progress) || progress < 0 || progress > 10) {
+        alert('Progress score must be between 0 and 10.');
+        return;
+      }
     }
-    if (!Number.isFinite(scalabilityFeasibility) || scalabilityFeasibility < 0 || scalabilityFeasibility > 10) {
-      alert('Scalability/Feasibility score must be between 0 and 10.');
-      return;
-    }
-    if (!Number.isFinite(implementation) || implementation < 0 || implementation > 10) {
-      alert('Implementation score must be between 0 and 10.');
-      return;
-    }
-    if (!Number.isFinite(progress) || progress < 0 || progress > 10) {
-      alert('Progress score must be between 0 and 10.');
-      return;
-    }
+
     if (!Number.isFinite(architecture) || architecture < 0 || architecture > 10) {
       alert('Architecture score must be between 0 and 10.');
       return;
@@ -596,16 +611,9 @@ const selectedReviewSubmission =
       return;
     }
 
-    const total =
-      uiUx +
-      usp +
-      scalabilityFeasibility +
-      implementation +
-      progress +
-      architecture +
-      machineLearning +
-      datasetUtilisation +
-      techStack;
+    const total = isR2
+      ? uiUx + implementation + progress + architecture + machineLearning + datasetUtilisation + techStack
+      : uiUx + usp + scalabilityFeasibility + implementation + progress + architecture + machineLearning + datasetUtilisation + techStack;
 
     try {
       await addReview({
@@ -614,10 +622,12 @@ const selectedReviewSubmission =
         Admin_Name: adminUsername,
         Review_Round: scoreReviewRound,
         'UI/UX (20)': String(uiUx),
-        'USP (10)': String(usp),
-        'Scalability/Feasibility (10)': String(scalabilityFeasibility),
-        'Implementation (10)': String(implementation),
-        'Progress (10)': String(progress),
+        'USP (10)': isR2 ? '' : String(usp),
+        'Scalability/Feasibility (10)': isR2 ? '' : String(scalabilityFeasibility),
+        'Implementation (10)': isR2 ? '' : String(implementation),
+        'Implementation (20)': isR2 ? String(implementation) : '',
+        'Progress (10)': isR2 ? '' : String(progress),
+        'Progress (20)': isR2 ? String(progress) : '',
         'Architecture (10)': String(architecture),
         'Machine Learning (10)': String(machineLearning),
         'Dataset Utilisation (10)': String(datasetUtilisation),
