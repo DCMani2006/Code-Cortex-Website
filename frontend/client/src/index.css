@@ -3521,7 +3521,7 @@ h3 em {
   background: var(--cyan);
   border: 0;
   border-radius: 999px;
-  color: var(--navy);
+  color: var(--foreground);
   cursor: pointer;
   display: inline-flex;
   font-family: var(--mono);

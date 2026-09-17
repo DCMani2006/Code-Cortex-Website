@@ -200,7 +200,7 @@ function Mark({ compact = false }: { compact?: boolean }) {
     >
       <div className="brand-logo-frame">
         <span className="brand-sparkle-star">✦</span>
-        <img src={tamWhiteLogo} alt="TAM" className="brand__tam-logo" />
+        <img src={tamWhiteLogo} alt="TAM" className="brand__tam-logo" width={135} height={135} />
       </div>
       <span className="brand__copy">
         <span className="brand__top">TAM-VIT</span>
@@ -341,6 +341,7 @@ function TransitionRibbons() {
   return (
     <div
       className="transition-ribbons"
+      role="img"
       aria-label="TAM The AI & ML Club and Code Cortex"
     >
       <div className="transition-ribbon transition-ribbon--upper">
@@ -402,7 +403,7 @@ function StackShowcase() {
       />
       <div className="stack-showcase__core">
         <div className="stack-showcase__logo-shell">
-          <img src={codeCortexLogo} alt="Code cortex 3.0" />
+          <img src={codeCortexLogo} alt="Code cortex 3.0" width={2100} height={860} />
         </div>
         <span>CODE CORTEX 3.0 / 2026</span>
       </div>
@@ -469,7 +470,7 @@ function HeadingIcon({
   label: string;
 }) {
   return (
-    <span className="heading-with-icon__icon" aria-label={label}>
+    <span className="heading-with-icon__icon" role="img" aria-label={label}>
       <Icon size={32} strokeWidth={1.5} aria-hidden="true" />
     </span>
   );
@@ -1458,7 +1459,7 @@ export default function Home() {
             className={`pixel-cassette ${musicPlaying ? "pixel-cassette--playing" : ""}`}
             onClick={toggleMusic}
             aria-pressed={musicPlaying}
-            aria-label={musicPlaying ? "Pause cassette audio" : "Play cassette audio"}
+            aria-label={`SIDE A · BGM — ${musicPlaying ? "pause" : "play"} background music`}
           >
             <div className="cassette-body">
               <div className="cassette-label-strip">
@@ -1605,6 +1606,8 @@ export default function Home() {
                   className="hero__logo"
                   src={codeCortexLogo}
                   alt="Code cortex 3.0"
+                  width={2100}
+                  height={860}
                 />
               </div>
 
@@ -2210,7 +2213,7 @@ export default function Home() {
                   {searchQuery.data.map((track) => (
                     <li key={track.id}>
                       {track.albumArt ? (
-                        <img src={track.albumArt} alt="" />
+                        <img src={track.albumArt} alt="" width={64} height={64} />
                       ) : (
                         <span className="nominate-results__art-placeholder" />
                       )}
@@ -2314,6 +2317,8 @@ export default function Home() {
                 className="sponsor-card__logo"
                 src={polyfabLogo}
                 alt="POLYFAB"
+                width={1870}
+                height={249}
               />
               <span className="sponsor-card__arrow">
                 <ArrowUpRight />
@@ -2426,7 +2431,7 @@ export default function Home() {
         <div className="footer__bottom">
           <div className="footer__brand-lockup">
             <Mark compact />
-            <img src={codeCortexLogo} alt="Code cortex 3.0" />
+            <img src={codeCortexLogo} alt="Code cortex 3.0" width={2100} height={860} />
           </div>
           <div className="footer__socials">
             <a
