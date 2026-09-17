@@ -2029,19 +2029,6 @@ const googleSignup = useGoogleLogin({
                                 </div>
                               </div>
 
-                              <div className="rpg-stat-card p-3 mb-3">
-                                <div className="fw-bold mb-1 text-uppercase" style={{ fontSize: "11px", color: "var(--retro-teal-dark)", fontFamily: "var(--font-heading)" }}>
-                                  👥 How your teammates join
-                                </div>
-                                <div style={{ fontSize: "12px", color: "#443452", lineHeight: 1.6 }}>
-                                  You don't add their details here. Once the team
-                                  is registered you'll get a <strong>Team ID</strong>;
-                                  share that and the team password with your
-                                  teammates and each of them joins from their own
-                                  login using <strong>Join a Team</strong>.
-                                </div>
-                              </div>
-
                               <div className="d-flex flex-column flex-md-row justify-content-between align-items-center mt-4 gap-3 pt-3 border-top" style={{ borderColor: "#e0b3c8 !important" }}>
                                 <button
                                   type="button"
