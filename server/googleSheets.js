@@ -674,6 +674,7 @@ export async function getSubmissions() {
       const projectDescription = getRowValue(row, ['Project_Description', 'Project Description', 'Project Description ']);
       const githubLink = getRowValue(row, ['GitHub Link', 'GitHub', 'GitHub Link ']);
       const figmaLink = getRowValue(row, ['Figma Link', 'Figma', 'Figma Link ']);
+      const datasetLink = getRowValue(row, ['Public Dataset Link', 'Dataset Link', 'Dataset', 'Public_Dataset_Link']);
       const submissionTime = getRowValue(row, ['Submission Time', 'Submission Time ', 'Submitted At', 'Submission_Time']);
 
       return {
@@ -682,6 +683,8 @@ export async function getSubmissions() {
         Project_Description: projectDescription,
         'GitHub Link': githubLink,
         'Figma Link': figmaLink,
+        'Dataset Link': datasetLink,
+        'Public Dataset Link': datasetLink,
         'Submission Time': submissionTime,
       };
     });
@@ -706,20 +709,53 @@ export async function addSubmission(data) {
   }
 
   const sheet = document.sheetsByTitle['Submissions'];
+  if (!sheet) throw new Error('Submissions sheet not found');
   await sheet.loadHeaderRow();
   const headers = sheet.headerValues || [];
   const teamNameHeader = headers.find(h => ['Team_Name', 'Team_ Name', 'Team Name'].includes(String(h).trim())) || 'Team_Name';
+
+  // Ensure dataset column header exists if missing
+  const headerSet = new Set(headers.map(h => String(h).trim()));
+  const newHeaders = [...headers];
+  if (!headerSet.has('Public Dataset Link') && !headerSet.has('Dataset Link')) {
+    newHeaders.push('Public Dataset Link');
+  }
+  if (newHeaders.length > headers.length) {
+    try {
+      await sheet.setHeaderRow(newHeaders);
+    } catch (e) {
+      console.error('Error adding header to Submissions sheet:', e);
+    }
+  }
+
+  const datasetLink = data['Public Dataset Link'] || data['Dataset Link'] || '';
 
   const rowData = {
     Team_ID: data.Team_ID,
     [teamNameHeader]: actualTeamName,
     Project_Description: data.Project_Description,
-    'GitHub Link': data['GitHub Link'],
-    'Figma Link': data['Figma Link'],
-    'Submission Time': data['Submission Time']
+    'GitHub Link': data['GitHub Link'] || '',
+    'Figma Link': data['Figma Link'] || '',
+    'Public Dataset Link': datasetLink,
+    'Dataset Link': datasetLink,
+    'Submission Time': data['Submission Time'] || new Date().toLocaleString()
   };
 
-  await sheet.addRow(rowData);
+  const rows = await sheet.getRows();
+  const existingRow = rows.find(r => {
+    const tid = getRowValue(r, ['Team_ID', 'Team ID', 'TeamId', 'teamId']);
+    return normaliseTeamId(tid) === normaliseTeamId(data.Team_ID);
+  });
+
+  if (existingRow) {
+    existingRow.assign(rowData);
+    await existingRow.save();
+    console.log(`Updated submission in place for team ${data.Team_ID}`);
+  } else {
+    await sheet.addRow(rowData);
+    console.log(`Added new submission for team ${data.Team_ID}`);
+  }
+
   invalidateCache('submissions');
 }
 

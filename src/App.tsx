@@ -241,7 +241,9 @@ export default function App() {
   const [subReviewRound, setSubReviewRound] = useState("Review 1");
   const [subGithub, setSubGithub] = useState("");
   const [subFigma, setSubFigma] = useState("");
+  const [subDataset, setSubDataset] = useState("");
   const [subDesc, setSubDesc] = useState("");
+  const [hasExistingSubmission, setHasExistingSubmission] = useState(false);
 
   const [projectSubmitted, setProjectSubmitted] =
     useState(false);
@@ -369,6 +371,31 @@ export default function App() {
         if (current) setTeamDetails(current);
       })
       .catch((e) => console.error("Failed to load team details:", e));
+
+    getSubmissions(teamIdInput.trim())
+      .then((subs) => {
+        if (!active || !Array.isArray(subs) || subs.length === 0) return;
+        const teamSubs = subs.filter(
+          (s) => String(s.Team_ID).trim().toUpperCase() === String(teamIdInput).trim().toUpperCase()
+        );
+        if (teamSubs.length > 0) {
+          const latest = teamSubs[teamSubs.length - 1];
+          if (latest['GitHub Link']) setSubGithub(latest['GitHub Link']);
+          if (latest['Figma Link']) setSubFigma(latest['Figma Link']);
+          const dataset = latest['Dataset Link'] || latest['Public Dataset Link'] || '';
+          if (dataset) setSubDataset(dataset);
+          const desc = latest.Project_Description || '';
+          const match = desc.match(/^\[(Review\s*[12])\]\s*([\s\S]*)$/i);
+          if (match) {
+            setSubReviewRound(match[1]);
+            setSubDesc(match[2]);
+          } else if (desc) {
+            setSubDesc(desc);
+          }
+          setHasExistingSubmission(true);
+        }
+      })
+      .catch((e) => console.error("Failed to load team submissions:", e));
 
     // The team's own password, so members can pass it on without asking us.
     // Only resolves for someone actually on this team.
@@ -975,8 +1002,10 @@ const googleSignup = useGoogleLogin({
       return;
     }
 
-    if (!subDesc.trim()) {
-      showToast("Please enter a project description.", "danger");
+    const isOpenInnovation = String(teamDetails?.Track || "").trim().toLowerCase().includes("open innovation");
+
+    if (isOpenInnovation && !subDataset.trim()) {
+      showToast("Please provide the Public Dataset link for Open Innovation track.", "danger");
       return;
     }
 
@@ -988,11 +1017,14 @@ const googleSignup = useGoogleLogin({
         Project_Description: `[${subReviewRound}] ${subDesc.trim()}`,
         "GitHub Link": subGithub.trim(),
         "Figma Link": subFigma.trim(),
+        "Dataset Link": subDataset.trim(),
+        "Public Dataset Link": subDataset.trim(),
         "Submission Time": new Date().toLocaleString()
       });
 
+      setHasExistingSubmission(true);
       setProjectSubmitted(true);
-      showToast("Project details submitted successfully!", "success");
+      showToast(hasExistingSubmission ? "Submission updated successfully!" : "Project details submitted successfully!", "success");
 
     } catch (error) {
       console.error(error);
@@ -1757,6 +1789,22 @@ const googleSignup = useGoogleLogin({
                                       />
                                     </div>
 
+                                    {/* Public Dataset Link (Open Innovation Track Only) */}
+                                    {String(teamDetails?.Track || "").trim().toLowerCase().includes("open innovation") && (
+                                      <div className="mb-3">
+                                        <label className="form-label">
+                                          PUBLIC DATASET LINK (OPEN INNOVATION)
+                                        </label>
+                                        <input
+                                          type="url"
+                                          className="form-control mb-0"
+                                          placeholder="https://kaggle.com/... or https://huggingface.co/datasets/..."
+                                          value={subDataset}
+                                          onChange={(e) => setSubDataset(e.target.value)}
+                                        />
+                                      </div>
+                                    )}
+
                                     {/* Description */}
                                     <div className="mb-4">
                                       <label className="form-label">
@@ -1777,7 +1825,7 @@ const googleSignup = useGoogleLogin({
                                       style={{ fontSize: "11px", padding: "14px 20px" }}
                                       onClick={handleProjectSubmit}
                                     >
-                                      ⚔️ SUBMIT TO JUDGES
+                                      {hasExistingSubmission ? "⚔️ UPDATE SUBMISSION" : "⚔️ SUBMIT TO JUDGES"}
                                     </button>
                                   </>
                                 )}

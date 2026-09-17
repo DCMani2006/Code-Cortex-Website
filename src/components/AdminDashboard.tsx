@@ -4,6 +4,8 @@ type Submission = {
   Project_Description?: string;
   'GitHub Link'?: string;
   'Figma Link'?: string;
+  'Dataset Link'?: string;
+  'Public Dataset Link'?: string;
   'Submission Time'?: string;
 };
 
@@ -207,6 +209,17 @@ export const AdminDashboard = ({
                   style={{ fontSize: "10px", padding: "8px 14px" }}
                 >
                   🎨 VIEW FIGMA BOARD ↗
+                </a>
+              )}
+              {(submission['Dataset Link'] || submission['Public Dataset Link']) && (
+                <a
+                  href={submission['Dataset Link'] || submission['Public Dataset Link']}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="btn btn-outline-warning btn-sm"
+                  style={{ fontSize: "10px", padding: "8px 14px" }}
+                >
+                  📊 PUBLIC DATASET LINK ↗
                 </a>
               )}
             </div>

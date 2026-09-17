@@ -391,6 +391,12 @@ const mapSubmission = (submission: RawSubmission): Submission => ({
   'Figma Link': String(
     submission?.['Figma Link'] ?? ''
   ),
+  'Dataset Link': String(
+    submission?.['Dataset Link'] ?? submission?.['Public Dataset Link'] ?? ''
+  ),
+  'Public Dataset Link': String(
+    submission?.['Public Dataset Link'] ?? submission?.['Dataset Link'] ?? ''
+  ),
   'Submission Time': String(
     submission?.['Submission Time'] ?? ''
   )
@@ -429,6 +435,8 @@ export const addSubmission = async (
       Project_Description: submission.Project_Description,
       'GitHub Link': submission['GitHub Link'],
       'Figma Link': submission['Figma Link'],
+      'Dataset Link': submission['Dataset Link'] || submission['Public Dataset Link'] || '',
+      'Public Dataset Link': submission['Public Dataset Link'] || submission['Dataset Link'] || '',
       'Submission Time': submission['Submission Time']
     })
   });

@@ -23,6 +23,8 @@ export interface Submission {
   Project_Description: string;
   'GitHub Link': string;
   'Figma Link': string;
+  'Dataset Link'?: string;
+  'Public Dataset Link'?: string;
   'Submission Time': string;
 }
 
