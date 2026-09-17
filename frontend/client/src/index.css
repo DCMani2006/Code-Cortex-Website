@@ -2170,14 +2170,12 @@ h3 em {
   margin: 0;
 }
 .about .heading-with-icon,
-.tracks .heading-with-icon,
 .sponsors .heading-with-icon {
   container-type: inline-size;
 }
 .about h2 {
   font-size: min(84px, calc((100cqi - 90px) / 5));
 }
-.tracks h2,
 .sponsors h2 {
   font-size: min(84px, calc((100cqi - 90px) / 8));
 }
@@ -6588,11 +6586,13 @@ body, p, span, div, li, input, textarea, select {
 /* CHAPTER 05: DUNGEON SELECTOR (TRACKS) */
 .tracks {
   background: #faf6ee !important;
+  padding-top: clamp(28px, 3vw, 40px) !important;
+  padding-bottom: clamp(28px, 3vw, 40px) !important;
 }
 .tracks__title-row {
   display: flex !important;
-  margin-top: 40px !important;
-  margin-bottom: 32px !important;
+  margin-top: 16px !important;
+  margin-bottom: 16px !important;
 }
 .tracks__title-row h2,
 .tracks h2 {
@@ -6614,7 +6614,7 @@ body, p, span, div, li, input, textarea, select {
   gap: clamp(24px, 3.5vw, 40px) !important;
   align-items: start !important;
   min-height: auto !important;
-  padding: 20px 0 40px !important;
+  padding: 12px 0 20px !important;
 }
 
 @media (max-width: 960px) {
@@ -6637,7 +6637,7 @@ body, p, span, div, li, input, textarea, select {
 .tracks__nav-panel-header {
   background: #2d1f36;
   color: #ffffff;
-  padding: 12px 18px;
+  padding: 8px 18px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -6662,8 +6662,8 @@ body, p, span, div, li, input, textarea, select {
 .tracks__nav-list {
   display: flex;
   flex-direction: column;
-  padding: 14px;
-  gap: 10px;
+  padding: 10px;
+  gap: 6px;
   background: #faf6ee;
 }
 
@@ -6671,7 +6671,7 @@ body, p, span, div, li, input, textarea, select {
   display: flex;
   align-items: center;
   gap: 14px;
-  padding: 12px 14px;
+  padding: 8px 14px;
   background: #ffffff;
   border: 2.5px solid #2d1f36;
   border-radius: 8px;
@@ -6697,8 +6697,8 @@ body, p, span, div, li, input, textarea, select {
 }
 
 .track-nav-btn__avatar {
-  width: 52px;
-  height: 52px;
+  width: 44px;
+  height: 44px;
   background: #fbf5ee;
   border: 2px solid #2d1f36;
   border-radius: 8px;
@@ -6722,8 +6722,8 @@ body, p, span, div, li, input, textarea, select {
 }
 
 .track-nav-btn__cat-img {
-  width: 44px;
-  height: 44px;
+  width: 36px;
+  height: 36px;
   object-fit: contain;
   image-rendering: pixelated;
   image-rendering: -moz-crisp-edges;
@@ -7545,6 +7545,8 @@ body, p, span, div, li, input, textarea, select {
 }
 .faq-item__answer p {
   line-height: 1.75 !important;
+}
+.faq-item--open .faq-item__answer p {
   padding: 16px 20px 12px 48px !important;
 }
 .faq__tabs {
