@@ -2179,11 +2179,11 @@ export default function Home() {
 
             <div className="roadmap__viewport">
               <img
-                src="/roadmap_night_scene.png"
+                src="/roadmap.svg"
                 alt="Code Cortex Hackathon Roadmap — 13 Checkpoints Overworld Map"
                 className="roadmap__pixel-map"
-                width={1024}
-                height={512}
+                width={1774}
+                height={887}
                 loading="lazy"
               />
             </div>
