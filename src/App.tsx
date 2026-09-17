@@ -1480,9 +1480,6 @@ const googleSignup = useGoogleLogin({
                             {/* Top Header Row with Chapter Badge, Title & Status Pills */}
                             <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-3 gap-3 border-bottom border-dark border-2">
                               <div>
-                                <span className="chapter-badge mb-2">
-                                  🛡️ CHAPTER 04 // GUILD HEADQUARTERS
-                                </span>
                                 <h2 className="glow-text fw-bold mb-1" style={{ fontSize: "clamp(20px, 2.3vw, 26px)" }}>
                                   TEAM DASHBOARD
                                 </h2>
