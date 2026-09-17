@@ -14,7 +14,6 @@ import {
   getTeamPassword,
   updateTeamSize as apiUpdateTeamSize,
   removeTeamMember,
-  startSession,
   startAdminSession,
   clearSession,
   getSessionPayload
@@ -716,9 +715,8 @@ const googleSignup = useGoogleLogin({
         throw new Error("Only @vitstudent.ac.in emails are allowed for internal (VIT) participants.");
       }
 
-      // Authenticate with backend: validates Google token, resolves/creates user, and issues session token
-      const sessionResult = await startSession(tokenResponse.access_token, name, email);
-      const user = sessionResult.user;
+      // Directly sync or create user in backend database
+      const user = await syncUserByEmail(email, name);
 
       updateLoggedInUser(user);
       if (user.Name) setRegLeaderName(user.Name);

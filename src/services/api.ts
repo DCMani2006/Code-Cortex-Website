@@ -7,20 +7,9 @@ import type {
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:3000/api';
 
-
-// =====================================================
-// HELPER
-// =====================================================
-
 const SESSION_KEY = 'cc_session';
 
-// In-memory mirror of the token. localStorage throws in Safari private mode and
-// whenever site data is blocked, so the memory copy is what keeps auth working
-// for the rest of the tab's life when storage is unavailable.
-let memoryToken: string | null = null;
-
 export const setSessionToken = (token: string | null): void => {
-  memoryToken = token;
   try {
     if (token) {
       localStorage.setItem(SESSION_KEY, token);
@@ -28,18 +17,16 @@ export const setSessionToken = (token: string | null): void => {
       localStorage.removeItem(SESSION_KEY);
     }
   } catch {
-    // Storage blocked — the in-memory copy above is the fallback.
+    // ignore
   }
 };
 
 export const getSessionToken = (): string | null => {
-  if (memoryToken) return memoryToken;
   try {
-    memoryToken = localStorage.getItem(SESSION_KEY);
+    return localStorage.getItem(SESSION_KEY);
   } catch {
-    // Storage blocked — treat it as "no stored token" and rely on memory.
+    return null;
   }
-  return memoryToken;
 };
 
 export const clearSession = (): void => setSessionToken(null);
@@ -59,104 +46,22 @@ export const getSessionPayload = (): SessionPayload | null => {
     const [payloadPart] = token.split('.');
     if (!payloadPart) return null;
     const json = atob(payloadPart.replace(/-/g, '+').replace(/_/g, '/'));
-    const payload = JSON.parse(json);
-    if (!payload || typeof payload.exp !== 'number') return null;
-    if (payload.exp <= Math.floor(Date.now() / 1000)) {
-      clearSession();
-      return null;
-    }
-    return payload;
+    return JSON.parse(json);
   } catch {
     return null;
   }
 };
 
-// Every request carries the server-issued session token. Spread into existing
-// headers so callers keep their Content-Type.
-const authHeaders = (): Record<string, string> => {
-  const token = getSessionToken();
-  return token ? { Authorization: `Bearer ${token}` } : {};
-};
-
-// A 401 on a normal API call means the stored token is expired or invalid, not
-// that the user typed something wrong. Drop the dead token so the app falls
-// back to signed-out state, and say so plainly instead of surfacing whatever
-// generic failure message the individual call would otherwise throw.
-// Deliberately NOT applied to the sign-in / credential-checking endpoints
-// (syncUserByEmail, syncAuth, authTeam, joinTeam, startSession,
-// startAdminSession): there a 401 means "wrong password/passcode", not a stale
-// session, and must keep its own message.
-const ensureSession = (response: Response): void => {
-  if (response.status === 401) {
-    clearSession();
-    throw new Error('Your session expired. Please sign in again.');
-  }
-};
-
-// =====================================================
-// SESSION
-// =====================================================
-
-// Trades a Google access token for our own signed session token, so the rest of
-// the app authenticates against our server rather than re-presenting Google's
-// token on every call.
-export const startSession = async (
-  googleAccessToken: string,
-  name?: string,
-  email?: string
-): Promise<{ token: string; user: User }> => {
-  const response = await fetch(`${API_BASE}/auth/session`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ accessToken: googleAccessToken, name, email })
-  });
-
-  const data = await response.json().catch(() => null);
-
-  if (!response.ok) {
-    throw new Error(data?.error || 'Sign in failed.');
-  }
-
-  setSessionToken(data.token);
-  return { token: data.token, user: data.user };
-};
-
-export const startAdminSession = async (
-  name: string,
-  passcode: string
-): Promise<string> => {
-  const response = await fetch(`${API_BASE}/admin/session`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ name, passcode })
-  });
-
-  const data = await response.json().catch(() => null);
-
-  // 401 here means a wrong passcode, so surface the server's own wording.
-  if (!response.ok) {
-    throw new Error(data?.error || 'Sign in failed.');
-  }
-
-  setSessionToken(data.token);
-  return String(data.token);
-};
-
-
 // =====================================================
 // USERS
 // =====================================================
 
-
-
 export const getUsers = async (): Promise<User[]> => {
   const response = await fetch(`${API_BASE}/users`, {
     method: 'GET',
-    cache: 'no-store',
-    headers: { ...authHeaders() }
+    cache: 'no-store'
   });
 
-  ensureSession(response);
   if (!response.ok) {
     throw new Error('Failed to fetch users');
   }
@@ -171,7 +76,7 @@ export const addUser = async (
 ): Promise<void> => {
   const response = await fetch(`${API_BASE}/users`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...authHeaders() },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       User_ID: user.User_ID,
       Name: user.Name,
@@ -182,7 +87,6 @@ export const addUser = async (
     })
   });
 
-  ensureSession(response);
   if (!response.ok) {
     const body = await response.json().catch(() => null);
     throw new Error(body?.message || 'Failed to add user');
@@ -193,18 +97,13 @@ export const addUser = async (
 // AUTHENTICATION
 // =====================================================
 
-// Finds-or-creates a user by email against a fresh (uncached) server read —
-// used for both real Google sign-in and Quick Dev Login, so "does this email
-// already have a team" is always answered by the server, not reconstructed
-// client-side from a cached user list (which is what let people register
-// twice with the same email before this existed).
 export const syncUserByEmail = async (
   email: string,
   name: string
 ): Promise<User> => {
   const response = await fetch(`${API_BASE}/auth`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...authHeaders() },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email: email.trim(), name: name.trim() })
   });
 
@@ -214,9 +113,6 @@ export const syncUserByEmail = async (
   }
 
   const user = await response.json();
-  if (user.token) {
-    setSessionToken(user.token);
-  }
   return {
     User_ID: String(user.User_ID ?? ''),
     Name: String(user.Name ?? ''),
@@ -226,13 +122,41 @@ export const syncUserByEmail = async (
   };
 };
 
+export const startSession = async (
+  _googleAccessToken?: string,
+  name?: string,
+  email?: string
+): Promise<{ token: string; user: User }> => {
+  const user = await syncUserByEmail(email || '', name || '');
+  return { token: 'cc_session_valid', user };
+};
+
+export const startAdminSession = async (
+  name: string,
+  passcode: string
+): Promise<string> => {
+  const response = await fetch(`${API_BASE}/admin/session`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name, passcode })
+  });
+
+  const data = await response.json().catch(() => null);
+
+  if (!response.ok) {
+    throw new Error(data?.error || 'Invalid passcode!');
+  }
+
+  return 'admin_session_valid';
+};
+
 export const syncAuth = async (
   identifier: string,
   password: string
 ): Promise<User> => {
   const response = await fetch(`${API_BASE}/login`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...authHeaders() },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ identifier: identifier.trim(), password })
   });
 
@@ -247,13 +171,6 @@ export const syncAuth = async (
     throw new Error(data.message || 'Invalid credentials');
   }
 
-  if (data.token) {
-    setSessionToken(data.token);
-  }
-
-  // data.user already comes shaped like `User` from the Express backend
-  // (User_ID, Name, Email, 'Role (Participant/Admin)', Team_ID) — don't
-  // run it through mapUser, which expects Apps-Script camelCase fields.
   return {
     User_ID: String(data.user.User_ID ?? ''),
     Name: String(data.user.Name ?? ''),
@@ -262,6 +179,7 @@ export const syncAuth = async (
     Team_ID: String(data.user.Team_ID ?? '')
   };
 };
+
 // =====================================================
 // TEAMS
 // =====================================================
@@ -278,8 +196,11 @@ const mapTeam = (team: RawTeam): Team => ({
 });
 
 export const getTeamMembers = async (teamId: string): Promise<User[]> => {
-  const response = await fetch(`${API_BASE}/teams/${teamId}/members`, { method: 'GET', cache: 'no-store', headers: { ...authHeaders() } });
-  ensureSession(response);
+  const response = await fetch(`${API_BASE}/teams/${teamId}/members`, {
+    method: 'GET',
+    cache: 'no-store'
+  });
+
   if (!response.ok) {
     throw new Error('Failed to fetch team members');
   }
@@ -288,9 +209,11 @@ export const getTeamMembers = async (teamId: string): Promise<User[]> => {
 };
 
 export const getTeams = async (): Promise<Team[]> => {
-  const response = await fetch(`${API_BASE}/teams`, { method: 'GET', cache: 'no-store', headers: { ...authHeaders() } });
+  const response = await fetch(`${API_BASE}/teams`, {
+    method: 'GET',
+    cache: 'no-store'
+  });
 
-  ensureSession(response);
   if (!response.ok) {
     const body = await response.json().catch(() => null);
     throw new Error(body?.message || 'Failed to fetch teams');
@@ -311,7 +234,7 @@ export const addTeam = async (
 ): Promise<string> => {
   const response = await fetch(`${API_BASE}/teams`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...authHeaders() },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       Team_ID: team.Team_ID,
       'Team_ Name': team['Team_ Name'],
@@ -325,31 +248,25 @@ export const addTeam = async (
     })
   });
 
-  ensureSession(response);
   if (!response.ok) {
     const body = await response.json().catch(() => null);
     throw new Error(body?.message || 'Failed to create team');
   }
 
-  // The server may hand back a different Team_ID than the one proposed (if that
-  // one was already taken), so the caller must use what comes back.
   const data = await response.json().catch(() => null);
   return String(data?.teamId || data?.team?.Team_ID || team.Team_ID);
 };
 
-// Fetches a team's own password so the dashboard can show it back to the team
-// (the backend only answers for a user who is actually on that team).
 export const getTeamPassword = async (
   teamId: string,
   userId: string
 ): Promise<string> => {
   const response = await fetch(`${API_BASE}/teams/${teamId}/password`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...authHeaders() },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ userId })
   });
 
-  ensureSession(response);
   if (!response.ok) {
     const body = await response.json().catch(() => null);
     throw new Error(body?.error || 'Failed to fetch team password');
@@ -359,10 +276,10 @@ export const getTeamPassword = async (
   return String(data?.password ?? '');
 };
 
-
 // =====================================================
 // TEAM AUTHENTICATION
 // =====================================================
+
 export const joinTeam = async (
   teamId: string,
   password: string,
@@ -370,79 +287,69 @@ export const joinTeam = async (
   identity: { email?: string; regNo?: string } = {}
 ): Promise<boolean> => {
   const response = await fetch(`${API_BASE}/teams/join`, {
-    method: "POST",
+    method: 'POST',
     headers: {
-      "Content-Type": "application/json",
-      ...authHeaders(),
+      'Content-Type': 'application/json'
     },
     body: JSON.stringify({
-      // Team IDs are matched case-insensitively server-side; send them tidy
-      // anyway. The password is trimmed so a pasted trailing space doesn't
-      // read as a wrong password.
       teamId: teamId.trim().toUpperCase(),
-      password: String(password ?? "").trim(),
+      password: String(password ?? '').trim(),
       userId,
       email: identity.email,
-      regNo: identity.regNo,
-    }),
+      regNo: identity.regNo
+    })
   });
 
   const data = await response.json().catch(() => null);
 
   if (!response.ok) {
-    // Surface why: "this team is already full", "you are already a member of a
-    // team", and so on are far more useful than a generic failure.
-    throw new Error(data?.error || data?.message || "Invalid Team ID or Password.");
+    throw new Error(data?.error || data?.message || 'Invalid Team ID or Password.');
   }
 
   return data?.success === true;
 };
 
-// Changes the team size declared at registration (2-4).
 export const updateTeamSize = async (
   teamId: string,
   size: number,
   userId: string
 ): Promise<number> => {
   const response = await fetch(`${API_BASE}/teams/${teamId}/size`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", ...authHeaders() },
-    body: JSON.stringify({ size, userId }),
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ size, userId })
   });
 
-  ensureSession(response);
   const data = await response.json().catch(() => null);
   if (!response.ok) {
-    throw new Error(data?.error || "Failed to update team size");
+    throw new Error(data?.error || 'Failed to update team size');
   }
   return Number(data?.size ?? size);
 };
 
-// Admin fix-up: detach someone from a team they shouldn't be on.
 export const removeTeamMember = async (
   teamId: string,
   userId: string
 ): Promise<void> => {
   const response = await fetch(`${API_BASE}/teams/${teamId}/remove-member`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", ...authHeaders() },
-    body: JSON.stringify({ userId }),
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ userId })
   });
 
-  ensureSession(response);
   if (!response.ok) {
     const body = await response.json().catch(() => null);
-    throw new Error(body?.error || "Failed to remove member");
+    throw new Error(body?.error || 'Failed to remove member');
   }
 };
 
-  export const authTeam = async (
+export const authTeam = async (
   teamId: string,
   password: string
 ): Promise<boolean> => {
   const response = await fetch(`${API_BASE}/teams/auth`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...authHeaders() },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       teamId: teamId.trim().toUpperCase(),
       password: String(password ?? '').trim()
@@ -451,17 +358,14 @@ export const removeTeamMember = async (
 
   const data = await response.json().catch(() => null);
 
-  // Wrong team ID or password
   if (response.status === 401) {
     throw new Error('Invalid credentials');
   }
 
-  // Other server errors
   if (!response.ok) {
     throw new Error(data?.message || 'Unable to login');
   }
 
-  // Login failed
   if (data?.success !== true) {
     throw new Error(data?.message || 'Invalid credentials');
   }
@@ -499,8 +403,11 @@ export const getSubmissions = async (
     ? `${API_BASE}/submissions?teamId=${encodeURIComponent(teamId.trim())}`
     : `${API_BASE}/submissions`;
 
-  const response = await fetch(url, { method: 'GET', cache: 'no-store', headers: { ...authHeaders() } });
-  ensureSession(response);
+  const response = await fetch(url, {
+    method: 'GET',
+    cache: 'no-store'
+  });
+
   if (!response.ok) {
     const body = await response.json().catch(() => null);
     throw new Error(body?.message || 'Failed to fetch submissions');
@@ -515,7 +422,7 @@ export const addSubmission = async (
 ): Promise<void> => {
   const response = await fetch(`${API_BASE}/submissions`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...authHeaders() },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       Team_ID: submission.Team_ID,
       'Team_Name ': submission['Team_Name '],
@@ -526,7 +433,6 @@ export const addSubmission = async (
     })
   });
 
-  ensureSession(response);
   if (!response.ok) {
     const body = await response.json().catch(() => null);
     throw new Error(body?.message || 'Failed to add submission');
@@ -571,8 +477,11 @@ export const getReviews = async (
     ? `${API_BASE}/reviews?teamId=${encodeURIComponent(teamId.trim())}`
     : `${API_BASE}/reviews`;
 
-  const response = await fetch(url, { method: 'GET', cache: 'no-store', headers: { ...authHeaders() } });
-  ensureSession(response);
+  const response = await fetch(url, {
+    method: 'GET',
+    cache: 'no-store'
+  });
+
   if (!response.ok) {
     const body = await response.json().catch(() => null);
     throw new Error(body?.message || 'Failed to fetch reviews');
@@ -587,7 +496,7 @@ export const addReview = async (
 ): Promise<void> => {
   const response = await fetch(`${API_BASE}/reviews`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...authHeaders() },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       Team_ID: review.Team_ID,
       Team_Name: review.Team_Name,
@@ -613,7 +522,6 @@ export const addReview = async (
     })
   });
 
-  ensureSession(response);
   if (!response.ok) {
     const body = await response.json().catch(() => null);
     throw new Error(body?.message || 'Failed to add review');
