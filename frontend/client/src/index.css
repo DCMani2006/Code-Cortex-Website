@@ -2043,11 +2043,6 @@ h3 em {
   color: var(--navy);
   transform: rotate(-2deg);
 }
-.duo-card--gdg {
-  background: var(--coral);
-  color: var(--navy);
-  transform: rotate(2deg);
-}
 .duo-card__top {
   align-items: center;
   display: flex;
@@ -2118,15 +2113,14 @@ h3 em {
 .sponsors h2 {
   margin: 0;
 }
-.about .heading-with-icon,
-.sponsors .heading-with-icon {
+.about .heading-with-icon {
   container-type: inline-size;
 }
 .about h2 {
   font-size: min(84px, calc((100cqi - 90px) / 5));
 }
 .sponsors h2 {
-  font-size: min(84px, calc((100cqi - 90px) / 8));
+  font-size: clamp(32px, 5vw, 64px);
 }
 .tracks h2 span {
   color: var(--lime);
@@ -6171,7 +6165,8 @@ body, p, span, div, li, input, textarea, select {
    ============================================================ */
 .duo-story {
   display: grid !important;
-  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  grid-template-columns: minmax(0, 640px) !important;
+  justify-content: center !important;
   gap: clamp(24px, 3.5vw, 40px) !important;
   max-width: 1240px !important;
   margin: 0 auto !important;
@@ -6182,8 +6177,7 @@ body, p, span, div, li, input, textarea, select {
 }
 
 .duo-card,
-.duo-card--vit,
-.duo-card--gdg {
+.duo-card--vit {
   background: #ffffff !important;
   border: 3px solid #2d1f36 !important;
   border-radius: 12px !important;
@@ -6199,8 +6193,7 @@ body, p, span, div, li, input, textarea, select {
 }
 
 .duo-card:hover,
-.duo-card--vit:hover,
-.duo-card--gdg:hover {
+.duo-card--vit:hover {
   transform: translateY(-3px) !important;
   box-shadow: 8px 8px 0px #2d1f36 !important;
 }
@@ -7229,10 +7222,14 @@ body, p, span, div, li, input, textarea, select {
 .sponsors {
   background: #f4ede3 !important;
 }
+.sponsors {
+  padding-top: clamp(16px, 2vw, 24px) !important;
+  padding-bottom: clamp(16px, 2vw, 24px) !important;
+}
 .sponsors__title-row {
   display: flex !important;
-  margin-top: 40px !important;
-  margin-bottom: 44px !important;
+  margin-top: 8px !important;
+  margin-bottom: 12px !important;
 }
 .sponsor-card {
   background: #ffffff !important;
@@ -7344,7 +7341,7 @@ body, p, span, div, li, input, textarea, select {
   box-shadow: 2.5px 2.5px 0px #2d1f36 !important;
   padding: 10px 16px !important;
   color: #2d1f36 !important;
-  font-family: var(--body-pixel) !important;
+  font-family: "IBM Plex Mono", monospace !important;
   font-size: 13.5px !important;
   display: inline-flex !important;
   align-items: center !important;
@@ -7405,7 +7402,7 @@ body, p, span, div, li, input, textarea, select {
 .frog-shrine {
   position: absolute !important;
   right: -20px !important;
-  bottom: -32px !important;
+  bottom: 20px !important;
   width: clamp(175px, 16vw, 205px) !important;
   background: #fdf8ee !important;
   border: 2.5px solid #2d1f36 !important;

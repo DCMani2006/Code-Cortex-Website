@@ -25,7 +25,6 @@ import {
   ChevronRight,
   Cloud,
   Code2,
-  Cpu,
   Database,
   Download,
   ExternalLink,
@@ -1723,7 +1722,7 @@ export default function Home() {
                 <Globe size={20} />
               </div>
               <h3>
-                The Citadel with <em>range.</em>
+                About <em>VIT UNIVERSITY</em>
               </h3>
               <p>
                 <strong>Renowned Institution.</strong> VIT is a distinguished
@@ -1740,38 +1739,6 @@ export default function Home() {
                 <span className="duo-stat-chip">⭐ NAAC A++ (3.66/4.0)</span>
               </div>
             </div>
-            <span className="duo-card__footer">
-              ROYAL REALM // VELLORE CAMPUS <ArrowUpRight size={16} />
-            </span>
-          </article>
-
-          <article className="duo-card duo-card--gdg">
-            <div>
-              <div className="duo-card__top">
-                <span className="chapter-badge" style={{ marginBottom: 0 }}>🛡️ CHAPTER 04 // THE GUILD</span>
-                <Cpu size={20} />
-              </div>
-              <h3>
-                The Guild <em>HQ.</em>
-              </h3>
-              <p>
-                <strong>Student-Led Initiative.</strong> People with different tabs
-                open in their heads, making room for one another at the same table.
-                We bridge curiosity with real production systems.
-              </p>
-              <p>
-                <strong>Community Powered.</strong> From interactive AI/ML workshops
-                to national hackathons, we empower ambitious developers to build,
-                ship, and solve real-world industry challenges together.
-              </p>
-              <div className="duo-stat-chips">
-                <span className="duo-stat-chip duo-stat-chip--gold">🏆 VETERANS OF CODE CORTEX</span>
-                <span className="duo-stat-chip">⚡ 500+ GUILD MEMBERS</span>
-              </div>
-            </div>
-            <span className="duo-card__footer">
-              GUILD HALL // DOORS ALWAYS OPEN <ArrowUpRight size={16} />
-            </span>
           </article>
         </section>
 
@@ -1781,7 +1748,7 @@ export default function Home() {
           data-reveal
         >
           <div className="tracks__header">
-            <span className="chapter-badge">🚪 CHAPTER 05 // SELECT YOUR DUNGEON PATH</span>
+            <span className="chapter-badge">🚪 CHAPTER 04 // SELECT YOUR DUNGEON PATH</span>
           </div>
           <div className="tracks__title-row">
             <div className="heading-with-icon">
@@ -1945,7 +1912,7 @@ export default function Home() {
           data-reveal
         >
           <div className="nominate__header">
-            <span className="chapter-badge">🕹️ CHAPTER 06 // JUKEBOX</span>
+            <span className="chapter-badge">🕹️ CHAPTER 05 // JUKEBOX</span>
           </div>
           <div className="nominate__title-row">
             <div className="heading-with-icon">
@@ -2055,7 +2022,7 @@ export default function Home() {
           data-reveal
         >
           <div className="sponsors__header">
-            <span className="chapter-badge">🎪 CHAPTER 07 // SPONSOR</span>
+            <span className="chapter-badge">🎪 CHAPTER 06 // SPONSOR</span>
           </div>
           <div className="sponsors__title-row">
             <div className="heading-with-icon">
@@ -2093,7 +2060,7 @@ export default function Home() {
 
         <section id="faqs" className="faq section-light page-pad" data-reveal>
           <div className="faq__side">
-            <span className="chapter-badge">⛺ CHAPTER 08 // THE WISE ELDER'S TENT</span>
+            <span className="chapter-badge">⛺ CHAPTER 07 // THE WISE ELDER'S TENT</span>
             <div className="heading-with-icon">
               <HeadingIcon icon={HelpCircle} label="FAQs" />
               <h2>
@@ -2150,7 +2117,7 @@ export default function Home() {
       <footer id="contact" className="footer section-dark page-pad" data-reveal>
         <div className="footer__main">
           <div className="footer__statement">
-            <span className="chapter-badge">🌌 CHAPTER 09 // CONTACT</span>
+            <span className="chapter-badge">🌌 CHAPTER 08 // CONTACT</span>
             <div className="heading-with-icon">
               <HeadingIcon icon={Mail} label="Contact" />
               <h2>
