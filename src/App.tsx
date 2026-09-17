@@ -746,7 +746,7 @@ const selectedReviewSubmission =
     borderRadius: "8px",
     color: "#2d1f36",
     boxShadow: "3px 3px 0px rgba(45, 31, 54, 0.12)",
-    fontFamily: '"IBM Plex Mono", monospace',
+    fontFamily: "var(--body-pixel)",
     fontSize: "14px",
     padding: "9px 14px",
     outline: "none"

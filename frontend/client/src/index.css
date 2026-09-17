@@ -91,10 +91,10 @@
   --amber: #fec1b6;
   --amber-bright: #fde88a;
 
-  /* Pixel & Code Typography */
+  /* Pixel Typography */
   --pixel: "Press Start 2P", monospace;
-  --body-pixel: "IBM Plex Mono", monospace;
-  --display: "Press Start 2P", monospace;
+  --body-pixel: "Pixelify Sans", "Silkscreen", monospace;
+  --display: "Pixelify Sans", "Press Start 2P", monospace;
   --mono: "Silkscreen", monospace;
   --ease-out: cubic-bezier(0, 0, 0.2, 1);
 
