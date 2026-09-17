@@ -1130,25 +1130,6 @@ h3 em {
   color: var(--cyan);
 }
 
-.section-label {
-  align-items: center;
-  display: flex;
-  font-family: var(--mono);
-  font-size: 10px;
-  gap: 11px;
-  letter-spacing: 0.14em;
-  line-height: 1;
-  text-transform: uppercase;
-}
-.section-label__number {
-  color: var(--coral);
-}
-.section-label__line {
-  background: currentColor;
-  height: 1px;
-  opacity: 0.45;
-  width: 38px;
-}
 .about {
   display: flex;
   flex-direction: column;
@@ -2078,9 +2059,6 @@ h3 em {
   display: flex;
   justify-content: space-between;
 }
-.duo-card__top .section-label__number {
-  color: var(--navy);
-}
 .duo-card h3 {
   font-size: clamp(50px, 7vw, 94px);
   font-weight: 500;
@@ -2134,29 +2112,6 @@ h3 em {
   align-items: center;
   display: flex;
   justify-content: space-between;
-}
-.tracks__arrows {
-  display: flex;
-  gap: 10px;
-}
-.tracks__arrows button {
-  align-items: center;
-  background: transparent;
-  border: 1px solid rgba(246, 240, 220, 0.5);
-  border-radius: 50%;
-  display: flex;
-  height: 42px;
-  justify-content: center;
-  transition:
-    background 0.2s ease,
-    color 0.2s ease,
-    transform 0.2s var(--ease-out);
-  width: 42px;
-}
-.tracks__arrows button:hover {
-  background: var(--cyan);
-  color: var(--navy);
-  transform: translateY(-4px);
 }
 .tracks__title-row,
 .events__title-row,
@@ -2491,22 +2446,6 @@ h3 em {
   justify-content: space-between;
   position: relative;
   z-index: 1;
-}
-.nominate__live {
-  align-items: center;
-  color: var(--cyan);
-  display: inline-flex;
-  font-family: var(--mono);
-  font-size: 10px;
-  gap: 9px;
-  letter-spacing: 0.14em;
-}
-.nominate__live > span {
-  animation: soundPulse 1.2s ease-in-out infinite;
-  background: var(--coral);
-  border-radius: 50%;
-  height: 7px;
-  width: 7px;
 }
 .nominate__title-row {
   align-items: flex-start;
@@ -3924,9 +3863,6 @@ h3 em {
     padding-bottom: 88px;
     padding-top: 88px;
   }
-  .nominate__live {
-    font-size: 8px;
-  }
   .nominate__title-row {
     display: block;
   }
@@ -4205,7 +4141,7 @@ body, p, span, div, li, input, textarea, select {
   color: #2d1f36;
 }
 
-.eyebrow, .section-label, .menu-panel__index, .hero__topline, .hero__location {
+.eyebrow, .menu-panel__index, .hero__topline, .hero__location {
   font-family: var(--pixel) !important;
   font-size: 10px !important;
   letter-spacing: 0.08em;
@@ -4461,28 +4397,9 @@ body, p, span, div, li, input, textarea, select {
 .nominate {
   background: #fdf0f4 !important;
   position: relative;
-  padding-top: 52px !important;
   border: 3px solid #2d1f36 !important;
   box-shadow: 6px 6px 0px #2d1f36 !important;
   border-radius: 12px !important;
-}
-.nominate:before {
-  content: "■ TAVERN JUKEBOX // CAST YOUR VOTE  _ 🗖 ✕";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 32px;
-  background: #f8b4cb !important;
-  color: #2d1f36 !important;
-  font-family: var(--pixel);
-  font-size: 9px;
-  display: flex;
-  align-items: center;
-  padding: 0 14px;
-  border-bottom: 2.5px solid #2d1f36;
-  border-radius: 8px 8px 0 0;
-  letter-spacing: 0.1em;
 }
 .nominate-search input {
   background: #ffffff !important;
@@ -6886,6 +6803,7 @@ body, p, span, div, li, input, textarea, select {
 /* CHAPTER 06: 8-BIT ARCADE JUKEBOX */
 .nominate {
   background: #f4ede3 !important;
+  padding-top: clamp(28px, 3vw, 40px) !important;
 }
 .nominate__title-row {
   display: flex !important;

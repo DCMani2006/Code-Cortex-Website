@@ -209,22 +209,6 @@ function Mark({ compact = false }: { compact?: boolean }) {
   );
 }
 
-function SectionLabel({
-  number,
-  children,
-}: {
-  number: string;
-  children: ReactNode;
-}) {
-  return (
-    <div className="section-label">
-      <span className="section-label__number">{number}</span>
-      <span className="section-label__line" />
-      <span>{children}</span>
-    </div>
-  );
-}
-
 function MascotModel({
   pointer,
   reducedMotion,
@@ -1628,7 +1612,6 @@ export default function Home() {
           <div className="tavern-row tavern-row--forge">
             <div className="tavern-col tavern-col--intro">
               <span className="chapter-badge">⚔️ CHAPTER 01 // THE HACKER'S TAVERN</span>
-              <SectionLabel number="01">ABOUT CODE CORTEX 3.0</SectionLabel>
               <div className="heading-with-icon">
                 <HeadingIcon icon={Info} label="About" />
                 <h2>
@@ -1699,7 +1682,6 @@ export default function Home() {
           </div>
           <div className="manifesto__content">
             <span className="chapter-badge">📜 CHAPTER 02 // THE ANCIENT TOME OF RULES</span>
-            <SectionLabel number="02">WHO WE ARE</SectionLabel>
             <div className="ancient-tome">
               <div className="tome-bookmark" />
               <div className="tome-header">
@@ -1740,7 +1722,6 @@ export default function Home() {
                 <span className="chapter-badge" style={{ marginBottom: 0 }}>🏰 CHAPTER 03 // THE CITADEL</span>
                 <Globe size={20} />
               </div>
-              <SectionLabel number="03">ABOUT VIT</SectionLabel>
               <h3>
                 The Citadel with <em>range.</em>
               </h3>
@@ -1770,7 +1751,6 @@ export default function Home() {
                 <span className="chapter-badge" style={{ marginBottom: 0 }}>🛡️ CHAPTER 04 // THE GUILD</span>
                 <Cpu size={20} />
               </div>
-              <SectionLabel number="04">ABOUT TAM-VIT</SectionLabel>
               <h3>
                 The Guild <em>HQ.</em>
               </h3>
@@ -1802,15 +1782,6 @@ export default function Home() {
         >
           <div className="tracks__header">
             <span className="chapter-badge">🚪 CHAPTER 05 // SELECT YOUR DUNGEON PATH</span>
-            <SectionLabel number="05">PICK A DIRECTION</SectionLabel>
-            <div className="tracks__arrows">
-              <button onClick={() => moveTrack(-1)} aria-label="Previous dungeon track">
-                <ChevronLeft />
-              </button>
-              <button onClick={() => moveTrack(1)} aria-label="Next dungeon track">
-                <ChevronRight />
-              </button>
-            </div>
           </div>
           <div className="tracks__title-row">
             <div className="heading-with-icon">
@@ -1941,11 +1912,7 @@ export default function Home() {
                     </DialogContent>
                   </Dialog>
 
-                  {activeTrack.dataset === "pick-your-own" ? (
-                    <span className="tracks__dataset-note">
-                      🎒 Pick your own custom loot dataset for this dungeon.
-                    </span>
-                  ) : activeTrack.dataset ? (
+                  {activeTrack.dataset === "pick-your-own" ? null : activeTrack.dataset ? (
                     <a
                       className="tracks__btn tracks__btn--dataset"
                       href={activeTrack.dataset.url}
@@ -1978,11 +1945,7 @@ export default function Home() {
           data-reveal
         >
           <div className="nominate__header">
-            <span className="chapter-badge">🕹️ CHAPTER 06 // THE 8-BIT ARCADE JUKEBOX</span>
-            <SectionLabel number="06">THE IN-BETWEEN SET</SectionLabel>
-            <span className="nominate__live">
-              <span /> ● LIVE NOMINATION
-            </span>
+            <span className="chapter-badge">🕹️ CHAPTER 06 // JUKEBOX</span>
           </div>
           <div className="nominate__title-row">
             <div className="heading-with-icon">
@@ -2100,9 +2063,7 @@ export default function Home() {
           data-reveal
         >
           <div className="sponsors__header">
-            <span className="chapter-badge">🎪 CHAPTER 07 // THE MERCHANT BAZAAR</span>
-            <SectionLabel number="07">POWERED BY</SectionLabel>
-            <span>SUPPLYING THE REALM</span>
+            <span className="chapter-badge">🎪 CHAPTER 07 // SPONSOR</span>
           </div>
           <div className="sponsors__title-row">
             <div className="heading-with-icon">
@@ -2141,7 +2102,6 @@ export default function Home() {
         <section id="faqs" className="faq section-light page-pad" data-reveal>
           <div className="faq__side">
             <span className="chapter-badge">⛺ CHAPTER 08 // THE WISE ELDER'S TENT</span>
-            <SectionLabel number="08">NO SILLY QUESTIONS</SectionLabel>
             <div className="heading-with-icon">
               <HeadingIcon icon={HelpCircle} label="FAQs" />
               <h2>
@@ -2199,7 +2159,6 @@ export default function Home() {
         <div className="footer__main">
           <div className="footer__statement">
             <span className="chapter-badge">🌌 CHAPTER 09 // CONTACT</span>
-            <SectionLabel number="09">SAY HELLO</SectionLabel>
             <div className="heading-with-icon">
               <HeadingIcon icon={Mail} label="Contact" />
               <h2>
