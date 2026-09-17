@@ -12,9 +12,12 @@ import {
   addSubmission,
   getReviews,
   addReview,
-  linkUserToTeam
+  linkUserToTeam,
+  getTeamPasswordFromSheet,
+  removeUserFromTeam,
+  updateTeamSize
 } from './googleSheets.js';
-import { saveTeamPassword, verifyTeamPassword, getTeamPasswords } from './teamPasswords.js';
+import { saveTeamPassword, getTeamPasswords } from './teamPasswords.js';
 
 dotenv.config();
 
@@ -140,10 +143,27 @@ app.post('/api/teams', async (req, res) => {
   }
 });
 
-app.post('/api/teams/auth', (req, res) => {
+// Resolve a team's password from the sheet (durable) and fall back to the
+// on-disk file, so neither one being unavailable locks members out.
+async function resolveTeamPassword(teamId) {
+  try {
+    const fromSheet = await getTeamPasswordFromSheet(teamId);
+    if (fromSheet) return fromSheet;
+  } catch (e) {
+    console.error('Sheet password lookup failed, falling back to file:', e.message);
+  }
+  const passwords = getTeamPasswords();
+  const key = Object.keys(passwords).find(
+    k => String(k).trim().toUpperCase() === String(teamId).trim().toUpperCase()
+  );
+  return key ? passwords[key] : null;
+}
+
+app.post('/api/teams/auth', async (req, res) => {
   try {
     const { teamId, password } = req.body;
-    const isValid = verifyTeamPassword(teamId, password);
+    const expected = await resolveTeamPassword(teamId);
+    const isValid = !!expected && String(expected).trim() === String(password || '').trim();
     if (isValid) {
       res.json({ success: true });
     } else {
@@ -157,12 +177,13 @@ app.post('/api/teams/auth', (req, res) => {
 
 app.post('/api/teams/join', async (req, res) => {
   try {
-    const { teamId, password, userId } = req.body;
-    if (!verifyTeamPassword(teamId, password)) {
+    const { teamId, password, userId, email, regNo } = req.body;
+    const expected = await resolveTeamPassword(teamId);
+    if (!expected || String(expected).trim() !== String(password || '').trim()) {
       return res.status(401).json({ success: false, error: 'Invalid Team ID or Password' });
     }
-    
-    const success = await linkUserToTeam(userId, teamId);
+
+    const success = await linkUserToTeam(userId, teamId, { email, regNo });
     if (success) {
       res.json({ success: true, message: 'Joined team successfully' });
     } else {
@@ -203,7 +224,7 @@ app.post('/api/teams/:teamId/password', async (req, res) => {
       return res.status(403).json({ error: 'You are not a member of this team.' });
     }
 
-    const password = getTeamPasswords()[teamId];
+    const password = await resolveTeamPassword(teamId);
     if (!password) {
       return res.status(404).json({ error: 'No password on file for this team.' });
     }
@@ -212,6 +233,46 @@ app.post('/api/teams/:teamId/password', async (req, res) => {
   } catch (error) {
     console.error('Error fetching team password:', error);
     res.status(500).json({ error: 'Failed to fetch team password' });
+  }
+});
+
+// Admin: detach a member from their team, so someone who joined the wrong team
+// (or needs to be moved) can be fixed without hand-editing the sheet.
+app.post('/api/teams/:teamId/remove-member', async (req, res) => {
+  try {
+    const { teamId } = req.params;
+    const { userId } = req.body;
+    if (!userId) return res.status(400).json({ error: 'Missing userId' });
+
+    const removed = await removeUserFromTeam(userId, teamId);
+    if (!removed) {
+      return res.status(404).json({ error: 'That member is not on this team.' });
+    }
+    res.json({ success: true, message: 'Member removed from team.' });
+  } catch (error) {
+    console.error('Error removing team member:', error);
+    res.status(400).json({ error: error.message || 'Failed to remove member' });
+  }
+});
+
+// Lets a team change the size it declared at registration (2-4). Refused if it
+// would drop below the number of people already on the team.
+app.post('/api/teams/:teamId/size', async (req, res) => {
+  try {
+    const { teamId } = req.params;
+    const { size, userId } = req.body;
+
+    const users = await getUsers();
+    const requester = users.find(u => String(u.User_ID).trim() === String(userId || '').trim());
+    if (!requester || String(requester.Team_ID).trim().toUpperCase() !== String(teamId).trim().toUpperCase()) {
+      return res.status(403).json({ error: 'You are not a member of this team.' });
+    }
+
+    const result = await updateTeamSize(teamId, size);
+    res.json({ success: true, size: result });
+  } catch (error) {
+    console.error('Error updating team size:', error);
+    res.status(400).json({ error: error.message || 'Failed to update team size' });
   }
 });
 

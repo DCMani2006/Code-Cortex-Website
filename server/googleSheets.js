@@ -252,24 +252,63 @@ export async function getTeams() {
 // Users rows carrying this Team_ID, so membership is counted from there. That
 // keeps the two from drifting: the old code incremented the declared number on
 // every join, so a 2-person team showed 3 after its one member joined.
-export async function linkUserToTeam(userId, teamId) {
+// The Team sheet carries the password too (addTeam writes it). That makes the
+// sheet the durable source of truth: teamPasswords.json lives on the server's
+// disk, so a redeploy without a mounted volume would otherwise lose every
+// password and lock every member out of joining.
+export async function getTeamPasswordFromSheet(teamId) {
+  const document = await initGoogleSheets();
+  const sheet = document.sheetsByTitle['Team'];
+  if (!sheet) return null;
+  const rows = await sheet.getRows();
+  const wanted = normaliseTeamId(teamId);
+  const row = rows.find(r => normaliseTeamId(r.get('Team_ID')) === wanted);
+  if (!row) return null;
+  for (const col of ['Password', 'Team_Password', 'teamPassword', 'Team Password']) {
+    const val = row.get(col);
+    if (val !== undefined && val !== null && String(val).trim() !== '') {
+      return String(val).trim();
+    }
+  }
+  return null;
+}
+
+function normaliseTeamId(value) {
+  return String(value || '').trim().toUpperCase();
+}
+
+export async function linkUserToTeam(userId, teamId, options = {}) {
+  const { email = '', regNo = '' } = options;
   const document = await initGoogleSheets();
   const usersSheet = document.sheetsByTitle['Users'];
   if (!usersSheet) throw new Error("Users sheet not found");
 
   const rows = await usersSheet.getRows();
-  const userRow = rows.find(r => r.get('User_ID') === userId);
-  const wantedTeamId = String(teamId).trim();
+  // Team IDs are matched case-insensitively — someone typing "cc-1586" is
+  // naming the same team as "CC-1586" and shouldn't be told the ID is wrong.
+  const wantedTeamId = normaliseTeamId(teamId);
+  const wantedEmail = String(email || '').trim().toLowerCase();
+  const wantedRegNo = String(regNo || '').trim().toUpperCase();
 
-  console.log(`linkUserToTeam: userId=${userId}, teamId=${wantedTeamId}`);
+  // Resolve the person by User_ID first, then by email. The email fallback
+  // matters: a VIT account whose Google display name has no registration
+  // number gets a placeholder "U-1234" User_ID, so the reg number typed at
+  // registration/join won't match any row — but the email always will.
+  let userRow = rows.find(r => String(r.get('User_ID') || '').trim() === String(userId).trim());
+  if (!userRow && wantedEmail) {
+    userRow = rows.find(
+      r => String(r.get('Email') || '').trim().toLowerCase() === wantedEmail
+    );
+  }
+
   if (!userRow) {
-    console.log(`User ${userId} not found`);
+    console.log(`User ${userId} not found (email fallback: ${wantedEmail || 'none'})`);
     return false;
   }
 
-  const existingTeamId = String(userRow.get('Team_ID') || '').trim();
+  const existingTeamId = normaliseTeamId(userRow.get('Team_ID'));
 
-  if (existingTeamId === wantedTeamId) {
+  if (existingTeamId && existingTeamId === wantedTeamId) {
     // Already on this team — re-joining is a no-op rather than an error, so a
     // double-submit or a refresh can't add the same person twice.
     console.log(`User ${userId} is already on team ${wantedTeamId}; nothing to do`);
@@ -282,27 +321,118 @@ export async function linkUserToTeam(userId, teamId) {
   // Capacity: count the rows already carrying this Team_ID (the leader is one
   // of them) and refuse the join once the declared size is reached.
   const teamSheet = document.sheetsByTitle['Team'];
+  let teamRow = null;
+  let declared = 0;
   if (teamSheet) {
     const teamRows = await teamSheet.getRows();
-    const teamRow = teamRows.find(r => String(r.get('Team_ID') || '').trim() === wantedTeamId);
+    teamRow = teamRows.find(r => normaliseTeamId(r.get('Team_ID')) === wantedTeamId);
     if (!teamRow) {
       throw new Error("That team no longer exists.");
     }
-    const declared = Number(teamRow.get('No. of Members')) || 0;
-    const current = rows.filter(
-      r => String(r.get('Team_ID') || '').trim() === wantedTeamId
-    ).length;
+    declared = Number(teamRow.get('No. of Members')) || 0;
+    const current = rows.filter(r => normaliseTeamId(r.get('Team_ID')) === wantedTeamId).length;
     if (declared && current >= declared) {
       throw new Error(`This team is already full (${current}/${declared} members).`);
+    }
+  }
+
+  // Capture the registration number if we have one and this row is still on a
+  // placeholder ID, so joiners aren't left as "U-1234" forever. Skipped if some
+  // other row already owns that reg number.
+  const currentUserId = String(userRow.get('User_ID') || '').trim();
+  if (wantedRegNo && currentUserId.toUpperCase() !== wantedRegNo) {
+    const takenByOther = rows.some(
+      r => r !== userRow && String(r.get('User_ID') || '').trim().toUpperCase() === wantedRegNo
+    );
+    if (takenByOther) {
+      throw new Error(`Registration number ${wantedRegNo} is already registered to someone else.`);
+    }
+    if (!currentUserId || currentUserId.startsWith('U-')) {
+      userRow.assign({ User_ID: wantedRegNo });
     }
   }
 
   userRow.assign({ Team_ID: wantedTeamId });
   await userRow.save();
   console.log(`Saved Team_ID to ${wantedTeamId} for ${userId}`);
-
   invalidateCache('users', 'teams');
+
+  // Google Sheets has no transactions, so two people joining the last seat at
+  // the same moment can both pass the check above. Re-read after writing and,
+  // if we're the ones who overshot, undo this join rather than leave an
+  // oversized team behind.
+  if (declared) {
+    const after = await usersSheet.getRows();
+    const members = after.filter(r => normaliseTeamId(r.get('Team_ID')) === wantedTeamId);
+    if (members.length > declared) {
+      const ours = after.find(
+        r => String(r.get('User_ID') || '').trim() === String(userRow.get('User_ID') || '').trim()
+      );
+      // Last one in backs out; whoever got there first keeps the seat.
+      const isLast = members[members.length - 1] === ours;
+      if (ours && isLast) {
+        ours.assign({ Team_ID: '' });
+        await ours.save();
+        invalidateCache('users', 'teams');
+        throw new Error(`This team is already full (${declared} members).`);
+      }
+    }
+  }
+
   return true;
+}
+
+// Detaches a member from a team (admin fix-up). Clears their Team_ID so they
+// are free to join the right team; their Users row and details are kept.
+export async function removeUserFromTeam(userId, teamId) {
+  const document = await initGoogleSheets();
+  const usersSheet = document.sheetsByTitle['Users'];
+  if (!usersSheet) throw new Error('Users sheet not found');
+
+  const rows = await usersSheet.getRows();
+  const wantedTeamId = normaliseTeamId(teamId);
+  const row = rows.find(
+    r =>
+      String(r.get('User_ID') || '').trim() === String(userId).trim() &&
+      normaliseTeamId(r.get('Team_ID')) === wantedTeamId
+  );
+  if (!row) return false;
+
+  row.assign({ Team_ID: '' });
+  await row.save();
+  invalidateCache('users', 'teams');
+  console.log(`Removed ${userId} from team ${wantedTeamId}`);
+  return true;
+}
+
+// Changes the size a team declared at registration. Refused if it would drop
+// below the number of people already on the team.
+export async function updateTeamSize(teamId, size) {
+  const requested = Number(size);
+  if (!Number.isInteger(requested) || requested < 2 || requested > 4) {
+    throw new Error('Team size must be a whole number between 2 and 4.');
+  }
+
+  const document = await initGoogleSheets();
+  const teamSheet = document.sheetsByTitle['Team'];
+  const usersSheet = document.sheetsByTitle['Users'];
+  if (!teamSheet || !usersSheet) throw new Error('Sheets not found');
+
+  const wantedTeamId = normaliseTeamId(teamId);
+  const teamRows = await teamSheet.getRows();
+  const teamRow = teamRows.find(r => normaliseTeamId(r.get('Team_ID')) === wantedTeamId);
+  if (!teamRow) throw new Error('Team not found.');
+
+  const userRows = await usersSheet.getRows();
+  const current = userRows.filter(r => normaliseTeamId(r.get('Team_ID')) === wantedTeamId).length;
+  if (requested < current) {
+    throw new Error(`Your team already has ${current} members, so the size can't be set below ${current}.`);
+  }
+
+  teamRow.assign({ 'No. of Members': String(requested) });
+  await teamRow.save();
+  invalidateCache('teams');
+  return requested;
 }
 
 export async function addTeam(data) {
@@ -457,7 +587,13 @@ export async function addTeam(data) {
   // Update the user's Team_ID if they are logged in and just created this team
   if (userId) {
     try {
-      await linkUserToTeam(userId, rowData.Team_ID);
+      // Pass the email so the leader's row still resolves when their Google
+      // display name carried no registration number (placeholder "U-" id), and
+      // the reg number so it gets recorded against them.
+      const leaderRegNo = /^\d{2}[a-zA-Z]{3}\d{4,5}$/.test(String(userId).trim())
+        ? String(userId).trim().toUpperCase()
+        : '';
+      await linkUserToTeam(userId, rowData.Team_ID, { email: userEmail, regNo: leaderRegNo });
       console.log(`Successfully linked User ${userId} to Team ${rowData.Team_ID}`);
     } catch (e) {
       console.error(`Failed to link user ${userId}:`, e);
