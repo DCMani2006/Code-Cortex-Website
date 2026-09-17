@@ -12,6 +12,7 @@ import {
   getTeams,
   getTeamPassword,
   removeTeamMember,
+  renameTeam,
   startSession,
   startAdminSession,
   clearSession,
@@ -23,6 +24,12 @@ import { AdminDashboard } from "./components/AdminDashboard";
 
 const STORAGE_KEY_USER = "cc_logged_in_user";
 const STORAGE_KEY_ADMIN_NAME = "cc_admin_username";
+
+// Must match REVIEW1_DEADLINE in server/index.js. The server is the real
+// gate (this is only for UI: greying out fields and a countdown), so a
+// clock mismatch between browser and server can never let an edit through
+// that the server would reject.
+const REVIEW1_DEADLINE = new Date("2026-09-18T13:00:00+05:30").getTime();
 
 // Hardcoded review-panel admin accounts (not stored in the Sheet). Picking a
 // name from the login dropdown resolves to one of these emails; anyone on
@@ -340,6 +347,24 @@ export default function App() {
       })
       .catch((e) => console.error("Failed to load team details:", e));
 
+    // Whoever on the team submits first, everyone else should see it too
+    // instead of being asked to submit again.
+    getSubmissions(teamIdInput.trim())
+      .then((subs) => {
+        if (!active) return;
+        const existing = subs[0];
+        if (!existing) return;
+        const rawDesc = String(existing.Project_Description || "");
+        const roundMatch = rawDesc.match(/^\[(Review \d)\]\s*/);
+        setSubReviewRound(roundMatch ? roundMatch[1] : "Review 1");
+        setSubDesc(roundMatch ? rawDesc.slice(roundMatch[0].length) : rawDesc);
+        setSubGithub(existing["GitHub Link"] || "");
+        setSubFigma(existing["Figma Link"] || "");
+        setSubDataset(existing["Dataset Link"] || existing["Public Dataset Link"] || "");
+        setProjectSubmitted(true);
+      })
+      .catch((e) => console.error("Failed to load team submission:", e));
+
     // The team's own password, so members can pass it on without asking us.
     // Only resolves for someone actually on this team.
     if (loggedInUser?.User_ID) {
@@ -362,6 +387,75 @@ export default function App() {
       active = false;
     };
   }, [teamLoggedIn, teamIdInput, loggedInUser?.User_ID]);
+
+  // Team_Leader is stored as "Name (regNo/email)" (see addTeam on the
+  // server) — mirrors the same check server/index.js makes before allowing
+  // a rename or a leader-initiated member removal.
+  const isTeamLeader = (() => {
+    const match = String(teamDetails?.Team_Leader || "").match(/\(([^)]+)\)\s*$/);
+    const token = match ? match[1].trim().toLowerCase() : "";
+    if (!token || !loggedInUser) return false;
+    const uid = String(loggedInUser.User_ID || "").trim().toLowerCase();
+    const email = String(loggedInUser.Email || "").trim().toLowerCase();
+    return token === uid || token === email;
+  })();
+
+  const canEditTeam = Date.now() <= REVIEW1_DEADLINE;
+  const review1Locked = subReviewRound === "Review 1" && Date.now() > REVIEW1_DEADLINE;
+
+  const [editingTeamName, setEditingTeamName] = useState(false);
+  const [teamNameDraft, setTeamNameDraft] = useState("");
+  const [savingTeamName, setSavingTeamName] = useState(false);
+
+  const handleRenameTeam = async () => {
+    if (!teamIdInput.trim() || !loggedInUser?.User_ID) return;
+    const name = teamNameDraft.trim();
+    if (!name) {
+      showToast("Team name can't be empty.", "danger");
+      return;
+    }
+    setSavingTeamName(true);
+    try {
+      const saved = await renameTeam(teamIdInput.trim(), loggedInUser.User_ID, name);
+      setTeamDetails((prev) => (prev ? { ...prev, "Team_ Name": saved } : prev));
+      setEditingTeamName(false);
+      showToast("Team name updated.", "success");
+    } catch (error) {
+      showToast(
+        error instanceof Error ? error.message : "Could not rename team.",
+        "danger"
+      );
+    } finally {
+      setSavingTeamName(false);
+    }
+  };
+
+  const [removingSelfMemberId, setRemovingSelfMemberId] = useState<string | null>(null);
+
+  const handleLeaderRemoveMember = async (member: User) => {
+    if (!teamIdInput.trim() || !member.User_ID) return;
+    if (
+      !confirm(
+        `Remove ${member.Name || member.User_ID} from the team? They will be free to join another team.`
+      )
+    ) {
+      return;
+    }
+    setRemovingSelfMemberId(member.User_ID);
+    try {
+      await removeTeamMember(teamIdInput.trim(), member.User_ID, loggedInUser?.User_ID);
+      const refreshed = await getTeamMembers(teamIdInput.trim());
+      setTeamMembers(refreshed);
+      showToast(`${member.Name || member.User_ID} removed from the team.`, "success");
+    } catch (error) {
+      showToast(
+        error instanceof Error ? error.message : "Could not remove member.",
+        "danger"
+      );
+    } finally {
+      setRemovingSelfMemberId(null);
+    }
+  };
 
   const filteredSubmissions = submissions.filter((submission) => {
   const teamId = String(submission?.Team_ID || '').trim().toLowerCase();
@@ -666,7 +760,10 @@ const googleSignup = useGoogleLogin({
 
       const profile = await profileRes.json();
       const email = String(profile.email || "").trim();
-      const name = String(profile.name || email);
+      // Never fall back to the raw email as a "name" — a VIT email's local
+      // part often contains the registration number, so that would silently
+      // stamp the reg number into someone's name field.
+      const name = String(profile.name || "");
 
       if (!email) {
         throw new Error("Google account did not return an email.");
@@ -684,7 +781,6 @@ const googleSignup = useGoogleLogin({
       const { user } = await startSession(tokenResponse.access_token, name, email);
 
       updateLoggedInUser(user);
-      if (user.Name) setRegLeaderName(user.Name);
       setActivePage("team-portal");
 
     } catch (error) {
@@ -940,6 +1036,11 @@ const googleSignup = useGoogleLogin({
   const handleProjectSubmit = async () => {
     if (!teamIdInput.trim()) {
       showToast("Team ID is missing.", "danger");
+      return;
+    }
+
+    if (subReviewRound === "Review 1" && Date.now() > REVIEW1_DEADLINE) {
+      showToast("The Review 1 submission window closed at 1:00 PM on 18 Sep 2026.", "danger");
       return;
     }
 
@@ -1424,6 +1525,65 @@ const googleSignup = useGoogleLogin({
                                   </h4>
                                 </div>
 
+                                {/* Team Name */}
+                                <div className="rpg-stat-card mb-3">
+                                  <div className="form-label mb-1 d-flex justify-content-between align-items-center">
+                                    <span>GUILD NAME</span>
+                                    {isTeamLeader && canEditTeam && !editingTeamName && (
+                                      <button
+                                        type="button"
+                                        className="btn btn-sm btn-outline-secondary"
+                                        style={{ fontSize: "8px", padding: "2px 8px", margin: 0 }}
+                                        onClick={() => {
+                                          setTeamNameDraft(teamDetails?.["Team_ Name"] || "");
+                                          setEditingTeamName(true);
+                                        }}
+                                      >
+                                        ✏️ EDIT
+                                      </button>
+                                    )}
+                                  </div>
+                                  {editingTeamName ? (
+                                    <div className="d-flex gap-2 align-items-center">
+                                      <input
+                                        type="text"
+                                        className="form-control form-control-sm mb-0"
+                                        value={teamNameDraft}
+                                        onChange={(e) => setTeamNameDraft(e.target.value)}
+                                        disabled={savingTeamName}
+                                        autoFocus
+                                      />
+                                      <button
+                                        type="button"
+                                        className="btn btn-sm btn-success"
+                                        style={{ fontSize: "8px", padding: "4px 8px" }}
+                                        onClick={handleRenameTeam}
+                                        disabled={savingTeamName}
+                                      >
+                                        SAVE
+                                      </button>
+                                      <button
+                                        type="button"
+                                        className="btn btn-sm btn-outline-secondary"
+                                        style={{ fontSize: "8px", padding: "4px 8px" }}
+                                        onClick={() => setEditingTeamName(false)}
+                                        disabled={savingTeamName}
+                                      >
+                                        CANCEL
+                                      </button>
+                                    </div>
+                                  ) : (
+                                    <div className="fw-bold" style={{ fontSize: "14.5px", color: "#2d1f36" }}>
+                                      {teamDetails?.["Team_ Name"] || "Loading..."}
+                                    </div>
+                                  )}
+                                  {isTeamLeader && !canEditTeam && (
+                                    <div style={{ fontSize: "9.5px", color: "#606d7a" }} className="mt-1">
+                                      Renaming closed at 1:00 PM, 18 Sep 2026.
+                                    </div>
+                                  )}
+                                </div>
+
                                 {/* Team Leader */}
                                 <div className="rpg-stat-card mb-3">
                                   <div className="form-label mb-1">
@@ -1484,14 +1644,27 @@ const googleSignup = useGoogleLogin({
                                           <span className="fw-semibold" style={{ color: "#2d1f36" }}>
                                             👤 {member.Name}
                                           </span>
-                                          {member.User_ID && member.User_ID !== member.Name && (
-                                            <span
-                                              className="badge"
-                                              style={{ background: "#ede5f5", color: "#2d1f36", fontSize: "7.5px" }}
-                                            >
-                                              {member.User_ID}
-                                            </span>
-                                          )}
+                                          <div className="d-flex align-items-center gap-2">
+                                            {member.User_ID && member.User_ID !== member.Name && (
+                                              <span
+                                                className="badge id-code"
+                                                style={{ background: "#ede5f5", color: "#2d1f36", fontSize: "7.5px" }}
+                                              >
+                                                {member.User_ID}
+                                              </span>
+                                            )}
+                                            {isTeamLeader && canEditTeam && member.User_ID !== loggedInUser?.User_ID && (
+                                              <button
+                                                type="button"
+                                                className="btn btn-sm btn-outline-danger"
+                                                style={{ fontSize: "7.5px", padding: "2px 6px", margin: 0 }}
+                                                onClick={() => handleLeaderRemoveMember(member)}
+                                                disabled={removingSelfMemberId === member.User_ID}
+                                              >
+                                                {removingSelfMemberId === member.User_ID ? "..." : "REMOVE"}
+                                              </button>
+                                            )}
+                                          </div>
                                         </div>
                                       ))}
                                     </div>
@@ -1598,6 +1771,15 @@ const googleSignup = useGoogleLogin({
                                       </h4>
                                     </div>
 
+                                    {review1Locked && (
+                                      <div
+                                        className="mb-3 p-2 px-3 rounded border border-dark"
+                                        style={{ background: "#fde2e2", color: "#7a1f2b", fontSize: "11px" }}
+                                      >
+                                        Review 1 submissions closed at 1:00 PM on 18 Sep 2026. Your GitHub link, Figma link, and description for Review 1 are locked.
+                                      </div>
+                                    )}
+
                                     {/* Evaluation Round */}
                                     <div className="mb-3">
                                       <label className="form-label">
@@ -1628,6 +1810,7 @@ const googleSignup = useGoogleLogin({
                                         placeholder="https://github.com/organization/repository"
                                         value={subGithub}
                                         onChange={(e) => setSubGithub(e.target.value)}
+                                        disabled={review1Locked}
                                       />
                                     </div>
 
@@ -1642,6 +1825,7 @@ const googleSignup = useGoogleLogin({
                                         placeholder="https://figma.com/file/..."
                                         value={subFigma}
                                         onChange={(e) => setSubFigma(e.target.value)}
+                                        disabled={review1Locked}
                                       />
                                     </div>
 
@@ -1673,6 +1857,7 @@ const googleSignup = useGoogleLogin({
                                         value={subDesc}
                                         onChange={(e) => setSubDesc(e.target.value)}
                                         style={{ resize: "none" }}
+                                        disabled={review1Locked}
                                       />
                                     </div>
 
@@ -1680,6 +1865,7 @@ const googleSignup = useGoogleLogin({
                                       className="btn hero-pixel-btn hero-pixel-btn--primary w-100 fw-bold"
                                       style={{ fontSize: "11px", padding: "14px 20px" }}
                                       onClick={handleProjectSubmit}
+                                      disabled={review1Locked}
                                     >
                                       ⚔️ SUBMIT TO JUDGES
                                     </button>
@@ -1787,7 +1973,7 @@ const googleSignup = useGoogleLogin({
                               </label>
                               <input
                                 type="text"
-                                className="form-control"
+                                className="form-control id-code"
                                 style={inputStyle}
                                 placeholder="e.g. 24BCE1234"
                                 value={joinRegNo}
@@ -1947,7 +2133,7 @@ const googleSignup = useGoogleLogin({
                                     <label className="form-label" style={{ fontSize: "10px" }}>REGISTRATION NUMBER</label>
                                     <input
                                       type="text"
-                                      className="form-control"
+                                      className="form-control id-code"
                                       style={inputStyle}
                                       placeholder="Leader Reg No (e.g. 21BCE1234)"
                                       value={regLeaderRegNo}
@@ -2425,7 +2611,7 @@ const googleSignup = useGoogleLogin({
                             >
                               <span style={{ fontSize: "12px", color: "#2d1f36", minWidth: 0 }}>
                                 <span className="fw-bold d-block text-truncate">{member.Name || "—"}</span>
-                                <span className="text-secondary" style={{ fontSize: "10px" }}>
+                                <span className="text-secondary id-code" style={{ fontSize: "10px" }}>
                                   {member.User_ID}
                                 </span>
                               </span>

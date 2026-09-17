@@ -478,6 +478,34 @@ export async function updateTeamSize(teamId, size) {
   return requested;
 }
 
+// Renames a team. Caller (index.js) is responsible for checking the
+// requester is that team's leader before calling this.
+export async function renameTeam(teamId, newName) {
+  const trimmed = String(newName || '').trim();
+  if (!trimmed) throw new Error('Team name cannot be empty.');
+
+  const document = await initGoogleSheets();
+  const teamSheet = document.sheetsByTitle['Team'];
+  if (!teamSheet) throw new Error('Team sheet not found');
+
+  const wantedTeamId = normaliseTeamId(teamId);
+  const teamRows = await teamSheet.getRows();
+  const teamRow = teamRows.find(r => normaliseTeamId(r.get('Team_ID')) === wantedTeamId);
+  if (!teamRow) throw new Error('Team not found.');
+
+  const dup = teamRows.find(
+    r =>
+      normaliseTeamId(r.get('Team_ID')) !== wantedTeamId &&
+      String(r.get('Team_ Name') || '').trim().toLowerCase() === trimmed.toLowerCase()
+  );
+  if (dup) throw new Error('Team Name already exists. Please choose a different name.');
+
+  teamRow.assign({ 'Team_ Name': trimmed });
+  await teamRow.save();
+  invalidateCache('teams');
+  return trimmed;
+}
+
 export async function addTeam(data) {
   const document = await initGoogleSheets();
   const usersSheet = document.sheetsByTitle['Users'];

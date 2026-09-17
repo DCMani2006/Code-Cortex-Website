@@ -393,16 +393,18 @@ export const updateTeamSize = async (
   return Number(data?.size ?? size);
 };
 
-// Admin-only server-side (requireAdmin) — the Authorization header is what
-// actually authorizes this call now, not the userId in the body.
+// Server-side: an admin token authorizes any team; otherwise the requester
+// must be that team's own leader (checked via the Authorization header,
+// falling back to requesterId only when no session token is present).
 export const removeTeamMember = async (
   teamId: string,
-  userId: string
+  userId: string,
+  requesterId?: string
 ): Promise<void> => {
   const response = await fetch(`${API_BASE}/teams/${teamId}/remove-member`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...authHeaders() },
-    body: JSON.stringify({ userId })
+    body: JSON.stringify({ userId, requesterId })
   });
 
   if (!response.ok) {
@@ -513,9 +515,29 @@ export const addSubmission = async (
   });
 
   if (!response.ok) {
+    ensureSession(response);
     const body = await response.json().catch(() => null);
-    throw new Error(body?.message || 'Failed to add submission');
+    throw new Error(body?.error || body?.message || 'Failed to add submission');
   }
+};
+
+export const renameTeam = async (
+  teamId: string,
+  userId: string,
+  name: string
+): Promise<string> => {
+  const response = await fetch(`${API_BASE}/teams/${teamId}/rename`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...authHeaders() },
+    body: JSON.stringify({ userId, name })
+  });
+
+  const data = await response.json().catch(() => null);
+  if (!response.ok) {
+    ensureSession(response);
+    throw new Error(data?.error || 'Failed to rename team');
+  }
+  return String(data?.name ?? name);
 };
 
 // =====================================================
