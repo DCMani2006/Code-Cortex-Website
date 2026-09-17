@@ -77,10 +77,6 @@ const navItems = [
 // differently. undefined dataset = not published yet.
 type Dataset = { url: string; kind: "file" | "folder" } | "pick-your-own" | undefined;
 
-function driveFileDownloadUrl(fileId: string) {
-  return `https://drive.google.com/uc?export=download&id=${fileId}`;
-}
-
 const tracks = [
   {
     name: "Finance",
@@ -96,8 +92,8 @@ const tracks = [
     icon: Database,
     glyph: "₹",
     dataset: {
-      url: driveFileDownloadUrl("1xQLIojKL6i61hGeb5GBFGYyqmocijlOM"),
-      kind: "file",
+      url: "https://drive.google.com/drive/folders/1rVcCLgC9y98ZBzTd6XOwqGZJxjlIeQ4-",
+      kind: "folder",
     } as Dataset,
   },
   {
@@ -132,8 +128,8 @@ const tracks = [
     icon: Plane,
     glyph: "✈",
     dataset: {
-      url: driveFileDownloadUrl("1HwdMYH2x74hpUCEmy-RhBbpNKUfnddeX"),
-      kind: "file",
+      url: "https://drive.google.com/drive/folders/13NwAl93bcnGcnb_BZkO1Pn2_b7HpX9G5",
+      kind: "folder",
     } as Dataset,
   },
   {

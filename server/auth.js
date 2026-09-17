@@ -4,7 +4,22 @@ import crypto from 'crypto';
 // because the API runs on Railway with no shared store: anything kept in
 // process memory dies on every redeploy, and we do not want to pay for Redis
 // just to know who is signed in.
-const SESSION_SECRET = process.env.SESSION_SECRET || generateBootSecret();
+//
+// Resolved lazily (on first sign/verify call), NOT at module-import time.
+// In a real ES module, every `import` in this file's importer is hoisted
+// above that importer's own top-level code regardless of source order — so
+// reading process.env.SESSION_SECRET in a top-level `const` here would run
+// before index.js's own dotenv.config() call ever gets a chance to run,
+// silently falling back to a random boot secret on every local start even
+// with SESSION_SECRET correctly set in .env. Doesn't affect Railway (the env
+// var is injected by the platform before Node starts there either way), but
+// broke local dev's "not broken, just less convenient" fallback entirely.
+let cachedSecret = null;
+function getSessionSecret() {
+  if (cachedSecret) return cachedSecret;
+  cachedSecret = process.env.SESSION_SECRET || generateBootSecret();
+  return cachedSecret;
+}
 
 function generateBootSecret() {
   // Fail *open* rather than crashing the deploy: an unset secret should not
@@ -23,7 +38,7 @@ function base64url(buf) {
 }
 
 function sign(data) {
-  return crypto.createHmac('sha256', SESSION_SECRET).update(data).digest();
+  return crypto.createHmac('sha256', getSessionSecret()).update(data).digest();
 }
 
 /**

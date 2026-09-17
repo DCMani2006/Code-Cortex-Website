@@ -1,6 +1,14 @@
+import dotenv from 'dotenv';
+// Must run before any local import — auth.js reads process.env.SESSION_SECRET
+// at module-load time (not inside a function), so if dotenv.config() ran
+// after that import, the .env value would already have been missed and
+// auth.js would silently fall back to a random per-boot secret. Only matters
+// locally: on Railway the env var is injected by the platform before Node
+// even starts, so import order there doesn't matter.
+dotenv.config();
+
 import express from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import {
   getUsers,
   addUser,
@@ -26,8 +34,6 @@ import {
   requireAdmin,
   checkAdminPasscode
 } from './auth.js';
-
-dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 3000;
