@@ -21,8 +21,8 @@
 
   /* Pixel Typography */
   --pixel: "Press Start 2P", monospace;
-  --body-pixel: "Pixelify Sans", "Silkscreen", monospace;
-  --display: "Pixelify Sans", "Press Start 2P", monospace;
+  --body-pixel: "Pixelify Sans", "IBM Plex Mono", sans-serif;
+  --display: "Press Start 2P", monospace;
   --mono: "Silkscreen", monospace;
 
   /* Retro Hard Shadows & Borders */
@@ -46,11 +46,11 @@
 
 /* Base Document */
 html, body, #root {
-  background-color: var(--navy);
-  color: var(--cream);
+  background-color: #faf6ee;
+  color: #2d1f36;
   font-family: var(--body-pixel);
-  font-size: 15.5px;
-  line-height: 1.75;
+  font-size: 16px;
+  line-height: 1.7;
   margin: 0;
   padding: 0;
   min-height: 100vh;
@@ -73,10 +73,10 @@ p {
   pointer-events: none;
   background-color: #faf6ee;
   background-image: 
-    radial-gradient(rgba(45, 31, 54, 0.08) 1.5px, transparent 1.5px),
-    linear-gradient(rgba(45, 31, 54, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(45, 31, 54, 0.03) 1px, transparent 1px);
-  background-size: 24px 24px, 48px 48px, 48px 48px;
+    linear-gradient(180deg, #f2e6f4 0%, #fef4e8 30%, #edf6ec 65%, #faf6ee 100%),
+    linear-gradient(rgba(45, 31, 54, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(45, 31, 54, 0.04) 1px, transparent 1px);
+  background-size: 100% 100%, 32px 32px, 32px 32px;
 }
 
 .rect-frame {
@@ -250,6 +250,48 @@ p {
   border-color: #2d1f36 !important;
 }
 
+.btn-outline-info {
+  background: #ffffff !important;
+  color: #2d1f36 !important;
+  border: var(--pixel-border) !important;
+  box-shadow: var(--pixel-shadow) !important;
+}
+
+.btn-outline-info:hover {
+  background: #fdf8ea !important;
+  color: #2d1f36 !important;
+  border-color: #2d1f36 !important;
+  transform: translate(-2px, -2px) !important;
+  box-shadow: var(--pixel-shadow-lg) !important;
+}
+
+.btn-lg-retro {
+  font-family: var(--pixel) !important;
+  font-size: clamp(12px, 1.15vw, 14.5px) !important;
+  padding: 16px 24px !important;
+  border: var(--pixel-border) !important;
+  border-radius: 8px !important;
+  box-shadow: var(--pixel-shadow) !important;
+  letter-spacing: 0.03em !important;
+  text-transform: uppercase !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 12px !important;
+  transition: transform 0.12s ease, box-shadow 0.12s ease !important;
+  cursor: pointer !important;
+}
+
+.btn-lg-retro:hover {
+  transform: translate(-2px, -2px) !important;
+  box-shadow: var(--pixel-shadow-lg) !important;
+}
+
+.btn-lg-retro:active {
+  transform: translate(2px, 2px) !important;
+  box-shadow: var(--pixel-shadow-sm) !important;
+}
+
 /* ==========================================================================
    RPG FORMS & INPUTS
    ========================================================================== */
@@ -357,16 +399,18 @@ p {
    TYPOGRAPHY & UTILITIES
    ========================================================================== */
 h1, h2, h3, h4, h5, h6 {
-  font-family: var(--display) !important;
+  font-family: var(--pixel) !important;
   color: #2d1f36 !important;
   line-height: 1.35 !important;
   margin-bottom: 18px !important;
   letter-spacing: -0.01em !important;
+  text-transform: uppercase !important;
+  text-shadow: 2px 2px 0px #f8b4cb !important;
 }
 
 .glow-text {
   color: #2d1f36 !important;
-  text-shadow: 1.5px 1.5px 0px rgba(248, 155, 180, 0.4) !important;
+  text-shadow: 2.5px 2.5px 0px #f8b4cb !important;
 }
 
 .text-info {
@@ -375,6 +419,275 @@ h1, h2, h3, h4, h5, h6 {
 
 .text-white {
   color: #2d1f36 !important;
+}
+
+/* ==========================================================================
+   RETRO LOADING SPRITE CHARACTERS (SCATTERED BACKGROUND FIGURES)
+   ========================================================================== */
+.retro-bg-characters {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 3;
+  overflow: hidden;
+}
+
+.retro-char {
+  position: absolute;
+  pointer-events: auto;
+  cursor: pointer;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.retro-char__img {
+  display: block;
+  image-rendering: pixelated;
+  width: clamp(42px, 3.6vw, 54px);
+  height: auto;
+  filter: drop-shadow(0 4px 0 rgba(45, 31, 54, 0.22));
+  transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.22s ease;
+}
+
+.retro-char:hover .retro-char__img {
+  transform: scale(1.22) translateY(-8px);
+  filter: drop-shadow(0 8px 0 rgba(45, 31, 54, 0.32));
+}
+
+.retro-char__tag {
+  margin-top: 5px;
+  background: #ffffff;
+  border: 1.5px solid #2d1f36;
+  box-shadow: 1.5px 1.5px 0px #2d1f36;
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-family: var(--pixel);
+  font-size: 8px;
+  color: #2d1f36;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  transform: translateY(2px);
+}
+
+.retro-char:hover .retro-char__tag {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Retro game starting/loading animation styles */
+.retro-char--anim-1 {
+  animation: retro-shift-sway-1 6.5s ease-in-out infinite alternate;
+}
+.retro-char--anim-2 {
+  animation: retro-shift-sway-2 5.8s ease-in-out infinite alternate;
+}
+.retro-char--anim-3 {
+  animation: retro-shift-sway-3 7.2s ease-in-out infinite alternate;
+}
+.retro-char--anim-4 {
+  animation: retro-shift-sway-4 6.2s ease-in-out infinite alternate;
+}
+
+@keyframes retro-shift-sway-1 {
+  0% {
+    transform: translate(0px, 0px) rotate(0deg);
+  }
+  25% {
+    transform: translate(6px, -9px) rotate(5deg);
+  }
+  50% {
+    transform: translate(-4px, -14px) rotate(-3deg);
+  }
+  75% {
+    transform: translate(-9px, -5px) rotate(-7deg);
+  }
+  100% {
+    transform: translate(5px, 6px) rotate(6deg);
+  }
+}
+
+@keyframes retro-shift-sway-2 {
+  0% {
+    transform: translate(0px, 0px) rotate(0deg);
+  }
+  30% {
+    transform: translate(-8px, 6px) rotate(-6deg);
+  }
+  60% {
+    transform: translate(6px, -11px) rotate(7deg);
+  }
+  85% {
+    transform: translate(9px, -3px) rotate(3deg);
+  }
+  100% {
+    transform: translate(-5px, 4px) rotate(-5deg);
+  }
+}
+
+@keyframes retro-shift-sway-3 {
+  0% {
+    transform: translate(0px, 0px) rotate(-3deg);
+  }
+  35% {
+    transform: translate(9px, -12px) rotate(6deg);
+  }
+  70% {
+    transform: translate(-7px, -6px) rotate(-6deg);
+  }
+  100% {
+    transform: translate(3px, 9px) rotate(4deg);
+  }
+}
+
+@keyframes retro-shift-sway-4 {
+  0% {
+    transform: translate(0px, 0px) rotate(4deg);
+  }
+  28% {
+    transform: translate(-9px, -7px) rotate(-7deg);
+  }
+  65% {
+    transform: translate(7px, -12px) rotate(6deg);
+  }
+  100% {
+    transform: translate(-4px, 7px) rotate(-3deg);
+  }
+}
+
+/* ==========================================================================
+   RETRO OS WINDOW SYSTEM
+   ========================================================================== */
+.retro-window {
+  background: #ffffff !important;
+  border: 3px solid #2d1f36 !important;
+  border-radius: 10px !important;
+  box-shadow: 6px 6px 0px #2d1f36 !important;
+  color: #2d1f36 !important;
+  position: relative;
+  overflow: hidden;
+  z-index: 10;
+}
+
+.retro-window__header {
+  background: #f4ede3 !important;
+  border-bottom: 2.5px solid #2d1f36 !important;
+  padding: 10px 16px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  font-family: var(--pixel) !important;
+  font-size: 9.5px !important;
+  color: #2d1f36 !important;
+  letter-spacing: 0.04em !important;
+}
+
+.retro-window__title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: bold;
+}
+
+.retro-window__controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--pixel);
+  font-size: 10px;
+  color: #7d5a96;
+}
+
+.retro-window__body {
+  padding: clamp(24px, 3.8vw, 40px) !important;
+}
+
+/* ==========================================================================
+   REVIEW DASHBOARD & ADMIN PORTAL (COZY PASTEL RPG THEME)
+   ========================================================================== */
+.admin-portal-wrapper {
+  min-height: 100vh;
+  background-color: #faf6ee;
+  background-image: 
+    linear-gradient(180deg, #f2e6f4 0%, #fef4e8 30%, #edf6ec 65%, #faf6ee 100%),
+    linear-gradient(rgba(45, 31, 54, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(45, 31, 54, 0.04) 1px, transparent 1px);
+  background-size: 100% 100%, 32px 32px, 32px 32px;
+  color: #2d1f36;
+  position: relative;
+  z-index: 10;
+  padding-bottom: 60px;
+}
+
+.admin-portal-header {
+  padding: 20px 0;
+  border-bottom: 2.5px solid #2d1f36;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(8px);
+  margin-bottom: 28px;
+}
+
+.admin-badge-pill {
+  background: #ffffff;
+  border: 2px solid #2d1f36;
+  box-shadow: 2.5px 2.5px 0px #2d1f36;
+  border-radius: 6px;
+  padding: 6px 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--pixel);
+  font-size: 9.5px;
+  color: #2d1f36;
+}
+
+.admin-team-item {
+  background: #ffffff;
+  border: 2px solid #2d1f36;
+  box-shadow: 2px 2px 0px #2d1f36;
+  border-radius: 6px;
+  padding: 12px 14px;
+  margin-bottom: 10px;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+  cursor: pointer;
+}
+
+.admin-team-item:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 3.5px 3.5px 0px #2d1f36;
+  background: #fdfbf7;
+}
+
+.admin-team-item--selected {
+  background: #7abcc4 !important;
+  border-color: #2d1f36 !important;
+  box-shadow: 3.5px 3.5px 0px #2d1f36 !important;
+}
+
+.admin-team-item--selected .text-secondary {
+  color: #243b40 !important;
+}
+
+.admin-score-card {
+  background: #fdfbf7;
+  border: 2px solid #2d1f36;
+  border-radius: 8px;
+  box-shadow: 3px 3px 0px #2d1f36;
+  padding: 16px 20px;
+}
+
+.admin-score-badge {
+  background: #fde88a;
+  border: 2.5px solid #2d1f36;
+  border-radius: 6px;
+  box-shadow: 3px 3px 0px #2d1f36;
+  padding: 10px 18px;
+  text-align: center;
 }
 
 /* Bootstrap's own --bs-light-rgb was never repointed at this palette, so

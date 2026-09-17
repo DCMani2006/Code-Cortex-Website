@@ -43,6 +43,41 @@ const eventSiteUrl =
   import.meta.env.VITE_EVENT_SITE_URL ||
   (import.meta.env.DEV ? "http://localhost:3001" : "https://codecortex.tamvit.in");
 
+const RETRO_CHARACTERS = [
+  { name: "luffy", label: "Luffy // Straw Hat", sprite: "/sprites/luffy.png", pos: { top: "9%", left: "7%" }, anim: "retro-char--anim-1" },
+  { name: "zoro", label: "Zoro // Santoryu", sprite: "/sprites/zoro.png", pos: { top: "33%", left: "9%" }, anim: "retro-char--anim-2" },
+  { name: "sanji", label: "Sanji // Cook", sprite: "/sprites/sanji.png", pos: { top: "56%", left: "6%" }, anim: "retro-char--anim-3" },
+  { name: "robin", label: "Robin // Archeologist", sprite: "/sprites/robin.png", pos: { top: "78%", left: "10%" }, anim: "retro-char--anim-2" },
+  { name: "usopp", label: "Usopp // Sniper King", sprite: "/sprites/usopp.png", pos: { top: "10%", right: "8%" }, anim: "retro-char--anim-4" },
+  { name: "nami", label: "Nami // Navigator", sprite: "/sprites/nami.png", pos: { top: "34%", right: "9%" }, anim: "retro-char--anim-3" },
+  { name: "chopper", label: "Chopper // Doctor", sprite: "/sprites/chopper.png", pos: { top: "56%", right: "6%" }, anim: "retro-char--anim-1" },
+  { name: "brook", label: "Brook // Soul King", sprite: "/sprites/brook.png", pos: { top: "78%", right: "10%" }, anim: "retro-char--anim-2" },
+  { name: "franky", label: "Franky // SUUUUPER!", sprite: "/sprites/franky.png", pos: { bottom: "4%", left: "24%" }, anim: "retro-char--anim-4" },
+];
+
+function RetroCharactersBackground() {
+  return (
+    <div className="retro-bg-characters" aria-hidden="true">
+      {RETRO_CHARACTERS.map((char) => (
+        <div
+          key={char.name}
+          className={`retro-char ${char.anim}`}
+          style={{ ...char.pos }}
+          title={char.label}
+        >
+          <img
+            src={char.sprite}
+            alt={char.name}
+            className="retro-char__img"
+            loading="eager"
+          />
+          <span className="retro-char__tag">{char.label}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export default function App() {
   // =====================================================
   // APPLICATION STATE
@@ -962,6 +997,7 @@ const googleSignup = useGoogleLogin({
       </div>
 
       <div className="ui-protector"></div>
+      <RetroCharactersBackground />
 
       <div className="main-content position-relative z-3 min-vh-100 d-flex flex-column">
 
@@ -1007,136 +1043,164 @@ const googleSignup = useGoogleLogin({
           <>
             {(!loggedInUser && !teamLoggedIn) ? (
 
-              <div className="d-flex justify-content-center align-items-center flex-grow-1 p-3 fade-in">
+              <div className="d-flex justify-content-center align-items-center flex-grow-1 p-3 fade-in position-relative" style={{ minHeight: "85vh", zIndex: 10 }}>
 
                 <div
-                  className="glass-card p-5 text-center"
-                  style={{ maxWidth: "450px" }}
+                  className="retro-window w-100"
+                  style={{ maxWidth: "520px" }}
                 >
+                  <div className="retro-window__header">
+                    <div className="retro-window__title">
+                      <span>■ CODE CORTEX</span>
+                      <span style={{ opacity: 0.5 }}>//</span>
+                      <span style={{ color: "#7d5a96" }}>USER_AUTHENTICATION</span>
+                    </div>
+                    <div className="retro-window__controls">
+                      <span>_</span>
+                      <span>🗖</span>
+                      <span>✕</span>
+                    </div>
+                  </div>
 
-                  
-<h2 className="glow-text mb-4 fw-bold">
-  Participant Login
-</h2>
+                  <div className="retro-window__body text-center">
+                    <div className="mb-2">
+                      <span className="badge mb-3" style={{ background: "#fde88a", color: "#2d1f36", fontSize: "9px", padding: "6px 14px", border: "1.5px solid #2d1f36", boxShadow: "2px 2px 0px #2d1f36" }}>
+                        ⚔️ GUILD ENTRY // STEP 01
+                      </span>
+                    </div>
 
-{participantType === null ? (
-  <>
-    <p className="text-secondary mb-4">
-      Are you a VIT student, or joining from outside VIT?
-    </p>
-    <button
-      type="button"
-      className="btn btn-gradient w-100 py-2 fw-bold mb-3"
-      onClick={() => setParticipantType("internal")}
-    >
-      🎓 Internal (VIT Student)
-    </button>
-    <button
-      type="button"
-      className="btn btn-outline-info w-100 py-2 fw-bold"
-      onClick={() => setParticipantType("external")}
-    >
-      🌐 External Participant
-    </button>
-  </>
-) : (
-  <>
-    <p className="text-secondary mb-2">
-      Sign in with your Google account to access your dashboard or register a team.
-    </p>
-    <button
-      type="button"
-      className="btn btn-sm text-secondary p-0 border-0 bg-transparent mb-4"
-      onClick={() => setParticipantType(null)}
-    >
-      ← {participantType === "internal" ? "Internal" : "External"} — change
-    </button>
+                    <h2 className="glow-text mb-3 fw-bold" style={{ fontSize: "clamp(24px, 3.2vw, 32px)", letterSpacing: "-0.02em" }}>
+                      Participant Login
+                    </h2>
 
-{!isGoogleConfigured && (
-  <div className="alert alert-warning py-2 px-3 small mb-3 text-start" style={{ backgroundColor: "rgba(255, 193, 7, 0.12)", borderColor: "rgba(255, 193, 7, 0.35)", color: "#ffe082" }}>
-    <div className="fw-bold mb-1">⚠️ Google OAuth Client ID Not Set</div>
-    <div style={{ fontSize: "12px", opacity: 0.9 }}>
-      Add <code>VITE_GOOGLE_CLIENT_ID</code> to your <code>.env</code> file for live Google Sign-In. Use <strong>Quick Dev Login</strong> below to test locally.
-    </div>
-  </div>
-)}
+                    {participantType === null ? (
+                      <>
+                        <p className="mb-4" style={{ fontSize: "17.5px", color: "#4a3856", fontWeight: 500, lineHeight: 1.6 }}>
+                          Are you a VIT student, or joining from outside VIT?
+                        </p>
+                        <div className="d-flex flex-column gap-3">
+                          <button
+                            type="button"
+                            className="btn btn-lg-retro btn-primary w-100"
+                            onClick={() => setParticipantType("internal")}
+                          >
+                            🎓 INTERNAL (VIT STUDENT)
+                          </button>
+                          <button
+                            type="button"
+                            className="btn btn-lg-retro btn-outline-info w-100"
+                            onClick={() => setParticipantType("external")}
+                          >
+                            🌐 EXTERNAL PARTICIPANT
+                          </button>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <p className="mb-3" style={{ fontSize: "16px", color: "#4a3856", lineHeight: 1.6 }}>
+                          Sign in with your Google account to access your dashboard or register a team.
+                        </p>
+                        <button
+                          type="button"
+                          className="btn btn-sm btn-outline-secondary py-1 px-3 mb-4"
+                          style={{ fontSize: "10px", display: "inline-flex", alignItems: "center", gap: "6px" }}
+                          onClick={() => setParticipantType(null)}
+                        >
+                          ← {participantType === "internal" ? "Internal (VIT)" : "External"} — CHANGE
+                        </button>
 
-{googleAuthError && (
-  <div className="text-danger mb-3 small">{googleAuthError}</div>
-)}
+                        {!isGoogleConfigured && (
+                          <div className="alert alert-warning py-3 px-3 text-start mb-3" style={{ fontSize: "14px" }}>
+                            <div className="fw-bold mb-1" style={{ fontFamily: "var(--pixel)", fontSize: "10px" }}>
+                              ⚠️ Google OAuth Client ID Not Set
+                            </div>
+                            <div style={{ lineHeight: 1.5 }}>
+                              Add <code>VITE_GOOGLE_CLIENT_ID</code> to your <code>.env</code> file for live Google Sign-In. Use <strong>Quick Dev Login</strong> below to test locally.
+                            </div>
+                          </div>
+                        )}
 
-<button
-  className="btn btn-gradient w-100 py-2 fw-bold mb-3"
-  onClick={() => {
-    if (!isGoogleConfigured) {
-      showToast("VITE_GOOGLE_CLIENT_ID is not configured in .env. Use Quick Dev Login below to test.", "danger");
-      setShowDevLogin(true);
-    } else {
-      googleSignup();
-    }
-  }}
-  disabled={googleAuthLoading}
->
-  {googleAuthLoading ? "Signing in..." : "Continue with Google →"}
-</button>
+                        {googleAuthError && (
+                          <div className="alert alert-danger py-2 px-3 mb-3 text-start" style={{ fontSize: "13.5px" }}>
+                            {googleAuthError}
+                          </div>
+                        )}
 
-<div className="pt-3 border-top border-secondary mt-2">
-  {!showDevLogin ? (
-    <button
-      type="button"
-      className="btn btn-sm btn-outline-info w-100"
-      onClick={() => setShowDevLogin(true)}
-    >
-      ⚡ Quick Dev Login (Local Test)
-    </button>
-  ) : (
-    <div className="text-start p-3 rounded border border-info" style={{ backgroundColor: "rgba(0, 150, 255, 0.08)" }}>
-      <div className="d-flex justify-content-between align-items-center mb-2">
-        <span className="small fw-bold text-info">⚡ Quick Dev Login</span>
-        {isGoogleConfigured && (
-          <button
-            type="button"
-            className="btn btn-sm text-secondary p-0 border-0 bg-transparent"
-            onClick={() => setShowDevLogin(false)}
-          >
-            Cancel
-          </button>
-        )}
-      </div>
-      <div className="small text-secondary mb-2" style={{ fontSize: "12px" }}>
-        Simulates signing in with a student identity without requiring Google Cloud setup:
-      </div>
-      <input
-        type="text"
-        className="form-control form-control-sm mb-2"
-        style={inputStyle}
-        placeholder="Name (e.g. John Doe 21BCE1234)"
-        value={devName}
-        onChange={(e) => setDevName(e.target.value)}
-      />
-      <input
-        type="email"
-        className="form-control form-control-sm mb-3"
-        style={inputStyle}
-        placeholder="Student Email (@vitstudent.ac.in)"
-        value={devEmail}
-        onChange={(e) => setDevEmail(e.target.value)}
-      />
-      <button
-        type="button"
-        className="btn btn-sm btn-info w-100 fw-bold"
-        onClick={handleDevLogin}
-      >
-        Sign In as Test Student →
-      </button>
-    </div>
-  )}
-</div>
-  </>
-)}
+                        <button
+                          className="btn btn-lg-retro btn-primary w-100 mb-3"
+                          onClick={() => {
+                            if (!isGoogleConfigured) {
+                              showToast("VITE_GOOGLE_CLIENT_ID is not configured in .env. Use Quick Dev Login below to test.", "danger");
+                              setShowDevLogin(true);
+                            } else {
+                              googleSignup();
+                            }
+                          }}
+                          disabled={googleAuthLoading}
+                        >
+                          {googleAuthLoading ? "SIGNING IN..." : "CONTINUE WITH GOOGLE →"}
+                        </button>
 
-
-
+                        <div className="pt-3 border-top border-secondary mt-2">
+                          {!showDevLogin ? (
+                            <button
+                              type="button"
+                              className="btn btn-outline-info w-100 py-2"
+                              style={{ fontSize: "10.5px" }}
+                              onClick={() => setShowDevLogin(true)}
+                            >
+                              ⚡ QUICK DEV LOGIN (LOCAL TEST)
+                            </button>
+                          ) : (
+                            <div className="text-start p-3 rounded" style={{ background: "#fdfbf7", border: "2px solid #2d1f36", boxShadow: "3px 3px 0px #2d1f36" }}>
+                              <div className="d-flex justify-content-between align-items-center mb-2">
+                                <span className="fw-bold" style={{ fontFamily: "var(--pixel)", fontSize: "9px", color: "#d15676" }}>
+                                  ⚡ QUICK DEV LOGIN
+                                </span>
+                                {isGoogleConfigured && (
+                                  <button
+                                    type="button"
+                                    className="btn btn-sm text-secondary p-0 border-0 bg-transparent"
+                                    style={{ fontSize: "10px", fontFamily: "var(--pixel)" }}
+                                    onClick={() => setShowDevLogin(false)}
+                                  >
+                                    [CANCEL]
+                                  </button>
+                                )}
+                              </div>
+                              <div className="text-secondary mb-2" style={{ fontSize: "13.5px", lineHeight: 1.5 }}>
+                                Simulates signing in with a student identity without requiring Google Cloud setup:
+                              </div>
+                              <input
+                                type="text"
+                                className="form-control form-control-sm mb-2"
+                                style={inputStyle}
+                                placeholder="Name (e.g. John Doe 21BCE1234)"
+                                value={devName}
+                                onChange={(e) => setDevName(e.target.value)}
+                              />
+                              <input
+                                type="email"
+                                className="form-control form-control-sm mb-3"
+                                style={inputStyle}
+                                placeholder="Student Email (@vitstudent.ac.in)"
+                                value={devEmail}
+                                onChange={(e) => setDevEmail(e.target.value)}
+                              />
+                              <button
+                                type="button"
+                                className="btn btn-info w-100 fw-bold py-2"
+                                style={{ fontSize: "11px" }}
+                                onClick={handleDevLogin}
+                              >
+                                SIGN IN AS TEST STUDENT →
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      </>
+                    )}
+                  </div>
                 </div>
               </div>
 
@@ -2150,21 +2214,25 @@ const googleSignup = useGoogleLogin({
 
       {role === "admin" && adminLoggedIn && (
         <div
-          className="position-fixed top-0 start-0 w-100 h-100 overflow-auto p-3"
-          style={{
-            backgroundColor: "rgba(0,0,0,0.95)",
-            zIndex: 1900
-          }}
+          className="position-fixed top-0 start-0 w-100 h-100 overflow-auto admin-portal-wrapper"
+          style={{ zIndex: 1900 }}
         >
-          <div className="container py-4" style={{ maxWidth: "1200px" }}>
-            <div className="d-flex justify-content-between align-items-center mb-4 gap-3 flex-wrap">
-              <div>
-                <p className="text-secondary mb-1">Logged in as</p>
-                <h2 className="glow-text fw-bold mb-0">{adminUsername || "Admin"}</h2>
+          {/* Admin Top Header */}
+          <header className="admin-portal-header">
+            <div className="container d-flex justify-content-between align-items-center flex-wrap gap-3" style={{ maxWidth: "1240px" }}>
+              <div className="d-flex align-items-center flex-wrap gap-3">
+                <div className="admin-badge-pill">
+                  <span style={{ width: 8, height: 8, background: "var(--lime)", border: "1.5px solid #2d1f36", display: "inline-block" }} />
+                  <span>🛡️ CODE CORTEX // REVIEW PANEL</span>
+                </div>
+                <span className="text-secondary" style={{ fontSize: "14px" }}>
+                  Evaluator: <strong style={{ color: "#2d1f36", fontFamily: "var(--pixel)", fontSize: "10.5px" }}>{adminUsername || "Admin"}</strong>
+                </span>
               </div>
 
               <button
-                className="btn btn-outline-danger btn-sm rounded-pill"
+                className="btn btn-sm btn-danger py-2 px-3"
+                style={{ fontSize: "10px" }}
                 onClick={() => {
                   setAdminLoggedIn(false);
                   setRole('participant');
@@ -2182,82 +2250,115 @@ const googleSignup = useGoogleLogin({
                   showToast("Admin signed out", "info");
                 }}
               >
-                Logout
+                LOGOUT ✕
               </button>
             </div>
+          </header>
 
-            <div className="glass-card p-4 p-md-5">
-              <div className="row g-4 align-items-start">
-                        <div className="col-lg-4">
-                <div className="border border-info rounded p-3 h-100">
-                  <h6 className="text-info mb-2">Submissions</h6>
-                  <div className="small text-secondary mb-2">Type a team ID or name to filter, then click a submission to select it for scoring</div>
+          <div className="container py-2" style={{ maxWidth: "1240px", position: "relative", zIndex: 10 }}>
+            <div className="row g-4 align-items-start">
+              {/* Left Column: Submissions Queue */}
+              <div className="col-lg-4">
+                <div className="retro-window h-100">
+                  <div className="retro-window__header">
+                    <div className="retro-window__title">
+                      <span>■ QUEUE</span>
+                      <span style={{ opacity: 0.5 }}>//</span>
+                      <span style={{ color: "#7d5a96" }}>SUBMISSIONS</span>
+                    </div>
+                    <span className="badge" style={{ background: "#fde88a", color: "#2d1f36", fontSize: "8px" }}>
+                      {uniqueTeams.length} TEAMS
+                    </span>
+                  </div>
 
-                  <div style={{ maxHeight: 320, overflow: 'auto' }}>
-  {uniqueTeams.length === 0 ? (
-    <div className="text-secondary small">
-      No teams yet
-    </div>
-  ) : (
-    uniqueTeams.map((team) => {
-      const teamId = String(
-        team?.Team_ID || ''
-      ).trim();
+                  <div className="p-3">
+                    <div className="small text-secondary mb-3" style={{ fontSize: "13px", lineHeight: 1.5 }}>
+                      Filter teams by ID or name, then click a team card to score their project:
+                    </div>
 
-      const isSelected =
-        adminTeamId.trim() === teamId;
+                    <div className="mb-3">
+                      <label className="form-label" style={{ fontSize: "9px" }}>FILTER BY TEAM ID</label>
+                      <input
+                        type="text"
+                        className="form-control form-control-sm mb-2"
+                        style={inputStyle}
+                        placeholder="e.g. CC-101"
+                        value={adminTeamFilter}
+                        onChange={(e) => setAdminTeamFilter(e.target.value)}
+                      />
 
-      return (
-        <div
-          key={teamId}
-          className={`p-2 mb-2 rounded ${
-            isSelected
-              ? 'bg-dark border border-info'
-              : 'bg-transparent'
-          }`}
-          style={{ cursor: 'pointer' }}
-          onClick={() => {
-  setAdminTeamId(teamId);
-  setAdminTeamFilter(teamId);
+                      <div className="d-flex gap-2">
+                        <button
+                          className="btn btn-outline-info btn-sm flex-grow-1"
+                          style={{ fontSize: "9.5px", padding: "8px 12px" }}
+                          onClick={() => fetchSubmissions()}
+                        >
+                          🔄 REFRESH
+                        </button>
+                        <button
+                          className="btn btn-outline-secondary btn-sm"
+                          style={{ fontSize: "9.5px", padding: "8px 12px" }}
+                          onClick={() => {
+                            setSelectedSubmissionIndex(null);
+                            setAdminTeamId('');
+                            setAdminTeamFilter('');
+                          }}
+                        >
+                          CLEAR
+                        </button>
+                      </div>
+                    </div>
 
-  // Always start with Review 1 when a new team is selected
-  setScoreReviewRound('Review 1');
+                    <hr className="border-secondary my-3" />
 
-  const firstIndex = submissions.findIndex(
-    (item) =>
-      String(item?.Team_ID || '').trim() === teamId
-  );
+                    <div style={{ maxHeight: "380px", overflowY: "auto", paddingRight: "4px" }}>
+                      {uniqueTeams.length === 0 ? (
+                        <div className="p-3 text-center text-secondary" style={{ fontSize: "13.5px", background: "#fdfbf7", border: "1.5px dashed #2d1f36", borderRadius: "6px" }}>
+                          No submissions found yet
+                        </div>
+                      ) : (
+                        uniqueTeams.map((team) => {
+                          const teamId = String(team?.Team_ID || '').trim();
+                          const isSelected = adminTeamId.trim() === teamId;
 
-  setSelectedSubmissionIndex(
-    firstIndex >= 0 ? firstIndex : null
-  );
-}}
-        >
-          <div className="text-white fw-bold">
-            {teamId || 'Unknown Team'}
-          </div>
+                          return (
+                            <div
+                              key={teamId}
+                              className={`admin-team-item ${isSelected ? 'admin-team-item--selected' : ''}`}
+                              onClick={() => {
+                                setAdminTeamId(teamId);
+                                setAdminTeamFilter(teamId);
+                                setScoreReviewRound('Review 1');
 
-          <div className="text-secondary small">
-            {team?.['Team_Name '] || ''}
-          </div>
-        </div>
-      );
-    })
-  )}
-</div>
-
-                  <hr className="border-secondary my-3" />
-
-                  <div className="text-secondary small mb-2">Filter / Select Team</div>
-                  <input type="text" className="form-control mb-2" style={inputStyle} placeholder="Filter by Team ID" value={adminTeamFilter} onChange={(e) => setAdminTeamFilter(e.target.value)} />
-
-                  <div className="d-flex gap-2 mt-2">
-                    <button className="btn btn-outline-info btn-sm" onClick={() => fetchSubmissions()}>Refresh</button>
-                    <button className="btn btn-outline-light btn-sm" onClick={() => { setSelectedSubmissionIndex(null); setAdminTeamId(''); setAdminTeamFilter(''); }}>Clear</button>
+                                const firstIndex = submissions.findIndex(
+                                  (item) => String(item?.Team_ID || '').trim() === teamId
+                                );
+                                setSelectedSubmissionIndex(firstIndex >= 0 ? firstIndex : null);
+                              }}
+                            >
+                              <div className="d-flex justify-content-between align-items-center mb-1">
+                                <span className="fw-bold id-code" style={{ fontSize: "13.5px", color: "#2d1f36" }}>
+                                  {teamId || 'Unknown Team'}
+                                </span>
+                                {isSelected && (
+                                  <span className="badge" style={{ background: "#fde88a", color: "#2d1f36", fontSize: "8px" }}>
+                                    SCORING
+                                  </span>
+                                )}
+                              </div>
+                              <div className="text-secondary" style={{ fontSize: "13px" }}>
+                                {team?.['Team_Name '] || 'Unnamed Team'}
+                              </div>
+                            </div>
+                          );
+                        })
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
 
+              {/* Right Column: Scoring Console */}
               <div className="col-lg-8">
                 <AdminDashboard
                   submission={selectedReviewSubmission}
@@ -2277,7 +2378,6 @@ const googleSignup = useGoogleLogin({
                   adminName={adminUsername}
                 />
               </div>
-              </div>
             </div>
           </div>
         </div>
@@ -2291,83 +2391,124 @@ const googleSignup = useGoogleLogin({
         <div
           className="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center p-3"
           style={{
-            backgroundColor: "rgba(0,0,0,0.9)",
+            backgroundColor: "rgba(45, 31, 54, 0.45)",
+            backdropFilter: "blur(8px)",
             zIndex: 2000
           }}
         >
-
           <div
-            className="glass-card p-4 p-md-5 text-center w-100"
-            style={{ maxWidth: "400px" }}
+            className="retro-window w-100"
+            style={{ maxWidth: "480px" }}
           >
-
-            <h2 className="glow-text mb-4 fw-bold">
-              Admin Login
-            </h2>
-
-            <input
-              type="email"
-              className="form-control mb-4 py-2"
-              style={inputStyle}
-              placeholder="Admin Email"
-              value={adminUsername}
-              onChange={(e) =>
-                setAdminUsername(e.target.value)
-              }
-            />
-
-            <div className="position-relative mb-4">
-              <input
-                type={showAdminPassword ? "text" : "password"}
-                className="form-control py-2 pe-5"
-                style={inputStyle}
-                placeholder="Admin Passcode"
-                value={adminPassword}
-                onChange={(e) => {
-                  setAdminPassword(e.target.value);
-                  setAdminError(null);
-                }}
-                ref={adminPasswordRef}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    handleAdminLogin();
-                  }
-                }}
-              />
-              <button
-                type="button"
-                className="btn btn-sm text-secondary position-absolute end-0 top-50 translate-middle-y me-2 border-0 bg-transparent"
-                onClick={() => setShowAdminPassword(!showAdminPassword)}
-              >
-                {showAdminPassword ? "Hide" : "Show"}
-              </button>
+            <div className="retro-window__header">
+              <div className="retro-window__title">
+                <span>■ ADMIN_GATE</span>
+                <span style={{ opacity: 0.5 }}>//</span>
+                <span style={{ color: "#7d5a96" }}>AUTHENTICATE</span>
+              </div>
+              <div className="retro-window__controls">
+                <span>_</span>
+                <span>🗖</span>
+                <span
+                  style={{ cursor: "pointer" }}
+                  onClick={() => {
+                    setShowAdminLogin(false);
+                    setAdminUsername("");
+                    setAdminPassword("");
+                    setAdminError(null);
+                    if (window.location.pathname === '/admin') {
+                      window.history.pushState({}, '', '/');
+                    }
+                  }}
+                >
+                  ✕
+                </span>
+              </div>
             </div>
 
-            {adminError && (
-              <div className="text-danger mb-3">{adminError}</div>
-            )}
+            <div className="retro-window__body text-center">
+              <div className="mb-2">
+                <span className="badge mb-3" style={{ background: "#7abcc4", color: "#2d1f36", fontSize: "9px", padding: "6px 14px", border: "1.5px solid #2d1f36", boxShadow: "2px 2px 0px #2d1f36" }}>
+                  🛡️ BOARD ACCESS ONLY
+                </span>
+              </div>
 
-            <button
-              className="btn btn-gradient w-100 py-2 fw-bold"
-              onClick={handleAdminLogin}
-            >
-              Authenticate →
-            </button>
+              <h2 className="glow-text mb-4 fw-bold" style={{ fontSize: "clamp(22px, 2.5vw, 28px)" }}>
+                Admin Login
+              </h2>
 
-            <button
-              className="btn text-secondary mt-3 btn-sm"
-              onClick={() => {
-                setShowAdminLogin(false);
-                setAdminUsername("");
-                setAdminPassword("");
-                setAdminError(null);
-                if (window.location.pathname === '/admin') {
-                  window.history.pushState({}, '', '/');
-                }
-              }}
-            >
-              Cancel
-            </button>
+              <div className="text-start mb-3">
+                <label className="form-label">ADMIN EMAIL</label>
+                <input
+                  type="email"
+                  className="form-control mb-0"
+                  style={inputStyle}
+                  placeholder="Admin Email (e.g. admin@vitstudent.ac.in)"
+                  value={adminUsername}
+                  onChange={(e) => setAdminUsername(e.target.value)}
+                />
+              </div>
+
+              <div className="text-start mb-4">
+                <label className="form-label">ADMIN PASSCODE</label>
+                <div className="position-relative">
+                  <input
+                    type={showAdminPassword ? "text" : "password"}
+                    className="form-control pe-5 mb-0"
+                    style={inputStyle}
+                    placeholder="Admin Passcode"
+                    value={adminPassword}
+                    onChange={(e) => {
+                      setAdminPassword(e.target.value);
+                      setAdminError(null);
+                    }}
+                    ref={adminPasswordRef}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        handleAdminLogin();
+                      }
+                    }}
+                  />
+                  <button
+                    type="button"
+                    className="btn btn-sm text-secondary position-absolute end-0 top-50 translate-middle-y me-2 border-0 bg-transparent"
+                    style={{ fontFamily: "var(--pixel)", fontSize: "9px" }}
+                    onClick={() => setShowAdminPassword(!showAdminPassword)}
+                  >
+                    {showAdminPassword ? "HIDE" : "SHOW"}
+                  </button>
+                </div>
+              </div>
+
+              {adminError && (
+                <div className="alert alert-danger py-2 px-3 mb-3 text-start" style={{ fontSize: "13px" }}>
+                  {adminError}
+                </div>
+              )}
+
+              <button
+                className="btn btn-lg-retro btn-primary w-100 mb-2"
+                onClick={handleAdminLogin}
+              >
+                AUTHENTICATE →
+              </button>
+
+              <button
+                className="btn btn-sm btn-outline-secondary w-100 mt-2"
+                style={{ fontSize: "10px" }}
+                onClick={() => {
+                  setShowAdminLogin(false);
+                  setAdminUsername("");
+                  setAdminPassword("");
+                  setAdminError(null);
+                  if (window.location.pathname === '/admin') {
+                    window.history.pushState({}, '', '/');
+                  }
+                }}
+              >
+                CANCEL
+              </button>
+            </div>
           </div>
         </div>
       )}
