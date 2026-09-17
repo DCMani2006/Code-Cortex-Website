@@ -1736,7 +1736,7 @@ export default function Home() {
           <div className="tavern-row tavern-row--forge">
             <div className="tavern-col tavern-col--intro">
               <span className="chapter-badge">⚔️ CHAPTER 01 // THE HACKER'S TAVERN</span>
-              <SectionLabel number="01">ABOUT THE JAM</SectionLabel>
+              <SectionLabel number="01">ABOUT CODE CORTEX 3.0</SectionLabel>
               <div className="heading-with-icon">
                 <HeadingIcon icon={Info} label="About" />
                 <h2>
@@ -1746,7 +1746,7 @@ export default function Home() {
                 </h2>
               </div>
               <p className="lead-copy">
-                A high-energy 30-hour hackathon where curiosity turns into production code. Gather your guild, pick your domain, and craft groundbreaking solutions judged by industry experts.
+                A high-energy 30-hour hackathon fostering innovation and collaboration, where participants address real-world challenges, showcase their coding skills, and develop groundbreaking solutions, judged by industry experts.
               </p>
             </div>
 
@@ -1877,7 +1877,6 @@ export default function Home() {
                   grow, innovate, make meaningful contributions, and to be a
                   part of something extraordinary.
                 </p>
-                <span className="manifesto__signature">📜 TAM-VIT GUILD CHARTER / 2026</span>
               </div>
             </div>
           </div>
