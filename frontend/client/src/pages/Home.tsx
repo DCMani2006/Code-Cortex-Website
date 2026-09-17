@@ -1785,20 +1785,6 @@ export default function Home() {
               <p className="lead-copy">
                 A high-energy 30-hour hackathon where curiosity turns into production code. Gather your guild, pick your domain, and craft groundbreaking solutions judged by industry experts.
               </p>
-              <div className="tavern-intro-actions">
-                <a
-                  className="hero-pixel-btn"
-                  href="#tracks"
-                  onClick={(event) => {
-                    event.preventDefault();
-                    jumpTo("#tracks");
-                  }}
-                  style={{ display: "inline-flex", textDecoration: "none" }}
-                >
-                  <span>⚔️ EXPLORE 5 TRACKS</span>
-                  <ArrowRight size={16} />
-                </a>
-              </div>
             </div>
 
             <div className="tavern-col tavern-col--builder">
