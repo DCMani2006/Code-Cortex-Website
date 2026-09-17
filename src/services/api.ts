@@ -223,7 +223,8 @@ export const getTeamPassword = async (
 export const joinTeam = async (
   teamId: string,
   password: string,
-  userId: string
+  userId: string,
+  identity: { email?: string; regNo?: string } = {}
 ): Promise<boolean> => {
   const response = await fetch(`${API_BASE}/teams/join`, {
     method: "POST",
@@ -231,19 +232,62 @@ export const joinTeam = async (
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      teamId: teamId.trim(),
-      password,
+      // Team IDs are matched case-insensitively server-side; send them tidy
+      // anyway. The password is trimmed so a pasted trailing space doesn't
+      // read as a wrong password.
+      teamId: teamId.trim().toUpperCase(),
+      password: String(password ?? "").trim(),
       userId,
+      email: identity.email,
+      regNo: identity.regNo,
     }),
   });
 
   const data = await response.json().catch(() => null);
 
   if (!response.ok) {
-    return false;
+    // Surface why: "this team is already full", "you are already a member of a
+    // team", and so on are far more useful than a generic failure.
+    throw new Error(data?.error || data?.message || "Invalid Team ID or Password.");
   }
 
   return data?.success === true;
+};
+
+// Changes the team size declared at registration (2-4).
+export const updateTeamSize = async (
+  teamId: string,
+  size: number,
+  userId: string
+): Promise<number> => {
+  const response = await fetch(`${API_BASE}/teams/${teamId}/size`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ size, userId }),
+  });
+
+  const data = await response.json().catch(() => null);
+  if (!response.ok) {
+    throw new Error(data?.error || "Failed to update team size");
+  }
+  return Number(data?.size ?? size);
+};
+
+// Admin fix-up: detach someone from a team they shouldn't be on.
+export const removeTeamMember = async (
+  teamId: string,
+  userId: string
+): Promise<void> => {
+  const response = await fetch(`${API_BASE}/teams/${teamId}/remove-member`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ userId }),
+  });
+
+  if (!response.ok) {
+    const body = await response.json().catch(() => null);
+    throw new Error(body?.error || "Failed to remove member");
+  }
 };
 
   export const authTeam = async (
@@ -254,8 +298,8 @@ export const joinTeam = async (
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      teamId: teamId.trim(),
-      password
+      teamId: teamId.trim().toUpperCase(),
+      password: String(password ?? '').trim()
     })
   });
 
