@@ -63,7 +63,7 @@ const navItems = [
   { label: "Home", href: "#home", icon: HomeIcon },
   { label: "About", href: "#about", icon: Info },
   { label: "Tracks", href: "#tracks", icon: Layers },
-  { label: "Nominate", href: "#nominate", icon: Music2 },
+  { label: "Arcade", href: "#nominate", icon: Music2 },
   { label: "Sponsors", href: "#sponsors", icon: HandHeart },
   { label: "FAQs", href: "#faqs", icon: HelpCircle },
   { label: "Contact", href: "#contact", icon: Mail },
@@ -1785,7 +1785,7 @@ export default function Home() {
                     <span className="quest-item-icon">⚔️</span>
                     <div className="quest-item-text">
                       <strong>5 DUNGEON TRACKS</strong>
-                      <span>Aviation, AI/ML, Security, Open Tech</span>
+                      <span>Finance, Medical, Aviation, Security, Open Tech</span>
                     </div>
                   </div>
                   <div className="tavern-quest-item">
@@ -1855,7 +1855,7 @@ export default function Home() {
                 <div className="heading-with-icon">
                   <HeadingIcon icon={Sparkles} label="Who we are" />
                   <h2>
-                    Curiosity <span>with a deadline.</span>
+                    About <span>TAM</span>
                   </h2>
                 </div>
               </div>
@@ -2079,7 +2079,7 @@ export default function Home() {
                     <DialogContent className="track-brief-dialog">
                       <DialogHeader>
                         <DialogTitle className="track-brief-dialog__title">
-                          ⚔️ {activeTrack.name} — QUEST BRIEFING
+                          {activeTrack.name}
                         </DialogTitle>
                       </DialogHeader>
                       <div className="track-brief-dialog__body">
@@ -2340,17 +2340,6 @@ export default function Home() {
                 </div>
               ))}
             </div>
-            <a
-              className="discord-link"
-              href="#contact"
-              onClick={(event) => {
-                event.preventDefault();
-                jumpTo("#contact");
-              }}
-            >
-              For deeper counsel, summon an elder on Discord{" "}
-              <ArrowUpRight size={18} />
-            </a>
           </div>
         </section>
       </main>
@@ -2358,7 +2347,7 @@ export default function Home() {
       <footer id="contact" className="footer section-dark page-pad" data-reveal>
         <div className="footer__main">
           <div className="footer__statement">
-            <span className="chapter-badge">🌌 CHAPTER 09 // WARP PORTAL &amp; CREDITS</span>
+            <span className="chapter-badge">🌌 CHAPTER 09 // CONTACT</span>
             <SectionLabel number="09">SAY HELLO</SectionLabel>
             <div className="heading-with-icon">
               <HeadingIcon icon={Mail} label="Contact" />
