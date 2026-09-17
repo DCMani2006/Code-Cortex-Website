@@ -717,7 +717,7 @@ const googleSignup = useGoogleLogin({
       }
 
       // Authenticate with backend: validates Google token, resolves/creates user, and issues session token
-      const sessionResult = await startSession(tokenResponse.access_token, name);
+      const sessionResult = await startSession(tokenResponse.access_token, name, email);
       const user = sessionResult.user;
 
       updateLoggedInUser(user);

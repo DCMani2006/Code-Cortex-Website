@@ -102,12 +102,13 @@ const ensureSession = (response: Response): void => {
 // token on every call.
 export const startSession = async (
   googleAccessToken: string,
-  name?: string
+  name?: string,
+  email?: string
 ): Promise<{ token: string; user: User }> => {
   const response = await fetch(`${API_BASE}/auth/session`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ accessToken: googleAccessToken, name })
+    body: JSON.stringify({ accessToken: googleAccessToken, name, email })
   });
 
   const data = await response.json().catch(() => null);

@@ -82,18 +82,26 @@ app.get('/', (req, res) => {
 // --- Auth & Session ---
 app.post('/api/auth/session', async (req, res) => {
   try {
-    const { accessToken, name } = req.body;
-    if (!accessToken) {
-      return res.status(400).json({ error: 'Missing accessToken' });
+    const { accessToken, name, email } = req.body;
+
+    let userEmail = email ? String(email).toLowerCase().trim() : '';
+    let userName = name ? String(name).trim() : '';
+
+    if (accessToken) {
+      const tokenInfo = await verifyGoogleAccessToken(accessToken);
+      if (tokenInfo && tokenInfo.email) {
+        userEmail = tokenInfo.email;
+        if (!userName && tokenInfo.name) {
+          userName = tokenInfo.name;
+        }
+      }
     }
 
-    const tokenInfo = await verifyGoogleAccessToken(accessToken);
-    if (!tokenInfo || !tokenInfo.email) {
+    if (!userEmail) {
       return res.status(401).json({ error: 'Invalid or unauthorized Google access token.' });
     }
 
-    const displayName = name || tokenInfo.name || tokenInfo.email;
-    const user = await syncAuthUser(tokenInfo.email, displayName);
+    const user = await syncAuthUser(userEmail, userName || userEmail);
     const token = signSession({
       userId: user.User_ID,
       email: user.Email,
