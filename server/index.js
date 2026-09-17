@@ -18,52 +18,113 @@ import {
   updateTeamSize
 } from './googleSheets.js';
 import { saveTeamPassword, getTeamPasswords } from './teamPasswords.js';
+import {
+  signSession,
+  verifyGoogleAccessToken,
+  rateLimit,
+  authenticate,
+  requireAdmin,
+  checkAdminPasscode
+} from './auth.js';
 
 dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 3000;
 
-app.use(cors());
+// CORS was wide open to every origin, so any page on the internet could call
+// this API with a visitor's browser. Restrict it to our own front ends, plus
+// localhost for development. EXTRA_CORS_ORIGINS (comma separated) is an escape
+// hatch for a preview deploy without a code change.
+const ALLOWED_ORIGINS = [
+  'https://app.codecortex.tamvit.in',
+  'https://codecortex.tamvit.in',
+  'http://localhost:5173',
+  'http://localhost:5174',
+  'http://localhost:3001',
+  ...String(process.env.EXTRA_CORS_ORIGINS || '')
+    .split(',')
+    .map(o => o.trim())
+    .filter(Boolean)
+];
+
+app.use(cors({
+  origin(origin, callback) {
+    // No Origin header means a same-origin or non-browser caller (curl, health
+    // checks, the Railway probe). Those are not what CORS defends against, so
+    // let them through; the auth layer is what actually guards the data.
+    if (!origin || ALLOWED_ORIGINS.includes(origin)) return callback(null, true);
+    console.warn('Blocked CORS origin:', origin);
+    return callback(null, false);
+  },
+  credentials: true
+}));
 app.use(express.json());
+
+// Railway terminates TLS in front of us, so without this req.ip is the proxy's
+// address and every visitor would share one rate-limit bucket.
 app.set('trust proxy', 1);
+
+// Populates req.user when a valid session token is present. Runs in "log"
+// mode by default (process.env.AUTH_MODE), which never rejects a request —
+// only decorates it — so this cannot by itself break sign-in or any existing
+// flow. Routes that need real protection (requireAdmin below) check req.user
+// directly regardless of this mode.
+app.use(authenticate());
 
 app.get('/', (req, res) => {
   res.json({ status: 'ok', service: 'codecortex3.0 api' });
 });
 
 // --- Auth & Session ---
-app.post('/api/auth/session', async (req, res) => {
+app.post('/api/auth/session', rateLimit({ windowMs: 5 * 60 * 1000, max: 30 }), async (req, res) => {
   try {
     const { accessToken, name, email } = req.body;
-    const userEmail = email ? String(email).toLowerCase().trim() : '';
-    const userName = name ? String(name).trim() : '';
+    let userEmail = email ? String(email).toLowerCase().trim() : '';
+    let userName = name ? String(name).trim() : '';
+
+    if (accessToken) {
+      const verified = await verifyGoogleAccessToken(accessToken);
+      // A token was presented but Google won't vouch for it — that's a bad or
+      // forged token, not a config problem, so this is the one case that
+      // should actually be rejected.
+      if (!verified) {
+        return res.status(401).json({ error: 'Could not verify Google sign-in. Please try again.' });
+      }
+      userEmail = verified.email;
+      if (!userName) userName = verified.name || verified.email;
+    }
+    // No accessToken at all: the client hasn't sent one (older build, or a
+    // caller that only has the email/name). Falls back to trusting those
+    // directly, same as this endpoint has always behaved — kept so a client
+    // deploy lagging behind the server can never be locked out.
 
     if (!userEmail) {
       return res.status(400).json({ error: 'Missing email' });
     }
 
     const user = await syncAuthUser(userEmail, userName || userEmail);
-    res.json({ token: 'cc_session_valid', user });
+    const token = signSession({ userId: user.User_ID, email: user.Email, role: 'participant' });
+    res.json({ token, user });
   } catch (error) {
     console.error('Error in /api/auth/session:', error);
     res.status(500).json({ error: 'Failed to create session.' });
   }
 });
 
-app.post('/api/admin/session', async (req, res) => {
+app.post('/api/admin/session', rateLimit({ windowMs: 5 * 60 * 1000, max: 10 }), async (req, res) => {
   try {
     const { name, passcode } = req.body;
     if (!name || !passcode) {
       return res.status(400).json({ error: 'Name and passcode are required.' });
     }
 
-    const validPasscode = process.env.ADMIN_PASSCODE || 'tamreviewpanel_cc';
-    if (String(passcode).trim() !== validPasscode) {
+    if (!checkAdminPasscode(String(passcode).trim())) {
       return res.status(401).json({ error: 'Invalid admin passcode.' });
     }
 
-    res.json({ success: true, token: 'admin_session_valid' });
+    const token = signSession({ name: String(name).trim(), role: 'admin' }, 8 * 60 * 60);
+    res.json({ success: true, token });
   } catch (error) {
     console.error('Error in /api/admin/session:', error);
     res.status(500).json({ error: 'Admin authentication failed.' });
@@ -71,7 +132,9 @@ app.post('/api/admin/session', async (req, res) => {
 });
 
 // --- Users ---
-app.get('/api/users', async (req, res) => {
+// Every participant's name, VIT reg number and email — admin-only, called
+// only from the admin dashboard (the participant client never calls this).
+app.get('/api/users', requireAdmin(), async (req, res) => {
   try {
     const users = await getUsers();
     res.json(users);
@@ -102,7 +165,7 @@ app.post('/api/auth', async (req, res) => {
   }
 });
 
-app.post('/api/login', async (req, res) => {
+app.post('/api/login', rateLimit({ windowMs: 5 * 60 * 1000, max: 20 }), async (req, res) => {
   try {
     const { identifier, password } = req.body;
     if (!identifier || !password) {
@@ -195,7 +258,7 @@ async function resolveTeamPassword(teamId) {
   return key ? passwords[key] : null;
 }
 
-app.post('/api/teams/auth', async (req, res) => {
+app.post('/api/teams/auth', rateLimit({ windowMs: 5 * 60 * 1000, max: 20 }), async (req, res) => {
   try {
     const { teamId, password } = req.body;
     const expected = await resolveTeamPassword(teamId);
@@ -211,7 +274,7 @@ app.post('/api/teams/auth', async (req, res) => {
   }
 });
 
-app.post('/api/teams/join', async (req, res) => {
+app.post('/api/teams/join', rateLimit({ windowMs: 5 * 60 * 1000, max: 20 }), async (req, res) => {
   try {
     const { teamId, password, userId, email, regNo } = req.body;
     const effectiveUserId = req.user?.userId || userId;
@@ -275,7 +338,7 @@ app.post('/api/teams/:teamId/password', async (req, res) => {
 
 // Admin: detach a member from their team, so someone who joined the wrong team
 // (or needs to be moved) can be fixed without hand-editing the sheet.
-app.post('/api/teams/:teamId/remove-member', async (req, res) => {
+app.post('/api/teams/:teamId/remove-member', requireAdmin(), async (req, res) => {
   try {
     const { teamId } = req.params;
     const { userId } = req.body;
@@ -344,7 +407,9 @@ app.post('/api/submissions', async (req, res) => {
 });
 
 // --- Reviews ---
-app.get('/api/reviews', async (req, res) => {
+// Judging scores and which judge gave them — admin-only, called only from the
+// admin scoring console.
+app.get('/api/reviews', requireAdmin(), async (req, res) => {
   try {
     const reviews = await getReviews();
     res.json(reviews);
@@ -354,7 +419,7 @@ app.get('/api/reviews', async (req, res) => {
   }
 });
 
-app.post('/api/reviews', async (req, res) => {
+app.post('/api/reviews', requireAdmin(), async (req, res) => {
   try {
     await addReview(req.body);
     res.status(201).json({ message: 'Review added successfully' });

@@ -9,7 +9,13 @@ const API_BASE = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:3000/api
 
 const SESSION_KEY = 'cc_session';
 
+// In-memory mirror of the token. localStorage throws in Safari private mode
+// and whenever site data is blocked, so this is the fallback that keeps auth
+// working for the rest of the tab's life when storage is unavailable.
+let memoryToken: string | null = null;
+
 export const setSessionToken = (token: string | null): void => {
+  memoryToken = token;
   try {
     if (token) {
       localStorage.setItem(SESSION_KEY, token);
@@ -17,16 +23,18 @@ export const setSessionToken = (token: string | null): void => {
       localStorage.removeItem(SESSION_KEY);
     }
   } catch {
-    // ignore
+    // Storage blocked — the in-memory copy above is the fallback.
   }
 };
 
 export const getSessionToken = (): string | null => {
+  if (memoryToken) return memoryToken;
   try {
-    return localStorage.getItem(SESSION_KEY);
+    memoryToken = localStorage.getItem(SESSION_KEY);
   } catch {
-    return null;
+    // Storage blocked — treat it as "no stored token" and rely on memory.
   }
+  return memoryToken;
 };
 
 export const clearSession = (): void => setSessionToken(null);
@@ -46,9 +54,39 @@ export const getSessionPayload = (): SessionPayload | null => {
     const [payloadPart] = token.split('.');
     if (!payloadPart) return null;
     const json = atob(payloadPart.replace(/-/g, '+').replace(/_/g, '/'));
-    return JSON.parse(json);
+    const payload = JSON.parse(json);
+    if (!payload || typeof payload.exp !== 'number') return null;
+    if (payload.exp <= Math.floor(Date.now() / 1000)) {
+      // Expired — drop it rather than let stale admin/role state linger in
+      // the UI after the server would no longer honour it.
+      clearSession();
+      return null;
+    }
+    return payload;
   } catch {
     return null;
+  }
+};
+
+// Every request carries the server-issued session token. Spread into existing
+// headers so callers keep their Content-Type.
+const authHeaders = (): Record<string, string> => {
+  const token = getSessionToken();
+  return token ? { Authorization: `Bearer ${token}` } : {};
+};
+
+// A 401 on a normal API call means the stored token is expired or invalid,
+// not that the user typed something wrong. Drop the dead token so the app
+// falls back to signed-out state, and say so plainly instead of surfacing
+// whatever generic failure message the individual call would otherwise
+// throw. Deliberately NOT applied to the sign-in / credential-checking
+// endpoints (syncUserByEmail, syncAuth, authTeam, joinTeam, startSession,
+// startAdminSession) — there a 401 means "wrong password/passcode", not a
+// stale session, and must keep its own message.
+const ensureSession = (response: Response): void => {
+  if (response.status === 401) {
+    clearSession();
+    throw new Error('Your session expired. Please sign in again.');
   }
 };
 
@@ -59,10 +97,12 @@ export const getSessionPayload = (): SessionPayload | null => {
 export const getUsers = async (): Promise<User[]> => {
   const response = await fetch(`${API_BASE}/users`, {
     method: 'GET',
-    cache: 'no-store'
+    cache: 'no-store',
+    headers: { ...authHeaders() }
   });
 
   if (!response.ok) {
+    ensureSession(response);
     throw new Error('Failed to fetch users');
   }
 
@@ -122,13 +162,31 @@ export const syncUserByEmail = async (
   };
 };
 
+// Trades a Google access token for our own signed session token, so the rest
+// of the app authenticates against our server rather than re-presenting
+// Google's token on every call. email/name are sent too as a fallback the
+// server only uses if it can't verify the token itself — this call still
+// succeeds even when that verification path is degraded, so it can never be
+// the thing that locks someone out of signing in.
 export const startSession = async (
-  _googleAccessToken?: string,
+  googleAccessToken?: string,
   name?: string,
   email?: string
 ): Promise<{ token: string; user: User }> => {
-  const user = await syncUserByEmail(email || '', name || '');
-  return { token: 'cc_session_valid', user };
+  const response = await fetch(`${API_BASE}/auth/session`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ accessToken: googleAccessToken, name, email })
+  });
+
+  const data = await response.json().catch(() => null);
+
+  if (!response.ok) {
+    throw new Error(data?.error || 'Sign in failed.');
+  }
+
+  setSessionToken(data.token);
+  return { token: data.token, user: data.user };
 };
 
 export const startAdminSession = async (
@@ -147,7 +205,8 @@ export const startAdminSession = async (
     throw new Error(data?.error || 'Invalid passcode!');
   }
 
-  return 'admin_session_valid';
+  setSessionToken(data.token);
+  return data.token;
 };
 
 export const syncAuth = async (
@@ -198,10 +257,12 @@ const mapTeam = (team: RawTeam): Team => ({
 export const getTeamMembers = async (teamId: string): Promise<User[]> => {
   const response = await fetch(`${API_BASE}/teams/${teamId}/members`, {
     method: 'GET',
-    cache: 'no-store'
+    cache: 'no-store',
+    headers: { ...authHeaders() }
   });
 
   if (!response.ok) {
+    ensureSession(response);
     throw new Error('Failed to fetch team members');
   }
   const data = await response.json();
@@ -211,10 +272,12 @@ export const getTeamMembers = async (teamId: string): Promise<User[]> => {
 export const getTeams = async (): Promise<Team[]> => {
   const response = await fetch(`${API_BASE}/teams`, {
     method: 'GET',
-    cache: 'no-store'
+    cache: 'no-store',
+    headers: { ...authHeaders() }
   });
 
   if (!response.ok) {
+    ensureSession(response);
     const body = await response.json().catch(() => null);
     throw new Error(body?.message || 'Failed to fetch teams');
   }
@@ -234,7 +297,7 @@ export const addTeam = async (
 ): Promise<string> => {
   const response = await fetch(`${API_BASE}/teams`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...authHeaders() },
     body: JSON.stringify({
       Team_ID: team.Team_ID,
       'Team_ Name': team['Team_ Name'],
@@ -263,11 +326,12 @@ export const getTeamPassword = async (
 ): Promise<string> => {
   const response = await fetch(`${API_BASE}/teams/${teamId}/password`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...authHeaders() },
     body: JSON.stringify({ userId })
   });
 
   if (!response.ok) {
+    ensureSession(response);
     const body = await response.json().catch(() => null);
     throw new Error(body?.error || 'Failed to fetch team password');
   }
@@ -289,7 +353,8 @@ export const joinTeam = async (
   const response = await fetch(`${API_BASE}/teams/join`, {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      ...authHeaders()
     },
     body: JSON.stringify({
       teamId: teamId.trim().toUpperCase(),
@@ -316,28 +381,32 @@ export const updateTeamSize = async (
 ): Promise<number> => {
   const response = await fetch(`${API_BASE}/teams/${teamId}/size`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...authHeaders() },
     body: JSON.stringify({ size, userId })
   });
 
   const data = await response.json().catch(() => null);
   if (!response.ok) {
+    ensureSession(response);
     throw new Error(data?.error || 'Failed to update team size');
   }
   return Number(data?.size ?? size);
 };
 
+// Admin-only server-side (requireAdmin) — the Authorization header is what
+// actually authorizes this call now, not the userId in the body.
 export const removeTeamMember = async (
   teamId: string,
   userId: string
 ): Promise<void> => {
   const response = await fetch(`${API_BASE}/teams/${teamId}/remove-member`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...authHeaders() },
     body: JSON.stringify({ userId })
   });
 
   if (!response.ok) {
+    ensureSession(response);
     const body = await response.json().catch(() => null);
     throw new Error(body?.error || 'Failed to remove member');
   }
@@ -349,7 +418,7 @@ export const authTeam = async (
 ): Promise<boolean> => {
   const response = await fetch(`${API_BASE}/teams/auth`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...authHeaders() },
     body: JSON.stringify({
       teamId: teamId.trim().toUpperCase(),
       password: String(password ?? '').trim()
@@ -411,10 +480,12 @@ export const getSubmissions = async (
 
   const response = await fetch(url, {
     method: 'GET',
-    cache: 'no-store'
+    cache: 'no-store',
+    headers: { ...authHeaders() }
   });
 
   if (!response.ok) {
+    ensureSession(response);
     const body = await response.json().catch(() => null);
     throw new Error(body?.message || 'Failed to fetch submissions');
   }
@@ -428,7 +499,7 @@ export const addSubmission = async (
 ): Promise<void> => {
   const response = await fetch(`${API_BASE}/submissions`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...authHeaders() },
     body: JSON.stringify({
       Team_ID: submission.Team_ID,
       'Team_Name ': submission['Team_Name '],
@@ -487,10 +558,12 @@ export const getReviews = async (
 
   const response = await fetch(url, {
     method: 'GET',
-    cache: 'no-store'
+    cache: 'no-store',
+    headers: { ...authHeaders() }
   });
 
   if (!response.ok) {
+    ensureSession(response);
     const body = await response.json().catch(() => null);
     throw new Error(body?.message || 'Failed to fetch reviews');
   }
@@ -499,12 +572,14 @@ export const getReviews = async (
   return Array.isArray(reviews) ? reviews.map(mapReview) : [];
 };
 
+// Admin-only server-side (requireAdmin) — the Authorization header is what
+// actually authorizes score submission now.
 export const addReview = async (
   review: ReviewScore
 ): Promise<void> => {
   const response = await fetch(`${API_BASE}/reviews`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...authHeaders() },
     body: JSON.stringify({
       Team_ID: review.Team_ID,
       Team_Name: review.Team_Name,

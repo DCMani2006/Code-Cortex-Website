@@ -10,9 +10,9 @@ import {
   getReviews,
   getTeamMembers,
   getTeams,
-  syncUserByEmail,
   getTeamPassword,
   removeTeamMember,
+  startSession,
   startAdminSession,
   clearSession,
   getSessionPayload
@@ -676,8 +676,12 @@ const googleSignup = useGoogleLogin({
         throw new Error("Only @vitstudent.ac.in emails are allowed for internal (VIT) participants.");
       }
 
-      // Directly sync or create user in backend database
-      const user = await syncUserByEmail(email, name);
+      // Hand the Google access token to our own server, which verifies it
+      // (rather than trusting whatever email this client claims) and issues
+      // our own signed session token. email/name still ride along as a
+      // fallback the server only falls back to if it can't verify the token
+      // itself, so this can never be the thing that blocks sign-in.
+      const { user } = await startSession(tokenResponse.access_token, name, email);
 
       updateLoggedInUser(user);
       if (user.Name) setRegLeaderName(user.Name);

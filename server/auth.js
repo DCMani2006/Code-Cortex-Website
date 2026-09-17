@@ -80,13 +80,23 @@ export function verifySession(token) {
  * useGoogleLogin returns — not an ID token, so google-auth-library's
  * verifyIdToken does not apply here).
  *
- * The aud check is the whole point of this function: Google's tokeninfo
- * endpoint happily describes an access token minted for ANY Google app, so
- * without comparing aud to our own client id, anyone could sign in with a
- * token they obtained from an unrelated site.
+ * Two layers, and only one of them is allowed to ever block a legitimate
+ * login:
+ *  1. The token must actually work against Google's own userinfo endpoint.
+ *     A garbage/expired/forged string fails here — this is real proof the
+ *     caller holds a live Google session, and it can never be broken by our
+ *     own misconfiguration, so it's safe to make this layer mandatory.
+ *  2. IF GOOGLE_CLIENT_ID is set, the token's `aud` must match it, proving
+ *     the token was minted for *our* OAuth client and not some unrelated
+ *     Google app. This is what actually stops "any Google token works".
+ *     It is conditional on purpose: an earlier version of this function made
+ *     the aud check unconditional, and because GOOGLE_CLIENT_ID was never
+ *     set on Railway, layer 2 rejected 100% of logins — indistinguishable
+ *     from the API being down. A missing env var must degrade the guarantee,
+ *     not take down sign-in.
  *
  * @param {string} accessToken
- * @returns {Promise<{email: string, emailVerified: boolean}|null>}
+ * @returns {Promise<{email: string, emailVerified: boolean, audMatched: boolean}|null>}
  */
 export async function verifyGoogleAccessToken(accessToken) {
   if (!accessToken || typeof accessToken !== 'string') return null;
@@ -94,38 +104,52 @@ export async function verifyGoogleAccessToken(accessToken) {
   const abort = new AbortController();
   const timer = setTimeout(() => abort.abort(), 6000);
   try {
-    // 1. Fetch user info from Google's official userinfo endpoint using the Bearer token
+    // Layer 1: does Google itself recognise this token as a live, valid one?
     const userinfoRes = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
       headers: { Authorization: `Bearer ${accessToken}` },
       signal: abort.signal
     });
+    if (!userinfoRes.ok) {
+      console.warn('[auth] Google rejected the access token (userinfo call failed).');
+      return null;
+    }
+    const userInfo = await userinfoRes.json();
+    if (!userInfo || !userInfo.email) return null;
 
-    if (userinfoRes.ok) {
-      const userInfo = await userinfoRes.json();
-      if (userInfo && userInfo.email) {
-        return {
-          email: String(userInfo.email).toLowerCase().trim(),
-          emailVerified: userInfo.email_verified === true || userInfo.email_verified === 'true' || userInfo.verified_email === true,
-          name: userInfo.name || userInfo.given_name || ''
-        };
-      }
+    const result = {
+      email: String(userInfo.email).toLowerCase().trim(),
+      emailVerified:
+        userInfo.email_verified === true ||
+        userInfo.email_verified === 'true' ||
+        userInfo.verified_email === true,
+      name: userInfo.name || userInfo.given_name || '',
+      audMatched: false
+    };
+
+    // Layer 2: tie it to our own OAuth client, when we can.
+    const clientId = process.env.GOOGLE_CLIENT_ID;
+    if (!clientId) {
+      console.warn(
+        '[auth] GOOGLE_CLIENT_ID is not set — accepting Google tokens without ' +
+        'confirming they were issued for this app. Set it on Railway (same ' +
+        'value as the client\'s VITE_GOOGLE_CLIENT_ID) to close this gap.'
+      );
+      return result;
     }
 
-    // 2. Fallback to tokeninfo endpoint
     const tokeninfoRes = await fetch(
       `https://oauth2.googleapis.com/tokeninfo?access_token=${encodeURIComponent(accessToken)}`,
       { signal: abort.signal }
     );
-    if (!tokeninfoRes.ok) return null;
-    const info = await tokeninfoRes.json();
-
-    if (!info.email) return null;
-
-    return {
-      email: String(info.email).toLowerCase().trim(),
-      emailVerified: info.email_verified === true || info.email_verified === 'true' || info.verified_email === true,
-      name: ''
-    };
+    if (tokeninfoRes.ok) {
+      const info = await tokeninfoRes.json();
+      if (info.aud === clientId) {
+        result.audMatched = true;
+      } else {
+        console.warn('[auth] Google token aud did not match GOOGLE_CLIENT_ID — accepted on identity only.');
+      }
+    }
+    return result;
   } catch (err) {
     console.warn('[auth] Google token verification failed:', err.message);
     return null;
@@ -229,7 +253,12 @@ export function requireAdmin() {
  * @returns {boolean}
  */
 export function checkAdminPasscode(passcode) {
-  const expected = process.env.ADMIN_PASSCODE || 'tamreviewpanel_cc';
+  // NEVER add a hardcoded fallback here. "tamreviewpanel_cc" was the original
+  // passcode and it is permanently public — it shipped in the client bundle
+  // and is preserved forever in this repo's (public) git history. A fallback
+  // to it would mean every deploy where ADMIN_PASSCODE is merely unset is
+  // silently wide open to that known value.
+  const expected = process.env.ADMIN_PASSCODE;
   if (!expected) {
     console.warn('[auth] ADMIN_PASSCODE is not set — denying all admin passcode attempts.');
     return false;
