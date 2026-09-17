@@ -253,14 +253,36 @@ export async function getTeams() {
     const sheet = document.sheetsByTitle['Team']; // As per instructions, "Team" not "Teams"
     if (!sheet) return [];
     const rows = await sheet.getRows();
-    return rows.map(row => ({
-      Team_ID: row.get('Team_ID'),
-      'Team_ Name': row.get('Team_ Name'), // Exact spacing
-      Track: row.get('Track'),
-      Team_Leader: row.get('Team_Leader'),
-      'No. of Members': row.get('No. of Members'),
-      Team_Type: row.get('Team_Type'),
-    }));
+
+    // Count actual members per team from Users sheet
+    const usersSheet = document.sheetsByTitle['Users'];
+    const memberCounts = {};
+    if (usersSheet) {
+      try {
+        const userRows = await usersSheet.getRows();
+        for (const u of userRows) {
+          const tid = normaliseTeamId(u.get('Team_ID'));
+          if (tid) {
+            memberCounts[tid] = (memberCounts[tid] || 0) + 1;
+          }
+        }
+      } catch (e) {
+        console.error('Error counting team members:', e);
+      }
+    }
+
+    return rows.map(row => {
+      const tid = normaliseTeamId(row.get('Team_ID'));
+      const count = memberCounts[tid] !== undefined ? String(memberCounts[tid]) : String(row.get('No. of Members') || '1');
+      return {
+        Team_ID: row.get('Team_ID'),
+        'Team_ Name': row.get('Team_ Name'), // Exact spacing
+        Track: row.get('Track'),
+        Team_Leader: row.get('Team_Leader'),
+        'No. of Members': count,
+        Team_Type: row.get('Team_Type'),
+      };
+    });
   });
 }
 
@@ -335,21 +357,18 @@ export async function linkUserToTeam(userId, teamId, options = {}) {
     throw new Error("You are already a member of a team and cannot create or join another team.");
   }
 
-  // Capacity: count the rows already carrying this Team_ID (the leader is one
-  // of them) and refuse the join once the declared size is reached.
+  // Capacity: count the rows already carrying this Team_ID (maximum 4 members)
   const teamSheet = document.sheetsByTitle['Team'];
   let teamRow = null;
-  let declared = 0;
   if (teamSheet) {
     const teamRows = await teamSheet.getRows();
     teamRow = teamRows.find(r => normaliseTeamId(r.get('Team_ID')) === wantedTeamId);
     if (!teamRow) {
       throw new Error("That team no longer exists.");
     }
-    declared = Number(teamRow.get('No. of Members')) || 0;
     const current = rows.filter(r => normaliseTeamId(r.get('Team_ID')) === wantedTeamId).length;
-    if (declared && current >= declared) {
-      throw new Error(`This team is already full (${current}/${declared} members).`);
+    if (current >= 4) {
+      throw new Error(`This team is already full (maximum 4 members).`);
     }
   }
 
@@ -372,29 +391,18 @@ export async function linkUserToTeam(userId, teamId, options = {}) {
   userRow.assign({ Team_ID: wantedTeamId });
   await userRow.save();
   console.log(`Saved Team_ID to ${wantedTeamId} for ${userId}`);
-  invalidateCache('users', 'teams');
 
-  // Google Sheets has no transactions, so two people joining the last seat at
-  // the same moment can both pass the check above. Re-read after writing and,
-  // if we're the ones who overshot, undo this join rather than leave an
-  // oversized team behind.
-  if (declared) {
-    const after = await usersSheet.getRows();
-    const members = after.filter(r => normaliseTeamId(r.get('Team_ID')) === wantedTeamId);
-    if (members.length > declared) {
-      const ours = after.find(
-        r => String(r.get('User_ID') || '').trim() === String(userRow.get('User_ID') || '').trim()
-      );
-      // Last one in backs out; whoever got there first keeps the seat.
-      const isLast = members[members.length - 1] === ours;
-      if (ours && isLast) {
-        ours.assign({ Team_ID: '' });
-        await ours.save();
-        invalidateCache('users', 'teams');
-        throw new Error(`This team is already full (${declared} members).`);
-      }
+  if (teamRow) {
+    try {
+      const updatedCount = rows.filter(r => normaliseTeamId(r.get('Team_ID')) === wantedTeamId).length + 1;
+      teamRow.assign({ 'No. of Members': String(updatedCount) });
+      await teamRow.save();
+    } catch (e) {
+      console.error('Error updating team size in sheet:', e);
     }
   }
+
+  invalidateCache('users', 'teams');
 
   return true;
 }
@@ -417,6 +425,24 @@ export async function removeUserFromTeam(userId, teamId) {
 
   row.assign({ Team_ID: '' });
   await row.save();
+
+  const teamSheet = document.sheetsByTitle['Team'];
+  if (teamSheet) {
+    try {
+      const teamRows = await teamSheet.getRows();
+      const teamRow = teamRows.find(r => normaliseTeamId(r.get('Team_ID')) === wantedTeamId);
+      if (teamRow) {
+        const remaining = rows.filter(
+          r => r !== row && normaliseTeamId(r.get('Team_ID')) === wantedTeamId
+        ).length;
+        teamRow.assign({ 'No. of Members': String(remaining) });
+        await teamRow.save();
+      }
+    } catch (e) {
+      console.error('Error updating team size in sheet on remove:', e);
+    }
+  }
+
   invalidateCache('users', 'teams');
   console.log(`Removed ${userId} from team ${wantedTeamId}`);
   return true;

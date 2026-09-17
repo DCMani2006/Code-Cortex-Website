@@ -12,7 +12,6 @@ import {
   getTeams,
   syncUserByEmail,
   getTeamPassword,
-  updateTeamSize as apiUpdateTeamSize,
   removeTeamMember,
   startAdminSession,
   clearSession,
@@ -203,14 +202,7 @@ export default function App() {
   const [regTrack, setRegTrack] = useState("");
   const [regLeaderName, setRegLeaderName] = useState("");
   const [regLeaderRegNo, setRegLeaderRegNo] = useState("");
-  const [regMembers, setRegMembers] = useState("");
   const [regPassword, setRegPassword] = useState("");
-  // Teams are created empty: the leader picks a size, then members join
-  // themselves with the team ID + password. Nobody's details are typed in on
-  // their behalf, which is what used to create duplicate people.
-  const handleRegMembersChange = (value: string) => {
-    setRegMembers(value);
-  };
 
   const [registrationSubmitted, setRegistrationSubmitted] =
     useState(false);
@@ -359,7 +351,6 @@ export default function App() {
   const [teamPassword, setTeamPassword] = useState<string | null>(null);
   const [showTeamPassword, setShowTeamPassword] = useState(false);
   const [teamPasswordError, setTeamPasswordError] = useState<string | null>(null);
-  const [isSavingTeamSize, setIsSavingTeamSize] = useState(false);
 
   useEffect(() => {
     if (!teamLoggedIn || !teamIdInput.trim()) return;
@@ -764,17 +755,6 @@ const googleSignup = useGoogleLogin({
       return;
     }
 
-    const memberCount = Number(regMembers);
-
-    if (
-      !Number.isInteger(memberCount) ||
-      memberCount < 2 ||
-      memberCount > 4
-    ) {
-      showToast("Team size must be between 2 and 4 members.", "danger");
-      return;
-    }
-
     if (
       !regPassword ||
       regPassword.length < 4
@@ -815,7 +795,7 @@ const googleSignup = useGoogleLogin({
           Team_Leader: isExternalParticipant
             ? `${regLeaderName.trim()} (${loggedInUser.Email})`
             : `${regLeaderName.trim()} (${leaderReg})`,
-          "No. of Members": String(memberCount),
+          "No. of Members": "1",
           Team_Type: isExternalParticipant ? "External" : "Internal"
         },
         regPassword,
@@ -858,17 +838,17 @@ const googleSignup = useGoogleLogin({
     try {
       setAdminRoster(await getTeamMembers(teamId.trim()));
     } catch (e) {
-      console.error("Failed to load roster:", e);
+      console.error("Failed to load team roster for admin panel:", e);
       setAdminRoster([]);
     }
   };
 
-  const handleRemoveMember = async (member: User) => {
-    const teamId = adminTeamId.trim();
+  const handleRemoveMember = async (member: User, targetTeamId?: string) => {
+    const teamId = (targetTeamId || adminTeamId).trim();
     if (!teamId || !member.User_ID) return;
     if (
-      !window.confirm(
-        `Remove ${member.Name || member.User_ID} from ${teamId}? They'll be free to join another team.`
+      !confirm(
+        `Remove ${member.Name || member.User_ID} from team ${teamId}? They will be free to join another team.`
       )
     ) {
       return;
@@ -885,29 +865,6 @@ const googleSignup = useGoogleLogin({
       );
     } finally {
       setRemovingMemberId(null);
-    }
-  };
-
-  const handleTeamSizeChange = async (nextSize: number) => {
-    if (!loggedInUser?.User_ID || !teamIdInput.trim()) return;
-    setIsSavingTeamSize(true);
-    try {
-      const saved = await apiUpdateTeamSize(
-        teamIdInput.trim(),
-        nextSize,
-        loggedInUser.User_ID
-      );
-      setTeamDetails((prev) =>
-        prev ? { ...prev, "No. of Members": String(saved) } : prev
-      );
-      showToast(`Team size set to ${saved}.`, "success");
-    } catch (error) {
-      showToast(
-        error instanceof Error ? error.message : "Could not update team size.",
-        "danger"
-      );
-    } finally {
-      setIsSavingTeamSize(false);
     }
   };
 
@@ -1667,23 +1624,10 @@ const googleSignup = useGoogleLogin({
                                   </div>
 
                                   <div className="d-flex align-items-center justify-content-between gap-2 mb-2">
-                                    <span style={{ fontSize: "10px", color: "#6b5b73" }}>TEAM SIZE</span>
-                                    <span className="d-flex align-items-center gap-2">
-                                      <select
-                                        className="form-select form-select-sm"
-                                        style={{ width: "auto", fontSize: "12px", padding: "2px 24px 2px 8px" }}
-                                        value={String(teamDetails?.["No. of Members"] || "")}
-                                        disabled={isSavingTeamSize}
-                                        onChange={(e) => handleTeamSizeChange(Number(e.target.value))}
-                                      >
-                                        {[2, 3, 4].map((n) => (
-                                          <option key={n} value={n}>{n} members</option>
-                                        ))}
-                                      </select>
-                                      <span style={{ fontSize: "10px", color: "#6b5b73" }}>
-                                        {teamMembers.length} joined
-                                      </span>
-                                    </span>
+                                    <span style={{ fontSize: "10px", color: "#6b5b73" }}>TEAM MEMBERS</span>
+                                    <code style={{ fontFamily: '"IBM Plex Mono", monospace', fontSize: "13px", color: "#2d1f36" }}>
+                                      {teamMembers.length} joined
+                                    </code>
                                   </div>
 
                                   <div className="d-flex align-items-center justify-content-between gap-2 mb-2">
@@ -1790,16 +1734,13 @@ const googleSignup = useGoogleLogin({
                                       <label className="form-label">
                                         GITHUB REPOSITORY LINK
                                       </label>
-                                      <div className="input-group">
-                                        <span className="input-group-text">🔗</span>
-                                        <input
-                                          type="url"
-                                          className="form-control mb-0"
-                                          placeholder="https://github.com/organization/repository"
-                                          value={subGithub}
-                                          onChange={(e) => setSubGithub(e.target.value)}
-                                        />
-                                      </div>
+                                      <input
+                                        type="url"
+                                        className="form-control mb-0"
+                                        placeholder="https://github.com/organization/repository"
+                                        value={subGithub}
+                                        onChange={(e) => setSubGithub(e.target.value)}
+                                      />
                                     </div>
 
                                     {/* Figma Link */}
@@ -1807,16 +1748,13 @@ const googleSignup = useGoogleLogin({
                                       <label className="form-label">
                                         FIGMA / DESIGN LINK (OPTIONAL)
                                       </label>
-                                      <div className="input-group">
-                                        <span className="input-group-text">🎨</span>
-                                        <input
-                                          type="url"
-                                          className="form-control mb-0"
-                                          placeholder="https://figma.com/file/..."
-                                          value={subFigma}
-                                          onChange={(e) => setSubFigma(e.target.value)}
-                                        />
-                                      </div>
+                                      <input
+                                        type="url"
+                                        className="form-control mb-0"
+                                        placeholder="https://figma.com/file/..."
+                                        value={subFigma}
+                                        onChange={(e) => setSubFigma(e.target.value)}
+                                      />
                                     </div>
 
                                     {/* Description */}
@@ -2129,21 +2067,7 @@ const googleSignup = useGoogleLogin({
                                   />
                                 </div>
 
-                                <div className="col-md-6">
-                                  <label className="form-label" style={{ fontSize: "10px" }}>NUMBER OF MEMBERS (2-4)</label>
-                                  <input
-                                    type="number"
-                                    min="2"
-                                    max="4"
-                                    className="form-control"
-                                    style={inputStyle}
-                                    placeholder="No. of Members (2-4)"
-                                    value={regMembers}
-                                    onChange={(e) => handleRegMembersChange(e.target.value)}
-                                  />
-                                </div>
-
-                                <div className="col-md-12">
+                                <div className={isExternalParticipant ? "col-md-12" : "col-md-6"}>
                                   <label className="form-label" style={{ fontSize: "10px" }}>SET TEAM PASSWORD (MIN 4 CHARS)</label>
                                   <div className="position-relative">
                                     <input
