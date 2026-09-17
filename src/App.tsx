@@ -583,15 +583,16 @@ const selectedReviewSubmission =
   // STYLES
   // =====================================================
 
-  const inputStyle = {
-    background: "transparent",
-    border: "none",
-    borderBottom:
-      "1px solid rgba(30, 90, 255, 0.4)",
-    borderRadius: "0",
-    color: "white",
-    paddingLeft: "5px",
-    boxShadow: "none"
+  const inputStyle: React.CSSProperties = {
+    background: "#ffffff",
+    border: "2.5px solid #2d1f36",
+    borderRadius: "8px",
+    color: "#2d1f36",
+    boxShadow: "3px 3px 0px rgba(45, 31, 54, 0.12)",
+    fontFamily: "var(--body-pixel)",
+    fontSize: "14px",
+    padding: "9px 14px",
+    outline: "none"
   };
 
   // =====================================================
@@ -1338,308 +1339,430 @@ const googleSignup = useGoogleLogin({
                       {!teamLoggedIn ? (
 
                         <div
-                          className="glass-card p-4 p-md-5 text-center w-100"
-                          style={{ maxWidth: "450px" }}
+                          className="retro-window w-100 fade-in text-center"
+                          style={{ maxWidth: "480px" }}
                         >
-                          <h2 className="fw-bold mb-3 text-info">
-                            Team Portal
-                          </h2>
+                          <div className="retro-window__header">
+                            <div className="retro-window__title">
+                              <span>■ GUILD_GATE</span>
+                              <span style={{ opacity: 0.5 }}>//</span>
+                              <span style={{ color: "#7d5a96" }}>TEAM_PORTAL</span>
+                            </div>
+                            <div className="retro-window__controls">
+                              <span>_</span>
+                              <span>🗖</span>
+                              <span>✕</span>
+                            </div>
+                          </div>
 
-                          {!loggedInUser ? (
-                            <>
-                              <p className="text-secondary mb-4">
-                                Please sign in with your student Google account to access the Team Portal.
-                              </p>
-                              <button
-                                className="btn btn-gradient w-100 py-2 fw-bold"
-                                onClick={() => googleSignup()}
-                              >
-                                Sign in with Google
-                              </button>
-                            </>
-                          ) : (
-                            <>
-                              <p className="text-secondary mb-4">
-                                You are not currently a member of any team.
-                              </p>
-                              <div className="d-flex gap-2">
+                          <div className="retro-window__body p-4 p-md-5 text-center">
+                            <div className="mb-2">
+                              <span className="chapter-badge mb-3">
+                                🏰 GUILD ENTRANCE
+                              </span>
+                            </div>
+
+                            <h2 className="glow-text mb-3 fw-bold" style={{ fontSize: "clamp(20px, 2.3vw, 26px)" }}>
+                              Team Portal
+                            </h2>
+
+                            {!loggedInUser ? (
+                              <>
+                                <p className="text-secondary mb-4" style={{ fontSize: "15px" }}>
+                                  Please sign in with your student Google account to access the Team Portal.
+                                </p>
                                 <button
-                                  className="btn btn-gradient flex-grow-1 py-2 fw-bold"
-                                  onClick={() => setActivePage("registration")}
+                                  className="btn hero-pixel-btn hero-pixel-btn--primary w-100 py-3 fw-bold"
+                                  onClick={() => googleSignup()}
                                 >
-                                  Create Team
+                                  Sign in with Google →
                                 </button>
-                                <button
-                                  className="btn btn-outline-light flex-grow-1 py-2 fw-bold"
-                                  onClick={() => setActivePage("join-team")}
-                                >
-                                  Join Existing
-                                </button>
-                              </div>
-                            </>
-                          )}
+                              </>
+                            ) : (
+                              <>
+                                <p className="text-secondary mb-4" style={{ fontSize: "15px" }}>
+                                  You are not currently a member of any guild team.
+                                </p>
+                                <div className="d-flex gap-3 flex-column flex-sm-row">
+                                  <button
+                                    className="btn hero-pixel-btn hero-pixel-btn--primary flex-grow-1"
+                                    onClick={() => setActivePage("registration")}
+                                  >
+                                    Create Team
+                                  </button>
+                                  <button
+                                    className="btn hero-pixel-btn hero-pixel-btn--secondary flex-grow-1"
+                                    onClick={() => setActivePage("join-team")}
+                                  >
+                                    Join Existing
+                                  </button>
+                                </div>
+                              </>
+                            )}
+                          </div>
                         </div>
 
                       ) : (
 
                         <div
-                          className="glass-card p-4 p-md-5 w-100"
-                          style={{ maxWidth: "800px" }}
+                          className="retro-window w-100 fade-in"
+                          style={{ maxWidth: "880px" }}
                         >
-
-                          <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 border-bottom border-secondary pb-3 gap-3">
-
-                            <h2 className="fw-bold text-info mb-0">
-                              Dashboard:
-                              <span className="text-white id-code">
-                                {" "}
-                                {teamIdInput}
+                          {/* Retro Window Header */}
+                          <div className="retro-window__header">
+                            <div className="retro-window__title">
+                              <span>■ PARTY_CAMP</span>
+                              <span style={{ opacity: 0.5 }}>//</span>
+                              <span style={{ color: "#7d5a96" }}>GUILD_DASHBOARD</span>
+                              <span style={{ opacity: 0.5 }}>//</span>
+                              <span style={{ color: "#d15676" }}>{teamIdInput}</span>
+                            </div>
+                            <div className="retro-window__controls">
+                              <span>_</span>
+                              <span>🗖</span>
+                              <span
+                                style={{ cursor: "pointer" }}
+                                onClick={() => {
+                                  updateLoggedInUser(null);
+                                  setTeamLoggedIn(false);
+                                  setTeamIdInput("");
+                                  setActivePage("team-portal");
+                                  showToast("Signed out successfully", "info");
+                                }}
+                                title="Exit Party Camp"
+                              >
+                                ✕
                               </span>
-                            </h2>
-
+                            </div>
                           </div>
 
-                          <div className="row">
+                          <div className="retro-window__body p-4 p-md-5">
 
-                            {/* TEAM INFORMATION */}
-
-                            <div className="col-md-5 border-end border-secondary pe-md-4 mb-4 mb-md-0 text-start">
-
-                              <h5 className="text-info mb-3">
-                                Team Information
-                              </h5>
-
-                              <p className="text-secondary small mb-1">
-                                Status:
-                              </p>
-
-                              <div
-                                className="p-2 rounded mb-3"
-                                style={{
-                                  backgroundColor:
-                                    "rgba(0, 150, 255, 0.1)"
-                                }}
-                              >
-                                <p className="text-white mb-0 fw-bold">
-                                  Active - Awaiting Review 1
-                                </p>
+                            {/* Top Header Row with Chapter Badge, Title & Status Pills */}
+                            <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-3 gap-3 border-bottom border-dark border-2">
+                              <div>
+                                <span className="chapter-badge mb-2">
+                                  🛡️ CHAPTER 04 // GUILD HEADQUARTERS
+                                </span>
+                                <h2 className="glow-text fw-bold mb-1" style={{ fontSize: "clamp(20px, 2.3vw, 26px)" }}>
+                                  TEAM DASHBOARD
+                                </h2>
+                                <div className="d-flex align-items-center gap-2 mt-2">
+                                  <span className="text-secondary small">GUILD CODE:</span>
+                                  <span
+                                    className="px-2 py-1 rounded border border-dark fw-bold id-code"
+                                    style={{
+                                      background: "#fde88a",
+                                      color: "#2d1f36",
+                                      fontSize: "12px",
+                                      boxShadow: "2px 2px 0px #2d1f36"
+                                    }}
+                                  >
+                                    {teamIdInput}
+                                  </span>
+                                </div>
                               </div>
 
-                              <p className="text-secondary small mb-1">
-                                Leader:
-                              </p>
-
-                              <p className="text-light mb-3">
-                                {teamDetails?.Team_Leader || "Loading Leader..."}
-                              </p>
-
-                              <p className="text-secondary small mb-1">
-                                Team ID:
-                              </p>
-
-                              <p className="text-info fw-bold mb-3 id-code">
-                                {teamIdInput}
-                              </p>
-
-                              {teamDetails?.Track && (
-                                <>
-                                  <p className="text-secondary small mb-1">
-                                    Track:
-                                  </p>
-
-                                  <p className="text-light mb-3">
-                                    {teamDetails.Track}
-                                    {" "}
-                                    <a
-                                      href={`${eventSiteUrl}/?track=${encodeURIComponent(teamDetails.Track)}#tracks`}
-                                      target="_blank"
-                                      rel="noreferrer"
-                                      className="text-info text-decoration-none"
-                                    >
-                                      View track brief ↗
-                                    </a>
-                                  </p>
-                                </>
-                              )}
-
-                              <p className="text-secondary small mb-2">
-                                Team Members:
-                              </p>
-                              
-                              {teamMembers.length > 0 ? (
-                                <ul className="text-light small mb-3 ps-3">
-                                  {teamMembers.map((member, idx) => (
-                                    <li key={idx} className="mb-1">
-                                      {member.Name} {member.User_ID && member.User_ID !== member.Name ? `(${member.User_ID})` : ''}
-                                    </li>
-                                  ))}
-                                </ul>
-                              ) : (
-                                <p className="text-secondary small mb-3">Loading members...</p>
-                              )}
-
-                              {teamMembers.length > 0 && teamMembers.length < 4 && (
-                                <div className="mt-2 mb-4">
-                                  {!showAddMemberForm ? (
-                                    <button 
-                                      className="btn btn-sm btn-outline-info rounded-pill"
-                                      onClick={() => setShowAddMemberForm(true)}
-                                    >
-                                      + Add Member
-                                    </button>
-                                  ) : (
-                                    <div className="p-3 rounded border border-info mt-2" style={{ backgroundColor: "rgba(0,0,0,0.2)" }}>
-                                      <h6 className="text-info mb-3">Add New Member</h6>
-                                      <input 
-                                        type="text" 
-                                        className="form-control form-control-sm mb-2" 
-                                        style={inputStyle} 
-                                        placeholder="Full Name" 
-                                        value={newMemberName} 
-                                        onChange={e => setNewMemberName(e.target.value)} 
-                                      />
-                                      {teamDetails?.Team_Type !== "External" && (
-                                        <input
-                                          type="text"
-                                          className="form-control form-control-sm mb-2"
-                                          style={inputStyle}
-                                          placeholder="Reg No (e.g. 20ABC1234)"
-                                          value={newMemberRegNo}
-                                          onChange={e => setNewMemberRegNo(e.target.value)}
-                                        />
-                                      )}
-                                      <input
-                                        type="email"
-                                        className="form-control form-control-sm mb-3" 
-                                        style={inputStyle} 
-                                        placeholder="Email Address" 
-                                        value={newMemberEmail} 
-                                        onChange={e => setNewMemberEmail(e.target.value)} 
-                                      />
-                                      <div className="d-flex gap-2">
-                                        <button 
-                                          className="btn btn-sm btn-info flex-grow-1" 
-                                          onClick={handleAddMemberSubmit}
-                                          disabled={isAddingMember}
-                                        >
-                                          {isAddingMember ? "Adding..." : "Add Member"}
-                                        </button>
-                                        <button 
-                                          className="btn btn-sm btn-outline-secondary flex-grow-1"
-                                          onClick={() => setShowAddMemberForm(false)}
-                                          disabled={isAddingMember}
-                                        >
-                                          Cancel
-                                        </button>
-                                      </div>
-                                    </div>
-                                  )}
-                                </div>
-                              )}
-
+                              <div className="d-flex align-items-center flex-wrap gap-2">
+                                <span className="mission-live-pill">
+                                  ● ACTIVE
+                                </span>
+                                <span className="mission-tag">
+                                  AWAITING REVIEW 1
+                                </span>
+                              </div>
                             </div>
 
-                            {/* SUBMISSION */}
+                            <div className="row g-4">
 
-                            <div className="col-md-7 ps-md-4">
-
-                              {projectSubmitted ? (
-
-                                <div className="text-center py-5">
-
-                                  <h3 className="text-success mb-3">
-                                    Submission Received!
-                                  </h3>
-
-                                  <p className="text-secondary">
-                                    Your project details have
-                                    been submitted successfully.
-                                  </p>
-
-                                  <button
-                                    className="btn btn-outline-info mt-4"
-                                    onClick={() =>
-                                      setProjectSubmitted(false)
-                                    }
-                                  >
-                                    Update Submission
-                                  </button>
-
+                              {/* LEFT COLUMN: TEAM INFORMATION */}
+                              <div className="col-lg-5 border-end border-dark border-2 pe-lg-4 text-start">
+                                <div className="d-flex align-items-center gap-2 mb-3">
+                                  <span className="badge" style={{ background: "#ede5f5", color: "#2d1f36", fontSize: "8.5px" }}>
+                                    📜 ROSTER
+                                  </span>
+                                  <h4 className="mb-0 fw-bold" style={{ fontSize: "15px", color: "#2d1f36" }}>
+                                    Team Information
+                                  </h4>
                                 </div>
 
-                              ) : (
+                                {/* Status Card */}
+                                <div className="rpg-stat-card mb-3">
+                                  <div className="form-label mb-1">
+                                    CURRENT STATUS
+                                  </div>
+                                  <div className="d-flex align-items-center gap-2">
+                                    <span style={{ color: "#15803d", fontSize: "14px" }}>●</span>
+                                    <span className="fw-bold" style={{ fontSize: "14px", color: "#2d1f36" }}>
+                                      Active — Awaiting Review 1
+                                    </span>
+                                  </div>
+                                </div>
 
-                                <>
-                                  <h5 className="text-white mb-4">
-                                    Submit Project Details
-                                  </h5>
+                                {/* Team Leader */}
+                                <div className="rpg-stat-card mb-3">
+                                  <div className="form-label mb-1">
+                                    GUILD LEADER
+                                  </div>
+                                  <div className="fw-bold d-flex align-items-center gap-2" style={{ fontSize: "14.5px", color: "#2d1f36" }}>
+                                    <span>👑</span>
+                                    <span>{teamDetails?.Team_Leader || "Loading Leader..."}</span>
+                                  </div>
+                                </div>
 
-                                  <select
-                                    className="form-select bg-dark text-white border-secondary mb-4"
-                                    value={subReviewRound}
-                                    onChange={(e) => setSubReviewRound(e.target.value)}
-                                  >
-                                    <option value="Review 1">
-                                      Review 1
-                                    </option>
-                                    <option value="Review 2">
-                                      Review 2
-                                    </option>
-                                  </select>
+                                {/* Assigned Track */}
+                                {teamDetails?.Track && (
+                                  <div className="rpg-stat-card mb-3">
+                                    <div className="form-label mb-1">
+                                      ASSIGNED TRACK
+                                    </div>
+                                    <div className="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                                      <span
+                                        className="badge px-2 py-1"
+                                        style={{ background: "#7abcc4", color: "#2d1f36", fontSize: "9px" }}
+                                      >
+                                        ⚔️ {teamDetails.Track}
+                                      </span>
+                                      <a
+                                        href={`${eventSiteUrl}/?track=${encodeURIComponent(teamDetails.Track)}#tracks`}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="btn btn-sm btn-outline-info"
+                                        style={{ fontSize: "8px", padding: "4px 8px", margin: 0 }}
+                                      >
+                                        Track Brief ↗
+                                      </a>
+                                    </div>
+                                  </div>
+                                )}
 
-                                  <input
-                                    type="url"
-                                    className="form-control mb-4"
-                                    style={inputStyle}
-                                    placeholder="GitHub Repository Link"
-                                    value={subGithub}
-                                    onChange={(e) =>
-                                      setSubGithub(
-                                        e.target.value
-                                      )
-                                    }
-                                  />
+                                {/* Team Members List */}
+                                <div className="mb-3">
+                                  <div className="d-flex justify-content-between align-items-center mb-2">
+                                    <span className="form-label mb-0">
+                                      GUILD MEMBERS ({teamMembers.length}/4)
+                                    </span>
+                                  </div>
 
-                                  <input
-                                    type="url"
-                                    className="form-control mb-4"
-                                    style={inputStyle}
-                                    placeholder="Figma / Design Link (Optional)"
-                                    value={subFigma}
-                                    onChange={(e) =>
-                                      setSubFigma(
-                                        e.target.value
-                                      )
-                                    }
-                                  />
+                                  {teamMembers.length > 0 ? (
+                                    <div className="d-flex flex-column gap-2">
+                                      {teamMembers.map((member, idx) => (
+                                        <div
+                                          key={idx}
+                                          className="p-2 px-3 d-flex align-items-center justify-content-between rounded border border-dark"
+                                          style={{
+                                            background: "#ffffff",
+                                            boxShadow: "2px 2px 0px rgba(45, 31, 54, 0.12)",
+                                            fontSize: "13.5px"
+                                          }}
+                                        >
+                                          <span className="fw-semibold" style={{ color: "#2d1f36" }}>
+                                            👤 {member.Name}
+                                          </span>
+                                          {member.User_ID && member.User_ID !== member.Name && (
+                                            <span
+                                              className="badge"
+                                              style={{ background: "#ede5f5", color: "#2d1f36", fontSize: "7.5px" }}
+                                            >
+                                              {member.User_ID}
+                                            </span>
+                                          )}
+                                        </div>
+                                      ))}
+                                    </div>
+                                  ) : (
+                                    <p className="text-secondary small mb-3">Loading members...</p>
+                                  )}
+                                </div>
 
-                                  <textarea
-                                    className="form-control mb-4"
-                                    style={{
-                                      ...inputStyle,
-                                      resize: "none"
-                                    }}
-                                    rows={3}
-                                    placeholder="Brief Description of Progress..."
-                                    value={subDesc}
-                                    onChange={(e) =>
-                                      setSubDesc(
-                                        e.target.value
-                                      )
-                                    }
-                                  />
+                                {/* Add Member Form & Toggle */}
+                                {teamMembers.length > 0 && teamMembers.length < 4 && (
+                                  <div className="mt-2 mb-2">
+                                    {!showAddMemberForm ? (
+                                      <button
+                                        className="btn hero-pixel-btn hero-pixel-btn--secondary w-100"
+                                        style={{ fontSize: "9px", padding: "9px 14px" }}
+                                        onClick={() => setShowAddMemberForm(true)}
+                                      >
+                                        + RECRUIT MEMBER
+                                      </button>
+                                    ) : (
+                                      <div
+                                        className="p-3 rounded border border-dark border-2 mt-2"
+                                        style={{ background: "#fdf8ea", boxShadow: "3px 3px 0px #2d1f36" }}
+                                      >
+                                        <div className="d-flex justify-content-between align-items-center mb-2">
+                                          <span className="fw-bold" style={{ fontFamily: "var(--pixel)", fontSize: "9px", color: "#2d1f36" }}>
+                                            + ADD NEW MEMBER
+                                          </span>
+                                        </div>
+                                        <input
+                                          type="text"
+                                          className="form-control mb-2"
+                                          placeholder="Full Name"
+                                          value={newMemberName}
+                                          onChange={e => setNewMemberName(e.target.value)}
+                                        />
+                                        {teamDetails?.Team_Type !== "External" && (
+                                          <input
+                                            type="text"
+                                            className="form-control mb-2"
+                                            placeholder="Reg No (e.g. 20ABC1234)"
+                                            value={newMemberRegNo}
+                                            onChange={e => setNewMemberRegNo(e.target.value)}
+                                          />
+                                        )}
+                                        <input
+                                          type="email"
+                                          className="form-control mb-3"
+                                          placeholder="Email Address"
+                                          value={newMemberEmail}
+                                          onChange={e => setNewMemberEmail(e.target.value)}
+                                        />
+                                        <div className="d-flex gap-2">
+                                          <button
+                                            className="btn hero-pixel-btn hero-pixel-btn--primary flex-grow-1"
+                                            style={{ fontSize: "9px", padding: "8px 12px", margin: 0 }}
+                                            onClick={handleAddMemberSubmit}
+                                            disabled={isAddingMember}
+                                          >
+                                            {isAddingMember ? "Adding..." : "Save Member"}
+                                          </button>
+                                          <button
+                                            className="btn btn-sm btn-outline-secondary"
+                                            style={{ fontSize: "9px", padding: "8px 12px", margin: 0 }}
+                                            onClick={() => setShowAddMemberForm(false)}
+                                            disabled={isAddingMember}
+                                          >
+                                            Cancel
+                                          </button>
+                                        </div>
+                                      </div>
+                                    )}
+                                  </div>
+                                )}
 
-                                  <button
-                                    className="btn btn-gradient w-100 py-2 fw-bold"
-                                    onClick={
-                                      handleProjectSubmit
-                                    }
-                                  >
-                                    Submit to Judges
-                                  </button>
-                                </>
-                              )}
+                              </div>
 
+                              {/* RIGHT COLUMN: SUBMIT PROJECT DETAILS */}
+                              <div className="col-lg-7 ps-lg-4 text-start">
+
+                                {projectSubmitted ? (
+
+                                  <div className="text-center py-5">
+                                    <div className="rpg-lead-dialogue mb-4 text-start">
+                                      <div className="d-flex align-items-center gap-2 mb-2">
+                                        <span className="badge" style={{ background: "#dcfce7", color: "#15803d", fontSize: "9px" }}>
+                                          ✓ LOGGED IN THE TOME
+                                        </span>
+                                      </div>
+                                      <h3 className="fw-bold mb-2" style={{ color: "#2d1f36", fontSize: "18px" }}>
+                                        Submission Received!
+                                      </h3>
+                                      <p className="mb-0" style={{ fontSize: "14px", color: "#606d7a" }}>
+                                        Your project artifacts and progress details have been registered into the judging console for review.
+                                      </p>
+                                    </div>
+
+                                    <button
+                                      className="btn hero-pixel-btn hero-pixel-btn--secondary"
+                                      onClick={() => setProjectSubmitted(false)}
+                                    >
+                                      ✏️ UPDATE SUBMISSION
+                                    </button>
+                                  </div>
+
+                                ) : (
+
+                                  <>
+                                    <div className="d-flex align-items-center gap-2 mb-3">
+                                      <span className="badge" style={{ background: "#fde88a", color: "#2d1f36", fontSize: "8.5px" }}>
+                                        📦 ARTIFACTS
+                                      </span>
+                                      <h4 className="mb-0 fw-bold" style={{ fontSize: "15px", color: "#2d1f36" }}>
+                                        Submit Project Details
+                                      </h4>
+                                    </div>
+
+                                    {/* Evaluation Round */}
+                                    <div className="mb-3">
+                                      <label className="form-label">
+                                        EVALUATION ROUND
+                                      </label>
+                                      <select
+                                        className="form-select mb-0"
+                                        value={subReviewRound}
+                                        onChange={(e) => setSubReviewRound(e.target.value)}
+                                      >
+                                        <option value="Review 1">
+                                          Review 1 (Setup & Architecture)
+                                        </option>
+                                        <option value="Review 2">
+                                          Review 2 (Midway Progress & Feasibility)
+                                        </option>
+                                      </select>
+                                    </div>
+
+                                    {/* GitHub Link */}
+                                    <div className="mb-3">
+                                      <label className="form-label">
+                                        GITHUB REPOSITORY LINK
+                                      </label>
+                                      <div className="input-group">
+                                        <span className="input-group-text">🔗</span>
+                                        <input
+                                          type="url"
+                                          className="form-control mb-0"
+                                          placeholder="https://github.com/organization/repository"
+                                          value={subGithub}
+                                          onChange={(e) => setSubGithub(e.target.value)}
+                                        />
+                                      </div>
+                                    </div>
+
+                                    {/* Figma Link */}
+                                    <div className="mb-3">
+                                      <label className="form-label">
+                                        FIGMA / DESIGN LINK (OPTIONAL)
+                                      </label>
+                                      <div className="input-group">
+                                        <span className="input-group-text">🎨</span>
+                                        <input
+                                          type="url"
+                                          className="form-control mb-0"
+                                          placeholder="https://figma.com/file/..."
+                                          value={subFigma}
+                                          onChange={(e) => setSubFigma(e.target.value)}
+                                        />
+                                      </div>
+                                    </div>
+
+                                    {/* Description */}
+                                    <div className="mb-4">
+                                      <label className="form-label">
+                                        BRIEF PROGRESS DESCRIPTION
+                                      </label>
+                                      <textarea
+                                        className="form-control mb-0"
+                                        rows={3}
+                                        placeholder="Describe your progress so far, architecture decisions, and deliverables..."
+                                        value={subDesc}
+                                        onChange={(e) => setSubDesc(e.target.value)}
+                                        style={{ resize: "none" }}
+                                      />
+                                    </div>
+
+                                    <button
+                                      className="btn hero-pixel-btn hero-pixel-btn--primary w-100 fw-bold"
+                                      style={{ fontSize: "11px", padding: "14px 20px" }}
+                                      onClick={handleProjectSubmit}
+                                    >
+                                      ⚔️ SUBMIT TO JUDGES
+                                    </button>
+                                  </>
+                                )}
+
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -1653,81 +1776,109 @@ const googleSignup = useGoogleLogin({
                     <div className="fade-in w-100 d-flex justify-content-center">
 
                       <div
-                        className="glass-card p-4 p-md-5 text-center w-100"
-                        style={{ maxWidth: "450px" }}
+                        className="retro-window w-100 text-center"
+                        style={{ maxWidth: "480px" }}
                       >
-
-                        <h2 className="fw-bold mb-2">
-                          Join Existing Team
-                        </h2>
-
-                        <p className="text-secondary mb-4">
-                          Enter the details provided by your
-                          Team Leader.
-                        </p>
-
-                        <input
-  id="join-team-id-input"
-  type="text"
-  className="form-control mb-4 py-2"
-  style={inputStyle}
-  placeholder="Team ID (e.g. CC-104)"
-  value={joinTeamId}
-  onChange={(e) => {
-    setJoinTeamId(e.target.value);
-    setJoinTeamError(null);
-  }}
-/>
-
-                        <div className="position-relative mb-4">
-                          <input
-                            type={showJoinPassword ? "text" : "password"}
-                            className="form-control py-2 pe-5"
-                            style={inputStyle}
-                            placeholder="Team Password"
-                            value={joinPassword}
-                            ref={joinPasswordRef}
-                            onChange={(e) => {
-                              setJoinPassword(e.target.value);
-                              setJoinTeamError(null);
-                            }}
-                            onKeyDown={(e) => {
-                              if (e.key === "Enter") {
-                                handleJoinTeam();
-                              }
-                            }}
-                          />
-                          <button
-                            type="button"
-                            className="btn btn-sm text-secondary position-absolute end-0 top-50 translate-middle-y me-2 border-0 bg-transparent"
-                            onClick={() => setShowJoinPassword(!showJoinPassword)}
-                          >
-                            {showJoinPassword ? "Hide" : "Show"}
-                          </button>
+                        <div className="retro-window__header">
+                          <div className="retro-window__title">
+                            <span>■ GUILD_RECRUIT</span>
+                            <span style={{ opacity: 0.5 }}>//</span>
+                            <span style={{ color: "#7d5a96" }}>JOIN_TEAM</span>
+                          </div>
+                          <div className="retro-window__controls">
+                            <span>_</span>
+                            <span>🗖</span>
+                            <span
+                              style={{ cursor: "pointer" }}
+                              onClick={() => setActivePage("team-portal")}
+                            >
+                              ✕
+                            </span>
+                          </div>
                         </div>
 
-{joinTeamError && (
-  <div className="text-danger mb-3">
-    {joinTeamError}
-  </div>
-)}
+                        <div className="retro-window__body p-4 p-md-5 text-center">
+                          <div className="mb-2">
+                            <span className="chapter-badge mb-3">
+                              🛡️ GUILD INVITATION
+                            </span>
+                          </div>
 
-                        <button
-                          className="btn btn-gradient w-100 py-2 fw-bold"
-                          onClick={handleJoinTeam}
-                        >
-                          Join Team →
-                        </button>
+                          <h2 className="glow-text mb-2 fw-bold" style={{ fontSize: "clamp(20px, 2.3vw, 26px)" }}>
+                            Join Existing Team
+                          </h2>
 
-                        <button
-                          className="btn text-secondary mt-3 btn-sm"
-                          onClick={() =>
-                            setActivePage("team-portal")
-                          }
-                        >
-                          ← Back
-                        </button>
+                          <p className="text-secondary mb-4" style={{ fontSize: "15px" }}>
+                            Enter the details provided by your Team Leader.
+                          </p>
 
+                          <div className="text-start mb-3">
+                            <label className="form-label">TEAM ID</label>
+                            <input
+                              id="join-team-id-input"
+                              type="text"
+                              className="form-control mb-0"
+                              placeholder="Team ID (e.g. CC-104)"
+                              value={joinTeamId}
+                              onChange={(e) => {
+                                setJoinTeamId(e.target.value);
+                                setJoinTeamError(null);
+                              }}
+                            />
+                          </div>
+
+                          <div className="text-start mb-4">
+                            <label className="form-label">TEAM PASSWORD</label>
+                            <div className="position-relative">
+                              <input
+                                type={showJoinPassword ? "text" : "password"}
+                                className="form-control pe-5 mb-0"
+                                placeholder="Team Password"
+                                value={joinPassword}
+                                ref={joinPasswordRef}
+                                onChange={(e) => {
+                                  setJoinPassword(e.target.value);
+                                  setJoinTeamError(null);
+                                }}
+                                onKeyDown={(e) => {
+                                  if (e.key === "Enter") {
+                                    handleJoinTeam();
+                                  }
+                                }}
+                              />
+                              <button
+                                type="button"
+                                className="btn btn-sm text-secondary position-absolute end-0 top-50 translate-middle-y me-2 border-0 bg-transparent"
+                                style={{ fontFamily: "var(--pixel)", fontSize: "9px" }}
+                                onClick={() => setShowJoinPassword(!showJoinPassword)}
+                              >
+                                {showJoinPassword ? "HIDE" : "SHOW"}
+                              </button>
+                            </div>
+                          </div>
+
+                          {joinTeamError && (
+                            <div className="alert alert-danger py-2 px-3 mb-3 text-start" style={{ fontSize: "13px" }}>
+                              {joinTeamError}
+                            </div>
+                          )}
+
+                          <button
+                            className="btn hero-pixel-btn hero-pixel-btn--primary w-100 mb-2"
+                            onClick={handleJoinTeam}
+                          >
+                            JOIN TEAM →
+                          </button>
+
+                          <button
+                            className="btn btn-sm btn-outline-secondary w-100 mt-2"
+                            style={{ fontSize: "10px" }}
+                            onClick={() => setActivePage("team-portal")}
+                          >
+                            ← BACK TO PORTAL
+                          </button>
+
+                        </div>
                       </div>
                     </div>
                   )}
@@ -1737,297 +1888,259 @@ const googleSignup = useGoogleLogin({
                   {activePage === "registration" && (
                     <div
                       className="fade-in w-100"
-                      style={{ maxWidth: "800px" }}
+                      style={{ maxWidth: "860px" }}
                     >
+                      <div className="retro-window">
+                        <div className="retro-window-header">
+                          <span className="retro-window-title">■ GUILD_FOUNDRY // REGISTER_PARTY</span>
+                          <div className="retro-window-controls">
+                            <span>_</span>
+                            <span>🗖</span>
+                            <span>✕</span>
+                          </div>
+                        </div>
 
-                      <h1 className="fw-bold mb-4 mb-md-5 text-center tracking-wide text-uppercase">
-                        REGISTER TEAM
-                      </h1>
-
-                      <div className="glass-card p-4 p-md-5">
-
-                        {registrationSubmitted ? (
-
-                          <div className="text-center py-5 fade-in">
-
-                            <h2 className="text-success mb-3">
-                              Team Registered!
+                        <div className="retro-window-body p-3 p-md-5">
+                          <div className="text-center mb-4">
+                            <span className="chapter-badge d-inline-block mb-2">⚔️ CHAPTER 01 // GUILD REGISTRATION</span>
+                            <h2 className="fw-bold tracking-wide text-uppercase mb-1" style={{ fontSize: "clamp(20px, 4vw, 28px)" }}>
+                              REGISTER TEAM
                             </h2>
-
-                            <h4 className="text-white mb-4">
-                              Your Team ID is:
-                              <span className="text-info fw-bold id-code">
-                                {" "}
-                                {newTeamId}
-                              </span>
-                            </h4>
-
-                            <p className="text-secondary mb-4">
-                              Please share this ID and your
-                              Team Password with your team
-                              members so they can join.
+                            <p className="text-muted small mb-0" style={{ fontFamily: "var(--body-pixel)" }}>
+                              Enlist your party in the Code Cortex quest
                             </p>
-
-                            <button
-                              className="btn btn-outline-info mt-4"
-                              onClick={() => {
-                                setActivePage(
-                                  "team-portal"
-                                );
-                                setRegistrationSubmitted(
-                                  false
-                                );
-                              }}
-                            >
-                              Go to Team Portal
-                            </button>
-
                           </div>
 
-                        ) : (
-
-                          <>
-                            <h5 className="text-info mb-4">
-                              1. Team Details
-                            </h5>
-
-                            <div className="row g-4">
-
-                              <div className="col-md-6">
-
-                                <input
-                                  type="text"
-                                  className="form-control"
-                                  style={inputStyle}
-                                  placeholder="Team Name"
-                                  value={regTeamName}
-                                  onChange={(e) =>
-                                    setRegTeamName(
-                                      e.target.value
-                                    )
-                                  }
-                                />
-
+                          {registrationSubmitted ? (
+                            <div className="text-center py-4 fade-in">
+                              <div className="rpg-lead-dialogue mb-4 d-inline-block p-4" style={{ maxWidth: "560px" }}>
+                                <div className="text-success fw-bold mb-2" style={{ fontFamily: "var(--font-heading)", fontSize: "16px" }}>
+                                  ✨ PARTY ENROLLED!
+                                </div>
+                                <h4 className="mb-3" style={{ color: "var(--pixel-eggplant)", fontSize: "14px" }}>
+                                  Your Guild ID is:
+                                  <span className="d-block mt-2 id-code" style={{ fontSize: "22px", color: "var(--retro-teal-dark)" }}>
+                                    {newTeamId}
+                                  </span>
+                                </h4>
+                                <p className="text-muted mb-0 small" style={{ fontFamily: "var(--body-pixel)" }}>
+                                  Please share this Guild ID and your Team Password with your fellow party members so they can join your team.
+                                </p>
                               </div>
-
-                              <div className="col-md-6">
-
-                                <select
-                                  className="form-select bg-dark text-white border-secondary"
-                                  value={regTrack}
-                                  onChange={(e) =>
-                                    setRegTrack(
-                                      e.target.value
-                                    )
-                                  }
+                              <div>
+                                <button
+                                  className="btn hero-pixel-btn hero-pixel-btn--primary px-4 py-2"
+                                  onClick={() => {
+                                    setActivePage("team-portal");
+                                    setRegistrationSubmitted(false);
+                                  }}
                                 >
-
-                                  <option value="" disabled>
-                                    Select Track...
-                                  </option>
-
-                                  <option>
-                                    Finance
-                                  </option>
-
-                                  <option>
-                                    Medicine & Healthcare
-                                  </option>
-
-                                  <option>
-                                    Drone tech & aviation
-                                  </option>
-
-                                  <option>
-                                    Security
-                                  </option>
-
-                                  <option>
-                                    Open Innovation
-                                  </option>
-
-                                </select>
-
+                                  GO TO TEAM PORTAL →
+                                </button>
                               </div>
                             </div>
-
-                            <h5 className="text-info mt-5 mb-4">
-                              2. Leader & Security Details
-                            </h5>
-
-                            <div className="row g-4">
-
-                              <div className="col-md-6">
-
-                                <input
-                                  type="text"
-                                  className="form-control"
-                                  style={inputStyle}
-                                  placeholder="Leader Name"
-                                  value={regLeaderName}
-                                  onChange={(e) =>
-                                    setRegLeaderName(
-                                      e.target.value
-                                    )
-                                  }
-                                />
-
+                          ) : (
+                            <>
+                              <div className="d-flex align-items-center gap-2 mb-3">
+                                <span className="mission-tag">STEP 01</span>
+                                <h4 className="mb-0" style={{ fontSize: "13px" }}>TEAM DETAILS</h4>
                               </div>
 
-                              {!isExternalParticipant && (
+                              <div className="row g-3 mb-4">
                                 <div className="col-md-6">
-
+                                  <label className="form-label" style={{ fontSize: "10px" }}>TEAM NAME</label>
                                   <input
                                     type="text"
                                     className="form-control"
                                     style={inputStyle}
-                                    placeholder="Leader Reg No (e.g. 21BCE1234)"
-                                    value={regLeaderRegNo}
-                                    onChange={(e) =>
-                                      setRegLeaderRegNo(
-                                        e.target.value.toUpperCase()
-                                      )
-                                    }
+                                    placeholder="Enter team name..."
+                                    value={regTeamName}
+                                    onChange={(e) => setRegTeamName(e.target.value)}
                                   />
-
                                 </div>
+
+                                <div className="col-md-6">
+                                  <label className="form-label" style={{ fontSize: "10px" }}>CHALLENGE TRACK</label>
+                                  <select
+                                    className="form-select"
+                                    style={{
+                                      ...inputStyle,
+                                      cursor: "pointer"
+                                    }}
+                                    value={regTrack}
+                                    onChange={(e) => setRegTrack(e.target.value)}
+                                  >
+                                    <option value="" disabled>
+                                      Select Track...
+                                    </option>
+                                    <option>Finance</option>
+                                    <option>Medicine & Healthcare</option>
+                                    <option>Drone tech & aviation</option>
+                                    <option>Security</option>
+                                    <option>Open Innovation</option>
+                                  </select>
+                                </div>
+                              </div>
+
+                              <div className="d-flex align-items-center gap-2 mb-3">
+                                <span className="mission-tag">STEP 02</span>
+                                <h4 className="mb-0" style={{ fontSize: "13px" }}>LEADER & SECURITY DETAILS</h4>
+                              </div>
+
+                              <div className="row g-3 mb-4">
+                                <div className="col-md-6">
+                                  <label className="form-label" style={{ fontSize: "10px" }}>LEADER NAME</label>
+                                  <input
+                                    type="text"
+                                    className="form-control"
+                                    style={inputStyle}
+                                    placeholder="Full Name"
+                                    value={regLeaderName}
+                                    onChange={(e) => setRegLeaderName(e.target.value)}
+                                  />
+                                </div>
+
+                                {!isExternalParticipant && (
+                                  <div className="col-md-6">
+                                    <label className="form-label" style={{ fontSize: "10px" }}>REGISTRATION NUMBER</label>
+                                    <input
+                                      type="text"
+                                      className="form-control"
+                                      style={inputStyle}
+                                      placeholder="Leader Reg No (e.g. 21BCE1234)"
+                                      value={regLeaderRegNo}
+                                      onChange={(e) => setRegLeaderRegNo(e.target.value.toUpperCase())}
+                                    />
+                                  </div>
+                                )}
+
+                                <div className="col-md-6">
+                                  <label className="form-label" style={{ fontSize: "10px" }}>LEADER EMAIL</label>
+                                  <input
+                                    type="email"
+                                    className="form-control"
+                                    style={{
+                                      ...inputStyle,
+                                      backgroundColor: "rgba(224, 179, 200, 0.15)",
+                                      cursor: "not-allowed"
+                                    }}
+                                    value={loggedInUser?.Email || ""}
+                                    disabled
+                                  />
+                                </div>
+
+                                <div className="col-md-6">
+                                  <label className="form-label" style={{ fontSize: "10px" }}>NUMBER OF MEMBERS (2-4)</label>
+                                  <input
+                                    type="number"
+                                    min="2"
+                                    max="4"
+                                    className="form-control"
+                                    style={inputStyle}
+                                    placeholder="No. of Members (2-4)"
+                                    value={regMembers}
+                                    onChange={(e) => handleRegMembersChange(e.target.value)}
+                                  />
+                                </div>
+
+                                <div className="col-md-12">
+                                  <label className="form-label" style={{ fontSize: "10px" }}>SET TEAM PASSWORD (MIN 4 CHARS)</label>
+                                  <div className="position-relative">
+                                    <input
+                                      type={showRegPassword ? "text" : "password"}
+                                      className="form-control pe-5"
+                                      style={inputStyle}
+                                      placeholder="Set Team Password"
+                                      value={regPassword}
+                                      onChange={(e) => setRegPassword(e.target.value)}
+                                    />
+                                    <button
+                                      type="button"
+                                      className="btn btn-sm text-secondary position-absolute end-0 top-50 translate-middle-y me-2 border-0 bg-transparent fw-bold"
+                                      style={{ fontFamily: "var(--font-heading)", fontSize: "10px" }}
+                                      onClick={() => setShowRegPassword(!showRegPassword)}
+                                    >
+                                      {showRegPassword ? "HIDE" : "SHOW"}
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
+
+                              {teamMembersList.length > 0 && (
+                                <>
+                                  <div className="d-flex align-items-center gap-2 mb-3">
+                                    <span className="mission-tag">STEP 03</span>
+                                    <h4 className="mb-0" style={{ fontSize: "13px" }}>PARTY MEMBERS DETAILS</h4>
+                                  </div>
+
+                                  {teamMembersList.map((member, index) => (
+                                    <div key={index} className="rpg-stat-card p-3 mb-3">
+                                      <div className="fw-bold mb-2 text-uppercase" style={{ fontSize: "11px", color: "var(--retro-teal-dark)", fontFamily: "var(--font-heading)" }}>
+                                        👤 Member {index + 2}
+                                      </div>
+                                      <div className="row g-3">
+                                        <div className={isExternalParticipant ? "col-md-6" : "col-md-4"}>
+                                          <label className="form-label" style={{ fontSize: "9px" }}>NAME</label>
+                                          <input
+                                            type="text"
+                                            className="form-control form-control-sm"
+                                            style={inputStyle}
+                                            placeholder="Full Name"
+                                            value={member.name}
+                                            onChange={(e) => handleMemberChange(index, 'name', e.target.value)}
+                                          />
+                                        </div>
+                                        {!isExternalParticipant && (
+                                          <div className="col-md-4">
+                                            <label className="form-label" style={{ fontSize: "9px" }}>REG NO</label>
+                                            <input
+                                              type="text"
+                                              className="form-control form-control-sm"
+                                              style={inputStyle}
+                                              placeholder="e.g. 21BCE1234"
+                                              value={member.regNo}
+                                              onChange={(e) => handleMemberChange(index, 'regNo', e.target.value)}
+                                            />
+                                          </div>
+                                        )}
+                                        <div className={isExternalParticipant ? "col-md-6" : "col-md-4"}>
+                                          <label className="form-label" style={{ fontSize: "9px" }}>EMAIL</label>
+                                          <input
+                                            type="email"
+                                            className="form-control form-control-sm"
+                                            style={inputStyle}
+                                            placeholder="Email Address"
+                                            value={member.email}
+                                            onChange={(e) => handleMemberChange(index, 'email', e.target.value)}
+                                          />
+                                        </div>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </>
                               )}
 
-                              <div className="col-md-6">
+                              <div className="d-flex flex-column flex-md-row justify-content-between align-items-center mt-4 gap-3 pt-3 border-top" style={{ borderColor: "#e0b3c8 !important" }}>
+                                <button
+                                  type="button"
+                                  className="btn hero-pixel-btn hero-pixel-btn--secondary px-4 py-2"
+                                  onClick={() => setShowModal(true)}
+                                >
+                                  📜 VIEW RULES
+                                </button>
 
-                                <input
-                                  type="email"
-                                  className="form-control"
-                                  style={{
-                                    ...inputStyle,
-                                    opacity: 0.7
-                                  }}
-                                  value={
-                                    loggedInUser?.Email || ""
-                                  }
-                                  disabled
-                                />
-
+                                <button
+                                  type="button"
+                                  className="btn hero-pixel-btn hero-pixel-btn--primary px-4 py-2"
+                                  onClick={handleTeamSubmit}
+                                  disabled={isSubmittingTeam}
+                                >
+                                  {isSubmittingTeam ? "ENLISTING..." : "REGISTER TEAM →"}
+                                </button>
                               </div>
-
-                              <div className="col-md-6">
-
-                                <input
-                                  type="number"
-                                  min="2"
-                                  max="4"
-                                  className="form-control"
-                                  style={inputStyle}
-                                  placeholder="No. of Members (2-4)"
-                                  value={regMembers}
-                                  onChange={(e) =>
-                                    handleRegMembersChange(
-                                      e.target.value
-                                    )
-                                  }
-                                />
-
-                              </div>
-
-                              <div className="col-md-6">
-
-                                <div className="position-relative">
-                                  <input
-                                    type={showRegPassword ? "text" : "password"}
-                                    className="form-control pe-5"
-                                    style={inputStyle}
-                                    placeholder="Set Team Password (min 4 chars)"
-                                    value={regPassword}
-                                    onChange={(e) =>
-                                      setRegPassword(
-                                        e.target.value
-                                      )
-                                    }
-                                  />
-                                  <button
-                                    type="button"
-                                    className="btn btn-sm text-secondary position-absolute end-0 top-50 translate-middle-y me-2 border-0 bg-transparent"
-                                    onClick={() => setShowRegPassword(!showRegPassword)}
-                                  >
-                                    {showRegPassword ? "Hide" : "Show"}
-                                  </button>
-                                </div>
-
-                              </div>
-
-                            </div>
-
-                            {teamMembersList.length > 0 && (
-                              <>
-                                <h5 className="text-info mt-5 mb-4">
-                                  3. Team Members Details
-                                </h5>
-                                {teamMembersList.map((member, index) => (
-                                  <div key={index} className="row g-4 mb-4">
-                                    <div className="col-12 text-secondary mb-1">
-                                      Member {index + 2}
-                                    </div>
-                                    <div className={isExternalParticipant ? "col-md-6" : "col-md-4"}>
-                                      <input
-                                        type="text"
-                                        className="form-control"
-                                        style={inputStyle}
-                                        placeholder="Full Name"
-                                        value={member.name}
-                                        onChange={(e) => handleMemberChange(index, 'name', e.target.value)}
-                                      />
-                                    </div>
-                                    {!isExternalParticipant && (
-                                      <div className="col-md-4">
-                                        <input
-                                          type="text"
-                                          className="form-control"
-                                          style={inputStyle}
-                                          placeholder="Reg No (e.g. 20ABC1234)"
-                                          value={member.regNo}
-                                          onChange={(e) => handleMemberChange(index, 'regNo', e.target.value)}
-                                        />
-                                      </div>
-                                    )}
-                                    <div className={isExternalParticipant ? "col-md-6" : "col-md-4"}>
-                                      <input
-                                        type="email"
-                                        className="form-control"
-                                        style={inputStyle}
-                                        placeholder="Email Address"
-                                        value={member.email}
-                                        onChange={(e) => handleMemberChange(index, 'email', e.target.value)}
-                                      />
-                                    </div>
-                                  </div>
-                                ))}
-                              </>
-                            )}
-
-                            <div className="d-flex flex-column flex-md-row justify-content-between mt-4 gap-3">
-
-                              <button
-                                className="btn btn-outline-info px-4 py-2"
-                                onClick={() =>
-                                  setShowModal(true)
-                                }
-                              >
-                                Rules
-                              </button>
-
-                              <button
-                                className="btn btn-gradient px-4 py-2"
-                                onClick={handleTeamSubmit}
-                                disabled={isSubmittingTeam}
-                              >
-                                {isSubmittingTeam ? "Registering..." : "Register"}
-                              </button>
-
-                            </div>
-
-                          </>
-                        )}
-
+                            </>
+                          )}
+                        </div>
                       </div>
                     </div>
                   )}
@@ -2037,104 +2150,117 @@ const googleSignup = useGoogleLogin({
                   {activePage === "contact" && (
                     <div
                       className="fade-in w-100"
-                      style={{ maxWidth: "700px" }}
+                      style={{ maxWidth: "720px" }}
                     >
+                      <div className="retro-window">
+                        <div className="retro-window-header">
+                          <span className="retro-window-title">■ POST_OFFICE // TRANSMIT_MESSAGE</span>
+                          <div className="retro-window-controls">
+                            <span>_</span>
+                            <span>🗖</span>
+                            <span>✕</span>
+                          </div>
+                        </div>
 
-                      <h1 className="fw-bold mb-4 mb-md-5 text-center tracking-wide">
-                        CONTACT
-                      </h1>
-
-                      <div className="glass-card p-4 p-md-5">
-
-                        {contactSubmitted ? (
-
-                          <div className="text-center py-5 fade-in">
-
-                            <h3 className="text-info mb-3">
-                              Message Sent!
-                            </h3>
-
-                            <button
-                              className="btn btn-outline-info mt-4"
-                              onClick={() =>
-                                setContactSubmitted(false)
-                              }
-                            >
-                              Send Another Message
-                            </button>
-
+                        <div className="retro-window-body p-3 p-md-5">
+                          <div className="text-center mb-4">
+                            <span className="chapter-badge d-inline-block mb-2">📬 CHAPTER 05 // GET IN TOUCH</span>
+                            <h2 className="fw-bold tracking-wide text-uppercase mb-1" style={{ fontSize: "clamp(20px, 4vw, 28px)" }}>
+                              CONTACT GUILD
+                            </h2>
+                            <p className="text-muted small mb-0" style={{ fontFamily: "var(--body-pixel)" }}>
+                              Have a query or need guidance? Send a dispatch to the organizers
+                            </p>
                           </div>
 
-                        ) : (
-
-                          <>
-                            <div className="row g-4 mb-4">
-
-                              <div className="col-12 col-md-6">
-                                <input
-                                  type="text"
-                                  className="form-control"
-                                  style={inputStyle}
-                                  placeholder="First Name"
-                                />
+                          {contactSubmitted ? (
+                            <div className="text-center py-4 fade-in">
+                              <div className="rpg-lead-dialogue mb-4 d-inline-block p-4" style={{ maxWidth: "520px" }}>
+                                <div className="text-success fw-bold mb-2" style={{ fontFamily: "var(--font-heading)", fontSize: "15px" }}>
+                                  🕊️ DISPATCH SENT!
+                                </div>
+                                <p className="mb-0 text-muted small" style={{ fontFamily: "var(--body-pixel)" }}>
+                                  Your message has been delivered to the Code Cortex headquarters. Our guildmasters will reply promptly.
+                                </p>
                               </div>
-
-                              <div className="col-12 col-md-6">
-                                <input
-                                  type="text"
-                                  className="form-control"
-                                  style={inputStyle}
-                                  placeholder="Last Name"
-                                />
+                              <div>
+                                <button
+                                  className="btn hero-pixel-btn hero-pixel-btn--secondary px-4 py-2"
+                                  onClick={() => setContactSubmitted(false)}
+                                >
+                                  SEND ANOTHER DISPATCH
+                                </button>
                               </div>
-
-                              <div className="col-12 col-md-6">
-                                <input
-                                  type="text"
-                                  className="form-control"
-                                  style={inputStyle}
-                                  placeholder="Subject"
-                                />
-                              </div>
-
-                              <div className="col-12 col-md-6">
-                                <input
-                                  type="email"
-                                  className="form-control"
-                                  style={inputStyle}
-                                  placeholder="Email-id"
-                                />
-                              </div>
-
-                              <div className="col-12 mt-2">
-                                <textarea
-                                  className="form-control"
-                                  style={{
-                                    ...inputStyle,
-                                    resize: "none"
-                                  }}
-                                  rows={4}
-                                  placeholder="Message"
-                                />
-                              </div>
-
                             </div>
+                          ) : (
+                            <>
+                              <div className="row g-3 mb-4">
+                                <div className="col-12 col-md-6">
+                                  <label className="form-label" style={{ fontSize: "10px" }}>FIRST NAME</label>
+                                  <input
+                                    type="text"
+                                    className="form-control"
+                                    style={inputStyle}
+                                    placeholder="First Name"
+                                  />
+                                </div>
 
-                            <div className="text-center mt-5">
+                                <div className="col-12 col-md-6">
+                                  <label className="form-label" style={{ fontSize: "10px" }}>LAST NAME</label>
+                                  <input
+                                    type="text"
+                                    className="form-control"
+                                    style={inputStyle}
+                                    placeholder="Last Name"
+                                  />
+                                </div>
 
-                              <button
-                                className="btn btn-gradient px-5 py-2"
-                                onClick={() =>
-                                  setContactSubmitted(true)
-                                }
-                              >
-                                Send Message →
-                              </button>
+                                <div className="col-12 col-md-6">
+                                  <label className="form-label" style={{ fontSize: "10px" }}>SUBJECT</label>
+                                  <input
+                                    type="text"
+                                    className="form-control"
+                                    style={inputStyle}
+                                    placeholder="Topic or Category"
+                                  />
+                                </div>
 
-                            </div>
-                          </>
-                        )}
+                                <div className="col-12 col-md-6">
+                                  <label className="form-label" style={{ fontSize: "10px" }}>EMAIL ADDRESS</label>
+                                  <input
+                                    type="email"
+                                    className="form-control"
+                                    style={inputStyle}
+                                    placeholder="you@example.com"
+                                  />
+                                </div>
 
+                                <div className="col-12">
+                                  <label className="form-label" style={{ fontSize: "10px" }}>MESSAGE</label>
+                                  <textarea
+                                    className="form-control"
+                                    style={{
+                                      ...inputStyle,
+                                      resize: "none"
+                                    }}
+                                    rows={4}
+                                    placeholder="Write your dispatch here..."
+                                  />
+                                </div>
+                              </div>
+
+                              <div className="text-center pt-2">
+                                <button
+                                  type="button"
+                                  className="btn hero-pixel-btn hero-pixel-btn--primary px-5 py-2"
+                                  onClick={() => setContactSubmitted(true)}
+                                >
+                                  SEND DISPATCH →
+                                </button>
+                              </div>
+                            </>
+                          )}
+                        </div>
                       </div>
                     </div>
                   )}
@@ -2184,54 +2310,62 @@ const googleSignup = useGoogleLogin({
                   <div
                     className="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center p-3"
                     style={{
-                      backgroundColor:
-                        "rgba(0,0,0,0.85)",
+                      backgroundColor: "rgba(45, 31, 54, 0.7)",
+                      backdropFilter: "blur(4px)",
                       zIndex: 1050
                     }}
                   >
-
                     <div
-                      className="glass-card p-4 p-md-5 position-relative w-100"
+                      className="retro-window w-100 fade-in"
                       style={{ maxWidth: "600px" }}
                     >
-
-                      <button
-                        className="btn text-white position-absolute top-0 end-0 m-2 border-0 bg-transparent fs-3"
-                        onClick={() =>
-                          setShowModal(false)
-                        }
-                      >
-                        ×
-                      </button>
-
-                      <h2 className="glow-text text-center mb-4 opacity-75 fs-4 fs-md-2">
-                        RULES & DETAILS
-                      </h2>
-
-                      <div className="text-light lh-lg d-flex flex-column gap-2 gap-md-3 fs-6">
-
-                        <p className="mb-0">
-                          1. Fill up all the details mentioned.
-                        </p>
-
-                        <p className="mb-0">
-                          2. Team size strictly restricted
-                          to 2-4 members.
-                        </p>
-
-                        <p className="mb-0">
-                          3. Upon registering, shared login
-                          credentials will be generated for
-                          your team.
-                        </p>
-
-                        <p className="mb-0">
-                          4. Proceed to the payment gateway
-                          to finalize registration.
-                        </p>
-
+                      <div className="retro-window-header">
+                        <span className="retro-window-title">■ TOURNAMENT_CODEX // RULES</span>
+                        <div className="retro-window-controls">
+                          <span style={{ cursor: "pointer" }} onClick={() => setShowModal(false)}>✕</span>
+                        </div>
                       </div>
 
+                      <div className="retro-window-body p-4 p-md-5">
+                        <div className="text-center mb-4">
+                          <span className="chapter-badge d-inline-block mb-2">📜 TOURNAMENT BYLAWS</span>
+                          <h3 className="fw-bold tracking-wide text-uppercase mb-1" style={{ fontSize: "18px" }}>
+                            RULES & DETAILS
+                          </h3>
+                        </div>
+
+                        <div className="lh-lg d-flex flex-column gap-3 fs-6" style={{ fontFamily: "var(--body-pixel)", color: "var(--pixel-eggplant)" }}>
+                          <div className="rpg-stat-card p-3 d-flex align-items-start gap-2">
+                            <span className="badge" style={{ background: "#7abcc4", color: "#2d1f36", border: "1.5px solid #2d1f36" }}>01</span>
+                            <div>Ensure all team registration fields are filled completely and accurately.</div>
+                          </div>
+
+                          <div className="rpg-stat-card p-3 d-flex align-items-start gap-2">
+                            <span className="badge" style={{ background: "#fde88a", color: "#2d1f36", border: "1.5px solid #2d1f36" }}>02</span>
+                            <div>Party size is strictly limited to <strong>2 to 4 members</strong>.</div>
+                          </div>
+
+                          <div className="rpg-stat-card p-3 d-flex align-items-start gap-2">
+                            <span className="badge" style={{ background: "#f8b4cb", color: "#2d1f36", border: "1.5px solid #2d1f36" }}>03</span>
+                            <div>Upon registration, your team credentials (Team ID & Password) will be generated. Share them with your party.</div>
+                          </div>
+
+                          <div className="rpg-stat-card p-3 d-flex align-items-start gap-2">
+                            <span className="badge" style={{ background: "#c4b5fd", color: "#2d1f36", border: "1.5px solid #2d1f36" }}>04</span>
+                            <div>All project artifacts (GitHub & Figma) must be submitted before each review deadline.</div>
+                          </div>
+                        </div>
+
+                        <div className="text-center mt-4 pt-3 border-top" style={{ borderColor: "#e0b3c8 !important" }}>
+                          <button
+                            type="button"
+                            className="btn hero-pixel-btn hero-pixel-btn--primary px-4 py-2"
+                            onClick={() => setShowModal(false)}
+                          >
+                            UNDERSTOOD ✓
+                          </button>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 )}

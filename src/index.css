@@ -292,26 +292,72 @@ p {
   box-shadow: var(--pixel-shadow-sm) !important;
 }
 
+/* Authentic Website Hero Pixel Buttons */
+.hero-pixel-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 10px !important;
+  padding: 13px 20px !important;
+  border: 2.5px solid #2d1f36 !important;
+  border-radius: 6px !important;
+  box-shadow: 4px 4px 0px #2d1f36 !important;
+  font-family: var(--pixel) !important;
+  font-size: 10.5px !important;
+  text-decoration: none !important;
+  cursor: pointer !important;
+  transition: transform 0.12s ease, box-shadow 0.12s ease !important;
+}
+
+.hero-pixel-btn:hover {
+  transform: translate(-2px, -2px) !important;
+  box-shadow: 6px 6px 0px #2d1f36 !important;
+}
+
+.hero-pixel-btn:active {
+  transform: translate(2px, 2px) !important;
+  box-shadow: 2px 2px 0px #2d1f36 !important;
+}
+
+.hero-pixel-btn--primary {
+  background: #7abcc4 !important;
+  color: #2d1f36 !important;
+}
+
+.hero-pixel-btn--primary:hover {
+  background: #9adce3 !important;
+}
+
+.hero-pixel-btn--secondary {
+  background: #fde88a !important;
+  color: #2d1f36 !important;
+}
+
+.hero-pixel-btn--secondary:hover {
+  background: #fef0a8 !important;
+}
+
 /* ==========================================================================
    RPG FORMS & INPUTS
    ========================================================================== */
 .form-control, .form-select {
-  background: #fdfbf7 !important;
-  border: 2px solid #2d1f36 !important;
-  border-radius: 6px !important;
-  box-shadow: inset 1px 1px 3px rgba(45, 31, 54, 0.08) !important;
+  background: #ffffff !important;
+  border: 2.5px solid #2d1f36 !important;
+  border-radius: 8px !important;
+  box-shadow: 3px 3px 0px rgba(45, 31, 54, 0.12) !important;
   color: #2d1f36 !important;
   font-family: var(--body-pixel) !important;
-  font-size: 14.5px !important;
+  font-size: 15px !important;
   padding: 12px 16px !important;
   margin-bottom: 18px !important;
   line-height: 1.5 !important;
+  transition: all 0.12s ease !important;
 }
 
 .form-control:focus, .form-select:focus {
   background: #ffffff !important;
-  border-color: var(--coral) !important;
-  box-shadow: 0 0 0 3px rgba(122, 188, 196, 0.35) !important;
+  border-color: #7abcc4 !important;
+  box-shadow: 3px 3px 0px #2d1f36 !important;
   outline: none !important;
 }
 
@@ -322,11 +368,27 @@ p {
 
 .form-label {
   font-family: var(--pixel) !important;
-  font-size: 9.5px !important;
-  color: var(--cream) !important;
-  margin-bottom: 10px !important;
+  font-size: 8.5px !important;
+  color: #606d7a !important;
+  margin-bottom: 8px !important;
   display: inline-block !important;
-  letter-spacing: 0.04em !important;
+  letter-spacing: 0.05em !important;
+  text-transform: uppercase !important;
+}
+
+.input-group-text {
+  background: #f4ede3 !important;
+  border: 2.5px solid #2d1f36 !important;
+  border-right: none !important;
+  border-radius: 8px 0 0 8px !important;
+  color: #2d1f36 !important;
+  box-shadow: 3px 3px 0px rgba(45, 31, 54, 0.12) !important;
+  padding: 0 14px !important;
+}
+
+.input-group .form-control {
+  border-top-left-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
 }
 
 /* ==========================================================================
@@ -360,7 +422,7 @@ p {
 
 .alert {
   border: 2.5px solid #2d1f36 !important;
-  border-radius: 6px !important;
+  border-radius: 8px !important;
   box-shadow: 3px 3px 0px #2d1f36 !important;
   font-family: var(--body-pixel) !important;
   font-size: 13.5px !important;
@@ -393,24 +455,122 @@ p {
   border-radius: 4px !important;
   box-shadow: 1.5px 1.5px 0px #2d1f36 !important;
   padding: 5px 10px !important;
+  letter-spacing: 0.04em !important;
+}
+
+/* Authentic Website RPG Badges & Cards */
+.chapter-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #fde88a;
+  border: 2px solid #2d1f36;
+  border-radius: 4px;
+  padding: 5px 12px;
+  box-shadow: 2.5px 2.5px 0px #2d1f36;
+  font-family: var(--pixel);
+  font-size: 8.5px;
+  color: #2d1f36;
+  letter-spacing: 0.08em;
+  margin-bottom: 12px;
+}
+
+.mission-tag {
+  font-family: var(--pixel);
+  font-size: 8.5px;
+  color: #2d1f36;
+  background: #ede5f5;
+  border: 1.5px solid #2d1f36;
+  padding: 4px 10px;
+  border-radius: 4px;
+  box-shadow: 1.5px 1.5px 0px #2d1f36;
+  letter-spacing: 0.06em;
+  display: inline-flex;
+  align-items: center;
+}
+
+.mission-live-pill {
+  font-family: var(--pixel);
+  font-size: 8.5px;
+  font-weight: 700;
+  color: #15803d;
+  background: #dcfce7;
+  border: 1.5px solid #2d1f36;
+  padding: 4px 12px;
+  border-radius: 20px;
+  box-shadow: 2px 2px 0px #2d1f36;
+  letter-spacing: 0.06em;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.rpg-stat-card {
+  background: #fdfbf7;
+  border: 2px solid #2d1f36;
+  border-radius: 8px;
+  box-shadow: 3px 3px 0px rgba(45, 31, 54, 0.12);
+  padding: 14px 16px;
+  margin-bottom: 14px;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.rpg-stat-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 4px 4px 0px #2d1f36;
+}
+
+.rpg-lead-dialogue {
+  background: #ffffff;
+  border: 3px solid #e0b3c8;
+  box-shadow: 4px 4px 0px #cf9ab4;
+  border-radius: 12px;
+  padding: 22px 26px;
+  color: #3a284c;
+  font-size: 15.5px;
+  line-height: 1.7;
+  position: relative;
 }
 
 /* ==========================================================================
    TYPOGRAPHY & UTILITIES
    ========================================================================== */
-h1, h2, h3, h4, h5, h6 {
+h1, h2 {
   font-family: var(--pixel) !important;
   color: #2d1f36 !important;
   line-height: 1.35 !important;
-  margin-bottom: 18px !important;
+  margin-bottom: 16px !important;
   letter-spacing: -0.01em !important;
   text-transform: uppercase !important;
-  text-shadow: 2px 2px 0px #f8b4cb !important;
+  text-shadow: 2.5px 2.5px 0px #f8b4cb !important;
+}
+
+h3, h4 {
+  font-family: var(--pixel) !important;
+  color: #2d1f36 !important;
+  line-height: 1.4 !important;
+  margin-bottom: 12px !important;
+  letter-spacing: 0.02em !important;
+  text-shadow: none !important;
+}
+
+h5, h6 {
+  font-family: var(--body-pixel) !important;
+  font-weight: 700 !important;
+  color: #2d1f36 !important;
+  line-height: 1.4 !important;
+  margin-bottom: 10px !important;
+  text-shadow: none !important;
 }
 
 .glow-text {
   color: #2d1f36 !important;
   text-shadow: 2.5px 2.5px 0px #f8b4cb !important;
+}
+
+.id-code {
+  font-family: var(--pixel) !important;
+  letter-spacing: 0.06em !important;
 }
 
 .text-info {
@@ -574,7 +734,8 @@ h1, h2, h3, h4, h5, h6 {
   z-index: 10;
 }
 
-.retro-window__header {
+.retro-window__header,
+.retro-window-header {
   background: #f4ede3 !important;
   border-bottom: 2.5px solid #2d1f36 !important;
   padding: 10px 16px !important;
@@ -587,14 +748,16 @@ h1, h2, h3, h4, h5, h6 {
   letter-spacing: 0.04em !important;
 }
 
-.retro-window__title {
+.retro-window__title,
+.retro-window-title {
   display: flex;
   align-items: center;
   gap: 8px;
   font-weight: bold;
 }
 
-.retro-window__controls {
+.retro-window__controls,
+.retro-window-controls {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -603,8 +766,9 @@ h1, h2, h3, h4, h5, h6 {
   color: #7d5a96;
 }
 
-.retro-window__body {
-  padding: clamp(24px, 3.8vw, 40px) !important;
+.retro-window__body,
+.retro-window-body {
+  padding: clamp(20px, 3vw, 36px) !important;
 }
 
 /* ==========================================================================
