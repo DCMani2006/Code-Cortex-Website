@@ -18,14 +18,58 @@ import {
   updateTeamSize
 } from './googleSheets.js';
 import { saveTeamPassword, getTeamPasswords } from './teamPasswords.js';
+import {
+  signSession,
+  verifyGoogleAccessToken,
+  rateLimit,
+  authenticate,
+  requireAdmin,
+  checkAdminPasscode
+} from './auth.js';
 
 dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 3000;
 
-app.use(cors());
+// CORS was wide open to every origin, so any page on the internet could call
+// this API with a visitor's browser. Restrict it to our own front ends, plus
+// localhost for development. EXTRA_CORS_ORIGINS (comma separated) is an escape
+// hatch for a preview deploy without a code change.
+const ALLOWED_ORIGINS = [
+  'https://app.codecortex.tamvit.in',
+  'https://codecortex.tamvit.in',
+  'http://localhost:5173',
+  'http://localhost:5174',
+  'http://localhost:3001',
+  ...String(process.env.EXTRA_CORS_ORIGINS || '')
+    .split(',')
+    .map(o => o.trim())
+    .filter(Boolean)
+];
+
+app.use(cors({
+  origin(origin, callback) {
+    // No Origin header means a same-origin or non-browser caller (curl, health
+    // checks, the Railway probe). Those are not what CORS defends against, so
+    // let them through; the auth layer is what actually guards the data.
+    if (!origin || ALLOWED_ORIGINS.includes(origin)) return callback(null, true);
+    console.warn('Blocked CORS origin:', origin);
+    return callback(null, false);
+  },
+  credentials: true
+}));
 app.use(express.json());
+
+// Railway terminates TLS in front of us, so without this req.ip is the proxy's
+// address and every visitor would share one rate-limit bucket.
+app.set('trust proxy', 1);
+
+// Populates req.user when a valid session token is present. Defaults to "log"
+// mode, which never rejects — that lets the server ship before the client
+// knows how to send tokens. Flip AUTH_MODE=enforce once the logs show tokens
+// arriving. Individual routes below still enforce their own requirements.
+app.use(authenticate());
 
 // This is a pure REST API with no root page of its own — a plain GET / (from
 // a health checker, monitoring, or someone hitting the API's bare domain)
@@ -34,6 +78,56 @@ app.use(express.json());
 app.get('/', (req, res) => {
   res.json({ status: 'ok', service: 'codecortex3.0 api' });
 });
+
+// --- Auth & Session ---
+app.post('/api/auth/session', async (req, res) => {
+  try {
+    const { accessToken, name } = req.body;
+    if (!accessToken) {
+      return res.status(400).json({ error: 'Missing accessToken' });
+    }
+
+    const tokenInfo = await verifyGoogleAccessToken(accessToken);
+    if (!tokenInfo || !tokenInfo.email || !tokenInfo.emailVerified) {
+      return res.status(401).json({ error: 'Invalid or unauthorized Google access token.' });
+    }
+
+    const user = await syncAuthUser(tokenInfo.email, name || tokenInfo.email);
+    const token = signSession({
+      userId: user.User_ID,
+      email: user.Email,
+      role: 'participant'
+    });
+
+    res.json({ token, user });
+  } catch (error) {
+    console.error('Error in /api/auth/session:', error);
+    res.status(500).json({ error: 'Failed to create session.' });
+  }
+});
+
+app.post(
+  '/api/admin/session',
+  rateLimit({ windowMs: 15 * 60 * 1000, max: 5 }),
+  async (req, res) => {
+    try {
+      const { name, passcode } = req.body;
+      if (!name || !passcode) {
+        return res.status(400).json({ error: 'Name and passcode are required.' });
+      }
+
+      if (!checkAdminPasscode(passcode)) {
+        return res.status(401).json({ error: 'Invalid admin passcode.' });
+      }
+
+      const token = signSession({ name: String(name).trim(), role: 'admin' }, 12 * 3600);
+      res.json({ token });
+    } catch (error) {
+      console.error('Error in /api/admin/session:', error);
+      res.status(500).json({ error: 'Admin authentication failed.' });
+    }
+  }
+);
 
 // --- Users ---
 app.get('/api/users', async (req, res) => {
@@ -60,14 +154,19 @@ app.post('/api/auth', async (req, res) => {
   try {
     const { email, name } = req.body;
     const user = await syncAuthUser(email, name);
-    res.json(user);
+    const token = signSession({
+      userId: user.User_ID,
+      email: user.Email,
+      role: 'participant'
+    });
+    res.json({ ...user, token });
   } catch (error) {
     console.error('Error syncing auth user:', error);
     res.status(500).json({ error: 'Failed to sync user' });
   }
 });
 
-app.post('/api/login', async (req, res) => {
+app.post('/api/login', rateLimit({ windowMs: 60 * 1000, max: 10 }), async (req, res) => {
   try {
     const { identifier, password } = req.body;
     if (!identifier || !password) {
@@ -77,7 +176,12 @@ app.post('/api/login', async (req, res) => {
     const user = await verifyUserCredentials(identifier.trim(), String(password));
 
     if (user) {
-      return res.json({ success: true, user });
+      const token = signSession({
+        userId: user.User_ID,
+        email: user.Email,
+        role: 'participant'
+      });
+      return res.json({ success: true, user, token });
     }
 
     return res.status(401).json({ success: false, message: 'Invalid credentials' });
@@ -112,10 +216,11 @@ app.post('/api/teams', async (req, res) => {
     }
 
     // If Team_Leader not provided but _userId is, look up user's Name
-    if ((!teamData.Team_Leader || String(teamData.Team_Leader).trim() === '') && req.body._userId) {
+    const effectiveUserId = req.user?.userId || req.body._userId;
+    if ((!teamData.Team_Leader || String(teamData.Team_Leader).trim() === '') && effectiveUserId) {
       try {
         const users = await getUsers();
-        const matched = users.find(u => String(u.User_ID) === String(req.body._userId));
+        const matched = users.find(u => String(u.User_ID) === String(effectiveUserId));
         if (matched) {
           teamData.Team_Leader = matched.Name;
           console.log('Resolved Team_Leader from _userId:', matched.Name);
@@ -159,7 +264,7 @@ async function resolveTeamPassword(teamId) {
   return key ? passwords[key] : null;
 }
 
-app.post('/api/teams/auth', async (req, res) => {
+app.post('/api/teams/auth', rateLimit({ windowMs: 60 * 1000, max: 10 }), async (req, res) => {
   try {
     const { teamId, password } = req.body;
     const expected = await resolveTeamPassword(teamId);
@@ -175,15 +280,16 @@ app.post('/api/teams/auth', async (req, res) => {
   }
 });
 
-app.post('/api/teams/join', async (req, res) => {
+app.post('/api/teams/join', rateLimit({ windowMs: 60 * 1000, max: 10 }), async (req, res) => {
   try {
     const { teamId, password, userId, email, regNo } = req.body;
+    const effectiveUserId = req.user?.userId || userId;
     const expected = await resolveTeamPassword(teamId);
     if (!expected || String(expected).trim() !== String(password || '').trim()) {
       return res.status(401).json({ success: false, error: 'Invalid Team ID or Password' });
     }
 
-    const success = await linkUserToTeam(userId, teamId, { email, regNo });
+    const success = await linkUserToTeam(effectiveUserId, teamId, { email, regNo });
     if (success) {
       res.json({ success: true, message: 'Joined team successfully' });
     } else {
@@ -213,13 +319,13 @@ app.get('/api/teams/:teamId/members', async (req, res) => {
 app.post('/api/teams/:teamId/password', async (req, res) => {
   try {
     const { teamId } = req.params;
-    const { userId } = req.body;
-    if (!userId) {
+    const effectiveUserId = req.user?.userId || req.body.userId;
+    if (!effectiveUserId) {
       return res.status(400).json({ error: 'Missing userId' });
     }
 
     const users = await getUsers();
-    const requester = users.find(u => String(u.User_ID).trim() === String(userId).trim());
+    const requester = users.find(u => String(u.User_ID).trim() === String(effectiveUserId).trim());
     if (!requester || String(requester.Team_ID).trim() !== String(teamId).trim()) {
       return res.status(403).json({ error: 'You are not a member of this team.' });
     }
@@ -238,7 +344,7 @@ app.post('/api/teams/:teamId/password', async (req, res) => {
 
 // Admin: detach a member from their team, so someone who joined the wrong team
 // (or needs to be moved) can be fixed without hand-editing the sheet.
-app.post('/api/teams/:teamId/remove-member', async (req, res) => {
+app.post('/api/teams/:teamId/remove-member', requireAdmin(), async (req, res) => {
   try {
     const { teamId } = req.params;
     const { userId } = req.body;
@@ -260,10 +366,11 @@ app.post('/api/teams/:teamId/remove-member', async (req, res) => {
 app.post('/api/teams/:teamId/size', async (req, res) => {
   try {
     const { teamId } = req.params;
-    const { size, userId } = req.body;
+    const { size } = req.body;
+    const effectiveUserId = req.user?.userId || req.body.userId;
 
     const users = await getUsers();
-    const requester = users.find(u => String(u.User_ID).trim() === String(userId || '').trim());
+    const requester = users.find(u => String(u.User_ID).trim() === String(effectiveUserId || '').trim());
     if (!requester || String(requester.Team_ID).trim().toUpperCase() !== String(teamId).trim().toUpperCase()) {
       return res.status(403).json({ error: 'You are not a member of this team.' });
     }

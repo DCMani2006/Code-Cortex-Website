@@ -13,21 +13,24 @@ import {
   syncUserByEmail,
   getTeamPassword,
   updateTeamSize as apiUpdateTeamSize,
-  removeTeamMember
+  removeTeamMember,
+  startSession,
+  startAdminSession,
+  clearSession,
+  getSessionPayload
 } from "./services/api";
 
 import type { User, Team, Submission } from "./types/database";
 import { AdminDashboard } from "./components/AdminDashboard";
 
 const STORAGE_KEY_USER = "cc_logged_in_user";
-const STORAGE_KEY_ADMIN = "cc_admin_logged_in";
 const STORAGE_KEY_ADMIN_NAME = "cc_admin_username";
 
 // Hardcoded review-panel admin accounts (not stored in the Sheet). Picking a
 // name from the login dropdown resolves to one of these emails; anyone on
-// this list gets admin access with the shared passcode below. The name is
-// what gets recorded as Admin_Name on every score they submit, and is what
-// the per-review edit lock (see scoreReviewRound effect / handleAdminScoreSubmit)
+// this list gets admin access with the shared passcode configured via server env.
+// The name is what gets recorded as Admin_Name on every score they submit, and
+// is what the per-review edit lock (see scoreReviewRound effect / handleAdminScoreSubmit)
 // checks against.
 const REVIEWERS = [
   { name: "Aman Golani", email: "aman.golani2024@vitstudent.ac.in" },
@@ -37,7 +40,6 @@ const REVIEWERS = [
   { name: "Vansh Arya", email: "vansh.arya2024@vitstudent.ac.in" },
   { name: "Parthiban", email: "phoenixknight18012007@gmail.com" },
 ].map((r) => ({ name: r.name, email: r.email.toLowerCase() }));
-const ADMIN_PASSCODE = "tamreviewpanel_cc";
 
 // The public event website (frontend/, a separate app) — "Home" and "Tracks" in
 // the nav send visitors there instead of duplicating its content here.
@@ -89,8 +91,8 @@ function RetroCharactersBackground() {
             alt={char.name}
             className="retro-char__img"
             style={{
-              ["--char-tilt" as any]: char.tilt,
-            }}
+              ["--char-tilt" as string]: char.tilt,
+            } as React.CSSProperties}
             loading="eager"
           />
           <span className="retro-char__tag">{char.label}</span>
@@ -107,7 +109,8 @@ export default function App() {
 
   const [role, setRole] = useState<string>(() => {
     try {
-      if (localStorage.getItem(STORAGE_KEY_ADMIN) === "true") return "admin";
+      const payload = getSessionPayload();
+      if (payload?.role === "admin") return "admin";
     } catch {
       // ignore
     }
@@ -141,6 +144,7 @@ export default function App() {
         }
       } else {
         localStorage.removeItem(STORAGE_KEY_USER);
+        clearSession();
         setTeamLoggedIn(false);
         setTeamIdInput("");
         setTeamMembers([]);
@@ -257,7 +261,8 @@ export default function App() {
 
   const [adminLoggedIn, setAdminLoggedIn] = useState<boolean>(() => {
     try {
-      return localStorage.getItem(STORAGE_KEY_ADMIN) === "true";
+      const payload = getSessionPayload();
+      return payload?.role === "admin";
     } catch {
       return false;
     }
@@ -265,6 +270,10 @@ export default function App() {
 
   const [adminUsername, setAdminUsername] = useState<string>(() => {
     try {
+      const payload = getSessionPayload();
+      if (payload?.role === "admin" && payload?.name) {
+        return payload.name;
+      }
       return localStorage.getItem(STORAGE_KEY_ADMIN_NAME) || "";
     } catch {
       return "";
@@ -370,6 +379,7 @@ export default function App() {
     // The team's own password, so members can pass it on without asking us.
     // Only resolves for someone actually on this team.
     if (loggedInUser?.User_ID) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setTeamPasswordError(null);
       getTeamPassword(teamIdInput.trim(), loggedInUser.User_ID)
         .then((pwd) => {
@@ -472,6 +482,7 @@ const selectedReviewSubmission =
   // board can see/edit a prior review instead of always starting blank.
   useEffect(() => {
     if (!adminTeamId.trim()) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setExistingReviewOwner(null);
       return;
     }
@@ -650,10 +661,9 @@ const googleSignup = useGoogleLogin({
         throw new Error("Only @vitstudent.ac.in emails are allowed for internal (VIT) participants.");
       }
 
-      // Find-or-create against a fresh server read, not a cached client list
-      // — this is what actually stops the same email registering twice (see
-      // syncUserByEmail's doc comment for why the old approach could miss).
-      const user = await syncUserByEmail(email, name);
+      // Authenticate with backend: validates Google token, resolves/creates user, and issues session token
+      const sessionResult = await startSession(tokenResponse.access_token, name);
+      const user = sessionResult.user;
 
       updateLoggedInUser(user);
       if (user.Name) setRegLeaderName(user.Name);
@@ -735,6 +745,7 @@ const googleSignup = useGoogleLogin({
     try {
       const teamId =
         (isExternalParticipant ? "EC-" : "CC-") +
+        // eslint-disable-next-line react-hooks/purity
         Math.floor(1000 + Math.random() * 9000);
 
       const effectiveUserId = isExternalParticipant
@@ -988,7 +999,7 @@ const googleSignup = useGoogleLogin({
   // ADMIN LOGIN
   // =====================================================
 
-  const handleAdminLogin = () => {
+  const handleAdminLogin = async () => {
     const reviewer = REVIEWERS.find((r) => r.name === adminLoginName);
     const password = String(adminPassword ?? '').trim();
 
@@ -997,7 +1008,8 @@ const googleSignup = useGoogleLogin({
       return;
     }
 
-    if (password === ADMIN_PASSCODE) {
+    try {
+      await startAdminSession(reviewer.name, password);
       setAdminLoggedIn(true);
       setShowAdminLogin(false);
       setRole('admin');
@@ -1008,14 +1020,13 @@ const googleSignup = useGoogleLogin({
       setAdminLoginName('');
       setAdminPassword('');
       try {
-        localStorage.setItem(STORAGE_KEY_ADMIN, "true");
         localStorage.setItem(STORAGE_KEY_ADMIN_NAME, reviewer.name);
       } catch {
         // ignore
       }
       showToast(`Authenticated as ${reviewer.name}.`, "success");
-    } else {
-      setAdminError('Invalid passcode!');
+    } catch (err) {
+      setAdminError(err instanceof Error ? err.message : 'Invalid passcode!');
       setAdminPassword('');
       setTimeout(() => adminPasswordRef.current?.focus(), 0);
     }
@@ -2397,6 +2408,7 @@ const googleSignup = useGoogleLogin({
                 className="btn btn-sm btn-danger py-2 px-3"
                 style={{ fontSize: "10px" }}
                 onClick={() => {
+                  clearSession();
                   setAdminLoggedIn(false);
                   setRole('participant');
                   setAdminUsername('');
@@ -2405,7 +2417,6 @@ const googleSignup = useGoogleLogin({
                   setShowAdminLogin(false);
                   setActivePage('team-portal');
                   try {
-                    localStorage.removeItem(STORAGE_KEY_ADMIN);
                     localStorage.removeItem(STORAGE_KEY_ADMIN_NAME);
                   } catch {
                     // ignore
