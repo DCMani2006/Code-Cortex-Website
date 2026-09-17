@@ -385,31 +385,6 @@ function TransitionRibbons() {
   );
 }
 
-function StackShowcase() {
-  return (
-    <div className="stack-showcase" aria-label="Code cortex hardware stack">
-      <div className="stack-showcase__grid" aria-hidden="true" />
-      <span className="stack-showcase__caption" aria-hidden="true">
-        BUILD / TEST / SHIP
-      </span>
-      <span
-        className="stack-showcase__orbit stack-showcase__orbit--one"
-        aria-hidden="true"
-      />
-      <span
-        className="stack-showcase__orbit stack-showcase__orbit--two"
-        aria-hidden="true"
-      />
-      <div className="stack-showcase__core">
-        <div className="stack-showcase__logo-shell">
-          <img src={codeCortexLogo} alt="Code cortex 3.0" width={2100} height={860} />
-        </div>
-        <span>CODE CORTEX 3.0 / 2026</span>
-      </div>
-    </div>
-  );
-}
-
 function CursorTracer({ disabled }: { disabled: boolean }) {
   const tracerRef = useRef<HTMLSpanElement>(null);
 
@@ -1594,11 +1569,6 @@ export default function Home() {
 
           <div className="hero-grid-container page-pad">
             <div className="hero-left-col">
-              <div className="hero-ticket-tag">
-                <span className="ticket-punch-hole" />
-                <span className="ticket-label">EVENT // 30 HOURS · ONE IDEA · ZERO LIMITS</span>
-              </div>
-
               <div className="hero-logo-wrapper">
                 <img
                   className="hero__logo"
@@ -1753,14 +1723,6 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="hero__bottom page-pad">
-            <a className="scroll-cue" href="#about">
-              <span className="scroll-cue__line" /> Scroll to explore
-            </a>
-            <span className="hero__location">
-              // 30 HOURS / ONE IDEA / ZERO LIMITS
-            </span>
-          </div>
         </section>
 
         <TransitionRibbons />
@@ -2411,21 +2373,15 @@ export default function Home() {
             </div>
           </div>
           <div className="footer__contact">
-            <a href="mailto:varshithisworking@gmail.com">
-              <Mail size={17} /> varshithisworking@gmail.com
+            <span className="footer__contact-name">Aman Golani</span>
+            <a href="mailto:aman.golani2024@vitstudent.ac.in">
+              <Mail size={17} /> aman.golani2024@vitstudent.ac.in
             </a>
-            <a href="tel:+919686352426">
-              <Phone size={17} /> +91 96863 52426
-            </a>
-            <a href="mailto:reenubiju10@gmail.com">
-              <Mail size={17} /> reenubiju10@gmail.com
-            </a>
-            <a href="tel:+919656463672">
-              <Phone size={17} /> +91 96564 63672
+            <a href="tel:+917045207569">
+              <Phone size={17} /> +91 70452 07569
             </a>
           </div>
         </div>
-        <StackShowcase />
         <div className="footer__bottom">
           <div className="footer__brand-lockup">
             <Mark compact />
