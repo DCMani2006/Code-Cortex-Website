@@ -23,6 +23,9 @@ type Props = {
   setReviewRound: (v: string) => void;
   onSubmit: () => Promise<void>;
   adminName?: string;
+  /** Another reviewer's name, if they already scored this team for the
+   * currently selected round — scores are then read-only for everyone else. */
+  lockedByOther?: string | null;
 };
 
 export const AdminDashboard = ({
@@ -39,9 +42,10 @@ export const AdminDashboard = ({
   setUsp,
   reviewRound,
   setReviewRound,
-  onSubmit
-  
+  onSubmit,
+  lockedByOther
 }: Props) => {
+  const isLocked = !!lockedByOther;
   const totalScore =
     (Number(approach) || 0) +
     (Number(scalability) || 0) +
@@ -67,6 +71,13 @@ export const AdminDashboard = ({
         <div className="text-white fw-bold">{submission?.Team_ID || 'Pending Selection'}</div>
         <div className="text-secondary small">{submission?.['Team_Name '] || ''}</div>
       </div>
+
+      {isLocked && (
+        <div className="alert alert-warning py-2 px-3 small mb-3">
+          🔒 {reviewRound} for this team was already scored by <strong>{lockedByOther}</strong>.
+          You can see their scores below, but only they can edit this round.
+        </div>
+      )}
 
       {submission && (
         <div className="mb-3">
@@ -123,31 +134,33 @@ export const AdminDashboard = ({
 
           <div className="col-md-6">
             <label className="form-label glow-text">Approach, Idea & Planning (20 pts)</label>
-            <input value={approach} onChange={(e) => setApproach(e.target.value)} type="number" max={20} min={0} className="form-control bg-dark text-white border-secondary" placeholder="Score 0-20" />
+            <input value={approach} onChange={(e) => setApproach(e.target.value)} type="number" max={20} min={0} disabled={isLocked} className="form-control bg-dark text-white border-secondary" placeholder="Score 0-20" />
           </div>
 
           <div className="col-md-6">
             <label className="form-label glow-text">Scalability & Viability (10 pts)</label>
-            <input value={scalability} onChange={(e) => setScalability(e.target.value)} type="number" max={10} min={0} className="form-control bg-dark text-white border-secondary" placeholder="Score 0-10" />
+            <input value={scalability} onChange={(e) => setScalability(e.target.value)} type="number" max={10} min={0} disabled={isLocked} className="form-control bg-dark text-white border-secondary" placeholder="Score 0-10" />
           </div>
 
           <div className="col-md-6">
             <label className="form-label glow-text">Design UI/UX (20 pts)</label>
-            <input value={design} onChange={(e) => setDesign(e.target.value)} type="number" max={20} min={0} className="form-control bg-dark text-white border-secondary" placeholder="Score 0-20" />
+            <input value={design} onChange={(e) => setDesign(e.target.value)} type="number" max={20} min={0} disabled={isLocked} className="form-control bg-dark text-white border-secondary" placeholder="Score 0-20" />
           </div>
 
           <div className="col-md-6">
             <label className="form-label glow-text">Technical Implementation (30 pts)</label>
-            <input value={tech} onChange={(e) => setTech(e.target.value)} type="number" max={30} min={0} className="form-control bg-dark text-white border-secondary" placeholder="Score 0-30" />
+            <input value={tech} onChange={(e) => setTech(e.target.value)} type="number" max={30} min={0} disabled={isLocked} className="form-control bg-dark text-white border-secondary" placeholder="Score 0-30" />
           </div>
 
           <div className="col-md-6">
             <label className="form-label glow-text">USP (20 pts)</label>
-            <input value={usp} onChange={(e) => setUsp(e.target.value)} type="number" max={20} min={0} className="form-control bg-dark text-white border-secondary" placeholder="Score 0-20" />
+            <input value={usp} onChange={(e) => setUsp(e.target.value)} type="number" max={20} min={0} disabled={isLocked} className="form-control bg-dark text-white border-secondary" placeholder="Score 0-20" />
           </div>
 
           <div className="col-md-6 d-flex align-items-end">
-            <button type="button" onClick={onSubmit} className="btn btn-gradient w-100 py-2 fw-bold">Save Evaluation</button>
+            <button type="button" onClick={onSubmit} disabled={isLocked} className="btn btn-gradient w-100 py-2 fw-bold">
+              {isLocked ? "Locked — Read Only" : "Save Evaluation"}
+            </button>
           </div>
         </div>
       </div>

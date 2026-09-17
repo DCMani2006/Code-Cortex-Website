@@ -234,7 +234,7 @@ app.post('/api/reviews', async (req, res) => {
     res.status(201).json({ message: 'Review added successfully' });
   } catch (error) {
     console.error('Error adding review:', error);
-    res.status(500).json({ error: 'Failed to add review' });
+    res.status(400).json({ error: error.message || 'Failed to add review', message: error.message || 'Failed to add review' });
   }
 });
 

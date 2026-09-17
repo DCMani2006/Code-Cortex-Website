@@ -21,16 +21,20 @@ const STORAGE_KEY_USER = "cc_logged_in_user";
 const STORAGE_KEY_ADMIN = "cc_admin_logged_in";
 const STORAGE_KEY_ADMIN_NAME = "cc_admin_username";
 
-// Hardcoded review-panel admin accounts (not stored in the Sheet). Anyone on
-// this list gets admin access with the shared passcode below.
-const ADMIN_EMAILS = [
-  "aman.golani2024@vitstudent.ac.in",
-  "rakshitsinha1444@gmail.com",
-  "sahil.sadhwani2024@vitstudent.ac.in",
-  "vansh.arya2024@vitstudent.ac.in",
-  "parth.garg2024@vitstudent.ac.in",
-  "phoenixknight18012007@gmail.com",
-].map((email) => email.toLowerCase());
+// Hardcoded review-panel admin accounts (not stored in the Sheet). Picking a
+// name from the login dropdown resolves to one of these emails; anyone on
+// this list gets admin access with the shared passcode below. The name is
+// what gets recorded as Admin_Name on every score they submit, and is what
+// the per-review edit lock (see scoreReviewRound effect / handleAdminScoreSubmit)
+// checks against.
+const REVIEWERS = [
+  { name: "Aman Golani", email: "aman.golani2024@vitstudent.ac.in" },
+  { name: "Rakshit Sinha", email: "rakshitsinha1444@gmail.com" },
+  { name: "Parth Garg", email: "parth.garg2024@vitstudent.ac.in" },
+  { name: "Sahil Sadhwani", email: "sahil.sadhwani2024@vitstudent.ac.in" },
+  { name: "Vansh Arya", email: "vansh.arya2024@vitstudent.ac.in" },
+  { name: "Parthiban", email: "phoenixknight18012007@gmail.com" },
+].map((r) => ({ name: r.name, email: r.email.toLowerCase() }));
 const ADMIN_PASSCODE = "tamreviewpanel_cc";
 
 // The public event website (frontend/, a separate app) — "Home" and "Tracks" in
@@ -231,6 +235,9 @@ export default function App() {
       return "";
     }
   });
+  // Separate from adminUsername (which holds the *logged-in* reviewer's name)
+  // — this is just the login form's dropdown selection before they submit it.
+  const [adminLoginName, setAdminLoginName] = useState("");
   const [adminPassword, setAdminPassword] = useState("");
 
   const [adminError, setAdminError] = useState<string | null>(null);
@@ -253,6 +260,11 @@ export default function App() {
   const [scoreTech, setScoreTech] = useState("");
   const [scoreUsp, setScoreUsp] = useState("");
   const [scoreReviewRound, setScoreReviewRound] = useState("Review 1");
+  // Whoever's Admin_Name is on the existing score row for the selected
+  // team + round, if any — null means nobody has scored this round yet.
+  // Review 1 and Review 2 are tracked independently (eliminations mean the
+  // team set per round differs), so this resets per (team, round) below.
+  const [existingReviewOwner, setExistingReviewOwner] = useState<string | null>(null);
 
   // =====================================================
   // TEAM LOGIN
@@ -404,7 +416,10 @@ const selectedReviewSubmission =
   // Load any existing score for the selected team + review round, so the
   // board can see/edit a prior review instead of always starting blank.
   useEffect(() => {
-    if (!adminTeamId.trim()) return;
+    if (!adminTeamId.trim()) {
+      setExistingReviewOwner(null);
+      return;
+    }
 
     let cancelled = false;
 
@@ -413,18 +428,27 @@ const selectedReviewSubmission =
         const existingReviews = await getReviews(adminTeamId);
         if (cancelled) return;
 
+        // Mirror addReview()'s upsert matching exactly: prefer an explicit
+        // Review_Round match, and only fall back to a legacy blank-round row
+        // for "Review 1" if no explicit one exists. Without this exact same
+        // two-step order, a legacy row can outrank a real reviewer's explicit
+        // entry (both "match" Review 1 via the `|| 'Review 1'` fallback) and
+        // the lock would key off the wrong row.
         const targetTeamId = adminTeamId.trim();
-        const existing = existingReviews.find(
-          (r) =>
-            r.Team_ID.trim() === targetTeamId &&
-            (r.Review_Round || 'Review 1') === scoreReviewRound
+        const matchesTeam = (r: typeof existingReviews[number]) => r.Team_ID.trim() === targetTeamId;
+        let existing = existingReviews.find(
+          (r) => matchesTeam(r) && (r.Review_Round || '').trim() === scoreReviewRound
         );
+        if (!existing && scoreReviewRound === 'Review 1') {
+          existing = existingReviews.find((r) => matchesTeam(r) && !(r.Review_Round || '').trim());
+        }
 
         setScoreApproach(existing?.['Approach (20)'] || '');
         setScoreScalability(existing?.['Scalability (10)'] || '');
         setScoreDesign(existing?.['Design (20)'] || '');
         setScoreTech(existing?.['Tech (30)'] || '');
         setScoreUsp(existing?.['USP (20)'] || '');
+        setExistingReviewOwner(existing?.Admin_Name?.trim() || null);
       } catch (e) {
         console.error('Failed to fetch existing review scores:', e);
       }
@@ -443,6 +467,11 @@ const selectedReviewSubmission =
 
     if (!teamId) {
       alert('Please select a submission or enter a Team ID to score.');
+      return;
+    }
+
+    if (existingReviewOwner && existingReviewOwner !== adminUsername) {
+      alert(`${scoreReviewRound} for this team was already scored by ${existingReviewOwner}. Only they can edit it.`);
       return;
     }
 
@@ -916,32 +945,33 @@ const googleSignup = useGoogleLogin({
   // =====================================================
 
   const handleAdminLogin = () => {
-    const email = String(adminUsername ?? '').trim().toLowerCase();
+    const reviewer = REVIEWERS.find((r) => r.name === adminLoginName);
     const password = String(adminPassword ?? '').trim();
 
-    if (!email || !password) {
-      setAdminError('Please enter the admin email and passcode.');
+    if (!reviewer || !password) {
+      setAdminError('Please select your name and enter the passcode.');
       return;
     }
 
-    if (ADMIN_EMAILS.includes(email) && password === ADMIN_PASSCODE) {
+    if (password === ADMIN_PASSCODE) {
       setAdminLoggedIn(true);
       setShowAdminLogin(false);
       setRole('admin');
       updateLoggedInUser(null);
       setActivePage('team-portal');
       setAdminError(null);
-      setAdminUsername('');
+      setAdminUsername(reviewer.name);
+      setAdminLoginName('');
       setAdminPassword('');
       try {
         localStorage.setItem(STORAGE_KEY_ADMIN, "true");
-        localStorage.setItem(STORAGE_KEY_ADMIN_NAME, email);
+        localStorage.setItem(STORAGE_KEY_ADMIN_NAME, reviewer.name);
       } catch {
         // ignore
       }
-      showToast("Authenticated as admin.", "success");
+      showToast(`Authenticated as ${reviewer.name}.`, "success");
     } else {
-      setAdminError('Invalid Admin Email or Passcode!');
+      setAdminError('Invalid passcode!');
       setAdminPassword('');
       setTimeout(() => adminPasswordRef.current?.focus(), 0);
     }
@@ -2275,6 +2305,11 @@ const googleSignup = useGoogleLogin({
                   setReviewRound={setScoreReviewRound}
                   onSubmit={async () => { await handleAdminScoreSubmit(); }}
                   adminName={adminUsername}
+                  lockedByOther={
+                    existingReviewOwner && existingReviewOwner !== adminUsername
+                      ? existingReviewOwner
+                      : null
+                  }
                 />
               </div>
               </div>
@@ -2305,16 +2340,23 @@ const googleSignup = useGoogleLogin({
               Admin Login
             </h2>
 
-            <input
-              type="email"
-              className="form-control mb-4 py-2"
-              style={inputStyle}
-              placeholder="Admin Email"
-              value={adminUsername}
-              onChange={(e) =>
-                setAdminUsername(e.target.value)
-              }
-            />
+            <select
+              className="form-select mb-4 py-2 bg-dark text-white border-secondary"
+              value={adminLoginName}
+              onChange={(e) => {
+                setAdminLoginName(e.target.value);
+                setAdminError(null);
+              }}
+            >
+              <option value="" disabled>
+                Select Reviewer...
+              </option>
+              {REVIEWERS.map((r) => (
+                <option key={r.email} value={r.name}>
+                  {r.name}
+                </option>
+              ))}
+            </select>
 
             <div className="position-relative mb-4">
               <input
