@@ -318,6 +318,14 @@ app.post('/api/teams/:teamId/size', async (req, res) => {
 app.get('/api/submissions', async (req, res) => {
   try {
     const submissions = await getSubmissions();
+    const { teamId } = req.query;
+    if (teamId && String(teamId).trim()) {
+      const wanted = String(teamId).trim().toUpperCase();
+      const filtered = submissions.filter(
+        s => String(s.Team_ID || '').trim().toUpperCase() === wanted
+      );
+      return res.json(filtered);
+    }
     res.json(submissions);
   } catch (error) {
     console.error('Error fetching submissions:', error);
