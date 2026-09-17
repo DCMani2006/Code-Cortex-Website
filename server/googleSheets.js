@@ -90,7 +90,22 @@ export async function initGoogleSheets() {
     },
     {
       title: 'Reviews_Scores',
-      headerValues: ['Team_ID', 'Team_Name', 'Admin_Name', 'Approach (20)', 'Scalability (10)', 'Design (20)', 'Tech (30)', 'USP (20)', 'Total_Score', 'Review_Round']
+      headerValues: [
+        'Team_ID',
+        'Team_Name',
+        'Admin_Name',
+        'UI/UX (20)',
+        'USP (10)',
+        'Scalability/Feasibility (10)',
+        'Implementation (10)',
+        'Progress (10)',
+        'Architecture (10)',
+        'Machine Learning (10)',
+        'Dataset Utilisation (10)',
+        'Tech Stack (10)',
+        'Total_Score',
+        'Review_Round'
+      ]
     }
   ];
 
@@ -687,16 +702,25 @@ export async function getReviews() {
     if (!sheet) return [];
     const rows = await sheet.getRows();
     return rows.map(row => ({
-      Team_ID: row.get('Team_ID'),
-      Team_Name: row.get('Team_Name'),
-      Admin_Name: row.get('Admin_Name'),
-      'Approach (20)': row.get('Approach (20)'),
-      'Scalability (10)': row.get('Scalability (10)'),
-      'Design (20)': row.get('Design (20)'),
-      'Tech (30)': row.get('Tech (30)'),
-      'USP (20)': row.get('USP (20)'),
-      Total_Score: row.get('Total_Score'),
-      Review_Round: row.get('Review_Round'),
+      Team_ID: row.get('Team_ID') || '',
+      Team_Name: row.get('Team_Name') || '',
+      Admin_Name: row.get('Admin_Name') || '',
+      'UI/UX (20)': row.get('UI/UX (20)') ?? row.get('Design (20)') ?? '',
+      'USP (10)': row.get('USP (10)') ?? row.get('USP (20)') ?? '',
+      'Scalability/Feasibility (10)': row.get('Scalability/Feasibility (10)') ?? row.get('Scalability (10)') ?? '',
+      'Implementation (10)': row.get('Implementation (10)') ?? '',
+      'Progress (10)': row.get('Progress (10)') ?? '',
+      'Architecture (10)': row.get('Architecture (10)') ?? '',
+      'Machine Learning (10)': row.get('Machine Learning (10)') ?? '',
+      'Dataset Utilisation (10)': row.get('Dataset Utilisation (10)') ?? '',
+      'Tech Stack (10)': row.get('Tech Stack (10)') ?? row.get('Tech (30)') ?? '',
+      'Approach (20)': row.get('Approach (20)') ?? '',
+      'Scalability (10)': row.get('Scalability (10)') ?? '',
+      'Design (20)': row.get('Design (20)') ?? '',
+      'Tech (30)': row.get('Tech (30)') ?? '',
+      'USP (20)': row.get('USP (20)') ?? '',
+      Total_Score: row.get('Total_Score') || '',
+      Review_Round: row.get('Review_Round') || '',
     }));
   });
 }
@@ -718,14 +742,27 @@ export async function addReview(data) {
   
   const sheet = document.sheetsByTitle['Reviews_Scores'];
 
-  // Ensure the Review_Round column exists — addRow silently drops any key
-  // that isn't already a header, so without this every Review_Round value
-  // gets lost on write.
+  // Ensure all rubric columns exist in header — addRow silently drops any key
+  // that isn't already a header.
   try {
     await sheet.loadHeaderRow();
     const headers = sheet.headerValues.map(h => String(h).trim());
-    if (!headers.includes('Review_Round')) {
-      await sheet.setHeaderRow([...headers, 'Review_Round']);
+    const requiredScoreHeaders = [
+      'UI/UX (20)',
+      'USP (10)',
+      'Scalability/Feasibility (10)',
+      'Implementation (10)',
+      'Progress (10)',
+      'Architecture (10)',
+      'Machine Learning (10)',
+      'Dataset Utilisation (10)',
+      'Tech Stack (10)',
+      'Total_Score',
+      'Review_Round'
+    ];
+    const missingHeaders = requiredScoreHeaders.filter(h => !headers.includes(h));
+    if (missingHeaders.length > 0) {
+      await sheet.setHeaderRow([...headers, ...missingHeaders]);
     }
   } catch (e) {
     console.error('Warning: could not load/set header row for Reviews_Scores sheet', e);

@@ -302,11 +302,15 @@ export default function App() {
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [selectedSubmissionIndex, setSelectedSubmissionIndex] = useState<number | null>(null);
 
-  const [scoreApproach, setScoreApproach] = useState("");
-  const [scoreScalability, setScoreScalability] = useState("");
-  const [scoreDesign, setScoreDesign] = useState("");
-  const [scoreTech, setScoreTech] = useState("");
+  const [scoreUiUx, setScoreUiUx] = useState("");
   const [scoreUsp, setScoreUsp] = useState("");
+  const [scoreScalabilityFeasibility, setScoreScalabilityFeasibility] = useState("");
+  const [scoreImplementation, setScoreImplementation] = useState("");
+  const [scoreProgress, setScoreProgress] = useState("");
+  const [scoreArchitecture, setScoreArchitecture] = useState("");
+  const [scoreMachineLearning, setScoreMachineLearning] = useState("");
+  const [scoreDatasetUtilisation, setScoreDatasetUtilisation] = useState("");
+  const [scoreTechStack, setScoreTechStack] = useState("");
   const [scoreReviewRound, setScoreReviewRound] = useState("Review 1");
   // Whoever's Admin_Name is on the existing score row for the selected
   // team + round, if any — null means nobody has scored this round yet.
@@ -509,11 +513,15 @@ const selectedReviewSubmission =
           existing = existingReviews.find((r) => matchesTeam(r) && !(r.Review_Round || '').trim());
         }
 
-        setScoreApproach(existing?.['Approach (20)'] || '');
-        setScoreScalability(existing?.['Scalability (10)'] || '');
-        setScoreDesign(existing?.['Design (20)'] || '');
-        setScoreTech(existing?.['Tech (30)'] || '');
-        setScoreUsp(existing?.['USP (20)'] || '');
+        setScoreUiUx(existing?.['UI/UX (20)'] || existing?.['Design (20)'] || '');
+        setScoreUsp(existing?.['USP (10)'] || existing?.['USP (20)'] || '');
+        setScoreScalabilityFeasibility(existing?.['Scalability/Feasibility (10)'] || existing?.['Scalability (10)'] || '');
+        setScoreImplementation(existing?.['Implementation (10)'] || '');
+        setScoreProgress(existing?.['Progress (10)'] || '');
+        setScoreArchitecture(existing?.['Architecture (10)'] || '');
+        setScoreMachineLearning(existing?.['Machine Learning (10)'] || '');
+        setScoreDatasetUtilisation(existing?.['Dataset Utilisation (10)'] || '');
+        setScoreTechStack(existing?.['Tech Stack (10)'] || existing?.['Tech (30)'] || '');
         setExistingReviewOwner(existing?.Admin_Name?.trim() || null);
       } catch (e) {
         console.error('Failed to fetch existing review scores:', e);
@@ -541,34 +549,63 @@ const selectedReviewSubmission =
       return;
     }
 
-    const approach = Number(scoreApproach || 0);
-    const scalability = Number(scoreScalability || 0);
-    const design = Number(scoreDesign || 0);
-    const tech = Number(scoreTech || 0);
+    const uiUx = Number(scoreUiUx || 0);
     const usp = Number(scoreUsp || 0);
+    const scalabilityFeasibility = Number(scoreScalabilityFeasibility || 0);
+    const implementation = Number(scoreImplementation || 0);
+    const progress = Number(scoreProgress || 0);
+    const architecture = Number(scoreArchitecture || 0);
+    const machineLearning = Number(scoreMachineLearning || 0);
+    const datasetUtilisation = Number(scoreDatasetUtilisation || 0);
+    const techStack = Number(scoreTechStack || 0);
 
-    if (!Number.isFinite(approach) || approach < 0 || approach > 20) {
-      alert('Approach score must be between 0 and 20.');
+    if (!Number.isFinite(uiUx) || uiUx < 0 || uiUx > 20) {
+      alert('UI/UX score must be between 0 and 20.');
       return;
     }
-    if (!Number.isFinite(scalability) || scalability < 0 || scalability > 10) {
-      alert('Scalability score must be between 0 and 10.');
+    if (!Number.isFinite(usp) || usp < 0 || usp > 10) {
+      alert('USP score must be between 0 and 10.');
       return;
     }
-    if (!Number.isFinite(design) || design < 0 || design > 20) {
-      alert('Design score must be between 0 and 20.');
+    if (!Number.isFinite(scalabilityFeasibility) || scalabilityFeasibility < 0 || scalabilityFeasibility > 10) {
+      alert('Scalability/Feasibility score must be between 0 and 10.');
       return;
     }
-    if (!Number.isFinite(tech) || tech < 0 || tech > 30) {
-      alert('Tech score must be between 0 and 30.');
+    if (!Number.isFinite(implementation) || implementation < 0 || implementation > 10) {
+      alert('Implementation score must be between 0 and 10.');
       return;
     }
-    if (!Number.isFinite(usp) || usp < 0 || usp > 20) {
-      alert('USP score must be between 0 and 20.');
+    if (!Number.isFinite(progress) || progress < 0 || progress > 10) {
+      alert('Progress score must be between 0 and 10.');
+      return;
+    }
+    if (!Number.isFinite(architecture) || architecture < 0 || architecture > 10) {
+      alert('Architecture score must be between 0 and 10.');
+      return;
+    }
+    if (!Number.isFinite(machineLearning) || machineLearning < 0 || machineLearning > 10) {
+      alert('Machine Learning score must be between 0 and 10.');
+      return;
+    }
+    if (!Number.isFinite(datasetUtilisation) || datasetUtilisation < 0 || datasetUtilisation > 10) {
+      alert('Dataset Utilisation score must be between 0 and 10.');
+      return;
+    }
+    if (!Number.isFinite(techStack) || techStack < 0 || techStack > 10) {
+      alert('Tech Stack score must be between 0 and 10.');
       return;
     }
 
-    const total = approach + scalability + design + tech + usp;
+    const total =
+      uiUx +
+      usp +
+      scalabilityFeasibility +
+      implementation +
+      progress +
+      architecture +
+      machineLearning +
+      datasetUtilisation +
+      techStack;
 
     try {
       await addReview({
@@ -576,20 +613,28 @@ const selectedReviewSubmission =
         Team_Name: submission?.['Team_Name '] || teamId,
         Admin_Name: adminUsername,
         Review_Round: scoreReviewRound,
-        'Approach (20)': String(approach),
-        'Scalability (10)': String(scalability),
-        'Design (20)': String(design),
-        'Tech (30)': String(tech),
-        'USP (20)': String(usp),
+        'UI/UX (20)': String(uiUx),
+        'USP (10)': String(usp),
+        'Scalability/Feasibility (10)': String(scalabilityFeasibility),
+        'Implementation (10)': String(implementation),
+        'Progress (10)': String(progress),
+        'Architecture (10)': String(architecture),
+        'Machine Learning (10)': String(machineLearning),
+        'Dataset Utilisation (10)': String(datasetUtilisation),
+        'Tech Stack (10)': String(techStack),
         Total_Score: String(total)
       });
 
       // clear scores
-      setScoreApproach('');
-      setScoreScalability('');
-      setScoreDesign('');
-      setScoreTech('');
+      setScoreUiUx('');
       setScoreUsp('');
+      setScoreScalabilityFeasibility('');
+      setScoreImplementation('');
+      setScoreProgress('');
+      setScoreArchitecture('');
+      setScoreMachineLearning('');
+      setScoreDatasetUtilisation('');
+      setScoreTechStack('');
       setScoreReviewRound('Review 1');
 
       alert('Scores submitted successfully.');
@@ -2583,16 +2628,24 @@ const googleSignup = useGoogleLogin({
               <div className="col-lg-8">
                 <AdminDashboard
                   submission={selectedReviewSubmission}
-                  approach={scoreApproach}
-                  setApproach={setScoreApproach}
-                  scalability={scoreScalability}
-                  setScalability={setScoreScalability}
-                  design={scoreDesign}
-                  setDesign={setScoreDesign}
-                  tech={scoreTech}
-                  setTech={setScoreTech}
+                  uiUx={scoreUiUx}
+                  setUiUx={setScoreUiUx}
                   usp={scoreUsp}
                   setUsp={setScoreUsp}
+                  scalabilityFeasibility={scoreScalabilityFeasibility}
+                  setScalabilityFeasibility={setScoreScalabilityFeasibility}
+                  implementation={scoreImplementation}
+                  setImplementation={setScoreImplementation}
+                  progress={scoreProgress}
+                  setProgress={setScoreProgress}
+                  architecture={scoreArchitecture}
+                  setArchitecture={setScoreArchitecture}
+                  machineLearning={scoreMachineLearning}
+                  setMachineLearning={setScoreMachineLearning}
+                  datasetUtilisation={scoreDatasetUtilisation}
+                  setDatasetUtilisation={setScoreDatasetUtilisation}
+                  techStack={scoreTechStack}
+                  setTechStack={setScoreTechStack}
                   reviewRound={scoreReviewRound}
                   setReviewRound={setScoreReviewRound}
                   onSubmit={async () => { await handleAdminScoreSubmit(); }}

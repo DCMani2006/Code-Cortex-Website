@@ -9,16 +9,24 @@ type Submission = {
 
 type Props = {
   submission?: Submission | null;
-  approach: string;
-  setApproach: (v: string) => void;
-  scalability: string;
-  setScalability: (v: string) => void;
-  design: string;
-  setDesign: (v: string) => void;
-  tech: string;
-  setTech: (v: string) => void;
+  uiUx: string;
+  setUiUx: (v: string) => void;
   usp: string;
   setUsp: (v: string) => void;
+  scalabilityFeasibility: string;
+  setScalabilityFeasibility: (v: string) => void;
+  implementation: string;
+  setImplementation: (v: string) => void;
+  progress: string;
+  setProgress: (v: string) => void;
+  architecture: string;
+  setArchitecture: (v: string) => void;
+  machineLearning: string;
+  setMachineLearning: (v: string) => void;
+  datasetUtilisation: string;
+  setDatasetUtilisation: (v: string) => void;
+  techStack: string;
+  setTechStack: (v: string) => void;
   reviewRound: string;
   setReviewRound: (v: string) => void;
   onSubmit: () => Promise<void>;
@@ -30,16 +38,24 @@ type Props = {
 
 export const AdminDashboard = ({
   submission,
-  approach,
-  setApproach,
-  scalability,
-  setScalability,
-  design,
-  setDesign,
-  tech,
-  setTech,
+  uiUx,
+  setUiUx,
   usp,
   setUsp,
+  scalabilityFeasibility,
+  setScalabilityFeasibility,
+  implementation,
+  setImplementation,
+  progress,
+  setProgress,
+  architecture,
+  setArchitecture,
+  machineLearning,
+  setMachineLearning,
+  datasetUtilisation,
+  setDatasetUtilisation,
+  techStack,
+  setTechStack,
   reviewRound,
   setReviewRound,
   onSubmit,
@@ -47,11 +63,15 @@ export const AdminDashboard = ({
 }: Props) => {
   const isLocked = !!lockedByOther;
   const totalScore =
-    (Number(approach) || 0) +
-    (Number(scalability) || 0) +
-    (Number(design) || 0) +
-    (Number(tech) || 0) +
-    (Number(usp) || 0);
+    (Number(uiUx) || 0) +
+    (Number(usp) || 0) +
+    (Number(scalabilityFeasibility) || 0) +
+    (Number(implementation) || 0) +
+    (Number(progress) || 0) +
+    (Number(architecture) || 0) +
+    (Number(machineLearning) || 0) +
+    (Number(datasetUtilisation) || 0) +
+    (Number(techStack) || 0);
 
   return (
     <div className="retro-window w-100 fade-in">
@@ -186,14 +206,15 @@ export const AdminDashboard = ({
             </select>
           </div>
 
+          {/* 1. UI / UX */}
           <div className="col-md-6">
             <div className="d-flex justify-content-between align-items-center mb-1">
-              <label className="form-label mb-0">Approach, Idea & Planning</label>
+              <label className="form-label mb-0">UI / UX</label>
               <span className="badge" style={{ background: "#e8f3f5", color: "#2d1f36", fontSize: "8px" }}>0 - 20 PTS</span>
             </div>
             <input
-              value={approach}
-              onChange={(e) => setApproach(e.target.value)}
+              value={uiUx}
+              onChange={(e) => setUiUx(e.target.value)}
               type="number"
               max={20}
               min={0}
@@ -203,14 +224,15 @@ export const AdminDashboard = ({
             />
           </div>
 
+          {/* 2. USP */}
           <div className="col-md-6">
             <div className="d-flex justify-content-between align-items-center mb-1">
-              <label className="form-label mb-0">Scalability & Viability</label>
+              <label className="form-label mb-0">USP</label>
               <span className="badge" style={{ background: "#e8f3f5", color: "#2d1f36", fontSize: "8px" }}>0 - 10 PTS</span>
             </div>
             <input
-              value={scalability}
-              onChange={(e) => setScalability(e.target.value)}
+              value={usp}
+              onChange={(e) => setUsp(e.target.value)}
               type="number"
               max={10}
               min={0}
@@ -220,57 +242,133 @@ export const AdminDashboard = ({
             />
           </div>
 
+          {/* 3. Scalability / Feasibility */}
           <div className="col-md-6">
             <div className="d-flex justify-content-between align-items-center mb-1">
-              <label className="form-label mb-0">Design UI/UX & Aesthetics</label>
-              <span className="badge" style={{ background: "#e8f3f5", color: "#2d1f36", fontSize: "8px" }}>0 - 20 PTS</span>
+              <label className="form-label mb-0">Scalability / Feasibility</label>
+              <span className="badge" style={{ background: "#e8f3f5", color: "#2d1f36", fontSize: "8px" }}>0 - 10 PTS</span>
             </div>
             <input
-              value={design}
-              onChange={(e) => setDesign(e.target.value)}
+              value={scalabilityFeasibility}
+              onChange={(e) => setScalabilityFeasibility(e.target.value)}
               type="number"
-              max={20}
+              max={10}
               min={0}
               disabled={isLocked}
               className="form-control"
-              placeholder="Score 0 - 20"
+              placeholder="Score 0 - 10"
             />
           </div>
 
+          {/* 4. Implementation */}
           <div className="col-md-6">
             <div className="d-flex justify-content-between align-items-center mb-1">
-              <label className="form-label mb-0">Technical Implementation</label>
-              <span className="badge" style={{ background: "#e8f3f5", color: "#2d1f36", fontSize: "8px" }}>0 - 30 PTS</span>
+              <label className="form-label mb-0">Implementation</label>
+              <span className="badge" style={{ background: "#e8f3f5", color: "#2d1f36", fontSize: "8px" }}>0 - 10 PTS</span>
             </div>
             <input
-              value={tech}
-              onChange={(e) => setTech(e.target.value)}
+              value={implementation}
+              onChange={(e) => setImplementation(e.target.value)}
               type="number"
-              max={30}
+              max={10}
               min={0}
               disabled={isLocked}
               className="form-control"
-              placeholder="Score 0 - 30"
+              placeholder="Score 0 - 10"
             />
           </div>
 
+          {/* 5. Progress */}
           <div className="col-md-6">
             <div className="d-flex justify-content-between align-items-center mb-1">
-              <label className="form-label mb-0">USP & Innovation</label>
-              <span className="badge" style={{ background: "#e8f3f5", color: "#2d1f36", fontSize: "8px" }}>0 - 20 PTS</span>
+              <label className="form-label mb-0">Progress</label>
+              <span className="badge" style={{ background: "#e8f3f5", color: "#2d1f36", fontSize: "8px" }}>0 - 10 PTS</span>
             </div>
             <input
-              value={usp}
-              onChange={(e) => setUsp(e.target.value)}
+              value={progress}
+              onChange={(e) => setProgress(e.target.value)}
               type="number"
-              max={20}
+              max={10}
               min={0}
               disabled={isLocked}
               className="form-control"
-              placeholder="Score 0 - 20"
+              placeholder="Score 0 - 10"
             />
           </div>
 
+          {/* 6. Architecture */}
+          <div className="col-md-6">
+            <div className="d-flex justify-content-between align-items-center mb-1">
+              <label className="form-label mb-0">Architecture</label>
+              <span className="badge" style={{ background: "#e8f3f5", color: "#2d1f36", fontSize: "8px" }}>0 - 10 PTS</span>
+            </div>
+            <input
+              value={architecture}
+              onChange={(e) => setArchitecture(e.target.value)}
+              type="number"
+              max={10}
+              min={0}
+              disabled={isLocked}
+              className="form-control"
+              placeholder="Score 0 - 10"
+            />
+          </div>
+
+          {/* 7. Machine Learning */}
+          <div className="col-md-6">
+            <div className="d-flex justify-content-between align-items-center mb-1">
+              <label className="form-label mb-0">Machine Learning</label>
+              <span className="badge" style={{ background: "#e8f3f5", color: "#2d1f36", fontSize: "8px" }}>0 - 10 PTS</span>
+            </div>
+            <input
+              value={machineLearning}
+              onChange={(e) => setMachineLearning(e.target.value)}
+              type="number"
+              max={10}
+              min={0}
+              disabled={isLocked}
+              className="form-control"
+              placeholder="Score 0 - 10"
+            />
+          </div>
+
+          {/* 8. Dataset Utilisation */}
+          <div className="col-md-6">
+            <div className="d-flex justify-content-between align-items-center mb-1">
+              <label className="form-label mb-0">Dataset Utilisation</label>
+              <span className="badge" style={{ background: "#e8f3f5", color: "#2d1f36", fontSize: "8px" }}>0 - 10 PTS</span>
+            </div>
+            <input
+              value={datasetUtilisation}
+              onChange={(e) => setDatasetUtilisation(e.target.value)}
+              type="number"
+              max={10}
+              min={0}
+              disabled={isLocked}
+              className="form-control"
+              placeholder="Score 0 - 10"
+            />
+          </div>
+
+          {/* 9. Tech Stack */}
+          <div className="col-md-6">
+            <div className="d-flex justify-content-between align-items-center mb-1">
+              <label className="form-label mb-0">Tech Stack</label>
+              <span className="badge" style={{ background: "#e8f3f5", color: "#2d1f36", fontSize: "8px" }}>0 - 10 PTS</span>
+            </div>
+            <input
+              value={techStack}
+              onChange={(e) => setTechStack(e.target.value)}
+              type="number"
+              max={10}
+              min={0}
+              disabled={isLocked}
+              className="form-control"
+              placeholder="Score 0 - 10"
+            />
+          </div>
+
+          {/* Submit Button */}
           <div className="col-md-6 d-flex align-items-end">
             <button
               type="button"
@@ -286,4 +384,4 @@ export const AdminDashboard = ({
       </div>
     </div>
   );
-};
+};

@@ -30,11 +30,22 @@ export interface ReviewScore {
   Team_ID: string;
   Team_Name: string;
   Admin_Name: string;
-  'Approach (20)': string;
-  'Scalability (10)': string;
-  'Design (20)': string;
-  'Tech (30)': string;
-  'USP (20)': string;
+  'UI/UX (20)'?: string;
+  'USP (10)'?: string;
+  'Scalability/Feasibility (10)'?: string;
+  'Implementation (10)'?: string;
+  'Progress (10)'?: string;
+  'Architecture (10)'?: string;
+  'Machine Learning (10)'?: string;
+  'Dataset Utilisation (10)'?: string;
+  'Tech Stack (10)'?: string;
   Total_Score: string;
   Review_Round?: string;
+  // Legacy fields for backward compatibility
+  'Approach (20)'?: string;
+  'Scalability (10)'?: string;
+  'Design (20)'?: string;
+  'Tech (30)'?: string;
+  'USP (20)'?: string;
 }
+
