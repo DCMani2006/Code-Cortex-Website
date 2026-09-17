@@ -839,114 +839,6 @@ const CAT_DIALOGUES = [
   "debugging at 3 AM with 100% caffeine ⚡",
 ];
 
-function CoderCatStation() {
-  const [dialogueIndex, setDialogueIndex] = useState(0);
-  const [isBouncing, setIsBouncing] = useState(false);
-  const [coffeeCount, setCoffeeCount] = useState(1);
-  const [isHovered, setIsHovered] = useState(false);
-
-  const handleCatClick = () => {
-    setDialogueIndex((prev) => (prev + 1) % CAT_DIALOGUES.length);
-    setIsBouncing(true);
-    setTimeout(() => setIsBouncing(false), 260);
-  };
-
-  const handleCoffeeClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setCoffeeCount((prev) => prev + 1);
-  };
-
-  return (
-    <div
-      className={`coder-cat-station ${isHovered ? "coder-cat-station--turbo" : ""}`}
-      role="region"
-      aria-label="Interactive pixel art dev cat coding at computer desk"
-      onClick={handleCatClick}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
-      {/* Station HUD Header */}
-      <div className="cat-station-hud">
-        <div className="cat-station-hud__tag">
-          <span className="cat-hud-dot" />
-          <span>CC_DEV_CAT.EXE // ACTIVE</span>
-        </div>
-        <div className="cat-station-hud__stats">
-          <span className="cat-hud-chip" onClick={handleCoffeeClick} title="Click to sip coffee!">
-            ☕ {coffeeCount} CUPS
-          </span>
-          <span className="cat-hud-chip cat-hud-chip--speed">
-            {isHovered ? "⚡ 420 WPM (TURBO)" : "⌨️ 120 WPM"}
-          </span>
-        </div>
-      </div>
-
-      {/* Main Interactive Stage */}
-      <div className={`cat-stage ${isBouncing ? "cat-stage--bounce" : ""}`}>
-        {/* Interactive Speech Bubble */}
-        <div className="cat-speech-bubble" key={dialogueIndex}>
-          <span className="cat-speech-bubble__text">{CAT_DIALOGUES[dialogueIndex]}</span>
-          <div className="cat-speech-bubble__tail" aria-hidden="true" />
-        </div>
-
-        {/* Turbo Mode Badge */}
-        {isHovered && (
-          <div className="cat-turbo-badge" aria-hidden="true">
-            ⚡ TURBO HACKING MODE ACTIVATED!
-          </div>
-        )}
-
-        {/* Pixel Sprite Canvas Wrapper */}
-        <div className="cat-sprite-container">
-          <img
-            className="cat-sprite-img"
-            src="/coder_cat_sprite.png"
-            alt="Pixel art dev cat coding on computer"
-            width={457}
-            height={275}
-            loading="lazy"
-          />
-
-          {/* Animated Coffee Steam rising from the red mug */}
-          <div
-            className="cat-coffee-steam-area"
-            onClick={handleCoffeeClick}
-            title="Sip hot coffee!"
-            aria-hidden="true"
-          >
-            <div className="cat-steam-particle steam-p1" />
-            <div className="cat-steam-particle steam-p2" />
-            <div className="cat-steam-particle steam-p3" />
-          </div>
-
-          {/* CRT Monitor Code Stream Screen */}
-          <div className="cat-crt-overlay" aria-hidden="true">
-            <div className="cat-crt-scanline" />
-            <div className="cat-crt-code">
-              <span className="code-line line-1">&gt; hack.ts</span>
-              <span className="code-line line-2">&gt; dev 200</span>
-              <span className="code-line line-3">&gt; purr()</span>
-              <span className="code-line line-4">&gt; pass ⚡</span>
-            </div>
-            <div className="cat-crt-led" />
-          </div>
-
-          {/* Stepped Typing Spark Particles */}
-          <div className="cat-typing-sparks" aria-hidden="true">
-            <span className="spark spark-1">✦</span>
-            <span className="spark spark-2">⚡</span>
-            <span className="spark spark-3">✦</span>
-          </div>
-
-          {/* Click Hint */}
-          <div className="cat-click-cue">
-            <span>✦ CLICK CAT TO TALK</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 const COFFEE_TOASTS = [
   "☕ Warm sip... HP & focus fully restored! ✨",
@@ -1757,8 +1649,8 @@ export default function Home() {
 
           {/* ROW 2: THE DEV DEN (LEFT: CODER CAT WORKSTATION ⟷ RIGHT: MISSION & QUESTS) */}
           <div className="tavern-row tavern-row--dev-den">
-            <div className="tavern-col tavern-col--cat">
-              <CoderCatStation />
+            <div className="tavern-col tavern-col--wizard">
+              <WizardOverworldScene />
             </div>
 
             <div className="tavern-col tavern-col--mission">
@@ -1796,47 +1688,6 @@ export default function Home() {
                     </div>
                   </div>
                 </div>
-              </div>
-            </div>
-          </div>
-
-          {/* ROW 3: THE OVERWORLD ENCOUNTER (LEFT: WIZARD OVERWORLD ⟷ RIGHT: MENTOR ARCHIE) */}
-          <div className="tavern-row tavern-row--encounter">
-            <div className="tavern-col tavern-col--wizard">
-              <WizardOverworldScene />
-            </div>
-
-            <div className="tavern-col tavern-col--dialogue">
-              <div className="tavern-mentor-card rpg-dialogue-box rpg-dialogue-box--from-left">
-                <div className="rpg-dialogue-tail rpg-dialogue-tail--left" aria-hidden="true" />
-                <div className="tavern-mentor-header">
-                  <div className="mentor-avatar">🧙‍♂️</div>
-                  <div>
-                    <span className="mentor-nameplate">MENTOR ARCHIE</span>
-                    <span className="mentor-title">Master Hacker &amp; Tavern Guide</span>
-                  </div>
-                  <span className="rpg-dialogue-tag">NPC // TAVERN GUIDE</span>
-                </div>
-                <p className="rpg-dialogue-text">
-                  "Welcome to the tavern, traveler! The 30-hour clock starts ticking the moment you enter the arena. Choose your direction wisely and forge your masterpiece."
-                  <span className="rpg-dialogue-cursor">▼</span>
-                </p>
-                <div className="tavern-quest-pouches">
-                  <span className="quest-pouch">⚔️ QUEST READY</span>
-                  <span className="quest-pouch">🧙‍♂️ MENTORS ON CALL</span>
-                  <span className="quest-pouch">✨ ZERO LIMITS</span>
-                </div>
-                <a
-                  className="text-link"
-                  href="#tracks"
-                  onClick={(event) => {
-                    event.preventDefault();
-                    jumpTo("#tracks");
-                  }}
-                  style={{ marginTop: "20px", display: "inline-flex" }}
-                >
-                  Find your dungeon track <ArrowRight size={18} />
-                </a>
               </div>
             </div>
           </div>
