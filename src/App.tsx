@@ -333,37 +333,52 @@ export default function App() {
     if (!teamLoggedIn || !teamIdInput.trim()) return;
 
     let active = true;
-    getTeamMembers(teamIdInput.trim())
-      .then((members) => {
-        if (active) setTeamMembers(members);
-      })
-      .catch((e) => console.error("Failed to load team members:", e));
 
-    getTeams()
-      .then((teams) => {
-        if (!active) return;
-        const current = teams.find((t) => String(t.Team_ID).trim() === String(teamIdInput).trim());
-        if (current) setTeamDetails(current);
-      })
-      .catch((e) => console.error("Failed to load team details:", e));
+    // A teammate joining or submitting doesn't push to anyone else already
+    // sitting on the dashboard, so re-pull the roster/team/submission
+    // whenever the tab regains focus — cheap, no polling infra, and catches
+    // the common case (switch away to share the invite link, switch back).
+    const loadRoster = () => {
+      getTeamMembers(teamIdInput.trim())
+        .then((members) => {
+          if (active) setTeamMembers(members);
+        })
+        .catch((e) => console.error("Failed to load team members:", e));
 
-    // Whoever on the team submits first, everyone else should see it too
-    // instead of being asked to submit again.
-    getSubmissions(teamIdInput.trim())
-      .then((subs) => {
-        if (!active) return;
-        const existing = subs[0];
-        if (!existing) return;
-        const rawDesc = String(existing.Project_Description || "");
-        const roundMatch = rawDesc.match(/^\[(Review \d)\]\s*/);
-        setSubReviewRound(roundMatch ? roundMatch[1] : "Review 1");
-        setSubDesc(roundMatch ? rawDesc.slice(roundMatch[0].length) : rawDesc);
-        setSubGithub(existing["GitHub Link"] || "");
-        setSubFigma(existing["Figma Link"] || "");
-        setSubDataset(existing["Dataset Link"] || existing["Public Dataset Link"] || "");
-        setProjectSubmitted(true);
-      })
-      .catch((e) => console.error("Failed to load team submission:", e));
+      getTeams()
+        .then((teams) => {
+          if (!active) return;
+          const current = teams.find((t) => String(t.Team_ID).trim() === String(teamIdInput).trim());
+          if (current) setTeamDetails(current);
+        })
+        .catch((e) => console.error("Failed to load team details:", e));
+
+      // Whoever on the team submits first, everyone else should see it too
+      // instead of being asked to submit again.
+      getSubmissions(teamIdInput.trim())
+        .then((subs) => {
+          if (!active) return;
+          const existing = subs[0];
+          if (!existing) return;
+          const rawDesc = String(existing.Project_Description || "");
+          const roundMatch = rawDesc.match(/^\[(Review \d)\]\s*/);
+          setSubReviewRound(roundMatch ? roundMatch[1] : "Review 1");
+          setSubDesc(roundMatch ? rawDesc.slice(roundMatch[0].length) : rawDesc);
+          setSubGithub(existing["GitHub Link"] || "");
+          setSubFigma(existing["Figma Link"] || "");
+          setSubDataset(existing["Dataset Link"] || existing["Public Dataset Link"] || "");
+          setProjectSubmitted(true);
+        })
+        .catch((e) => console.error("Failed to load team submission:", e));
+    };
+
+    loadRoster();
+
+    const onFocus = () => {
+      if (document.visibilityState !== "hidden") loadRoster();
+    };
+    window.addEventListener("focus", onFocus);
+    document.addEventListener("visibilitychange", onFocus);
 
     // The team's own password, so members can pass it on without asking us.
     // Only resolves for someone actually on this team.
@@ -385,6 +400,8 @@ export default function App() {
 
     return () => {
       active = false;
+      window.removeEventListener("focus", onFocus);
+      document.removeEventListener("visibilitychange", onFocus);
     };
   }, [teamLoggedIn, teamIdInput, loggedInUser?.User_ID]);
 
@@ -1588,7 +1605,7 @@ const googleSignup = useGoogleLogin({
                                   </div>
                                   <div className="fw-bold d-flex align-items-center gap-2" style={{ fontSize: "14.5px", color: "#2d1f36" }}>
                                     <span>👑</span>
-                                    <span>{teamDetails?.Team_Leader || "Loading Leader..."}</span>
+                                    <span className="id-code">{teamDetails?.Team_Leader || "Loading Leader..."}</span>
                                   </div>
                                 </div>
 
