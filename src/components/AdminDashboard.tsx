@@ -23,6 +23,9 @@ type Props = {
   setReviewRound: (v: string) => void;
   onSubmit: () => Promise<void>;
   adminName?: string;
+  /** Another reviewer's name, if they already scored this team for the
+   * currently selected round — scores are then read-only for everyone else. */
+  lockedByOther?: string | null;
 };
 
 export const AdminDashboard = ({
@@ -39,9 +42,10 @@ export const AdminDashboard = ({
   setUsp,
   reviewRound,
   setReviewRound,
-  onSubmit
-  
+  onSubmit,
+  lockedByOther
 }: Props) => {
+  const isLocked = !!lockedByOther;
   const totalScore =
     (Number(approach) || 0) +
     (Number(scalability) || 0) +
@@ -101,6 +105,27 @@ export const AdminDashboard = ({
             </div>
           </div>
         </div>
+
+        {/* Lock Warning for Other Reviewers */}
+        {isLocked && (
+          <div
+            className="alert py-2 px-3 mb-4 d-flex align-items-center gap-2"
+            style={{
+              background: "#fde88a",
+              color: "#2d1f36",
+              border: "2px solid #2d1f36",
+              boxShadow: "3px 3px 0px #2d1f36",
+              fontSize: "13px"
+            }}
+          >
+            <span style={{ fontSize: "16px" }}>🔒</span>
+            <div>
+              <strong>{reviewRound}</strong> for this team was already scored by{" "}
+              <strong style={{ textDecoration: "underline" }}>{lockedByOther}</strong>.
+              {" "}You can view their scores below, but only they can edit this round.
+            </div>
+          </div>
+        )}
 
         {/* Selected Project Card */}
         {submission && (
@@ -172,6 +197,7 @@ export const AdminDashboard = ({
               type="number"
               max={20}
               min={0}
+              disabled={isLocked}
               className="form-control"
               placeholder="Score 0 - 20"
             />
@@ -188,6 +214,7 @@ export const AdminDashboard = ({
               type="number"
               max={10}
               min={0}
+              disabled={isLocked}
               className="form-control"
               placeholder="Score 0 - 10"
             />
@@ -204,6 +231,7 @@ export const AdminDashboard = ({
               type="number"
               max={20}
               min={0}
+              disabled={isLocked}
               className="form-control"
               placeholder="Score 0 - 20"
             />
@@ -220,6 +248,7 @@ export const AdminDashboard = ({
               type="number"
               max={30}
               min={0}
+              disabled={isLocked}
               className="form-control"
               placeholder="Score 0 - 30"
             />
@@ -236,6 +265,7 @@ export const AdminDashboard = ({
               type="number"
               max={20}
               min={0}
+              disabled={isLocked}
               className="form-control"
               placeholder="Score 0 - 20"
             />
@@ -245,9 +275,11 @@ export const AdminDashboard = ({
             <button
               type="button"
               onClick={onSubmit}
+              disabled={isLocked}
               className="btn btn-lg-retro btn-primary w-100 fw-bold"
+              style={isLocked ? { opacity: 0.6, cursor: "not-allowed" } : undefined}
             >
-              💾 SAVE EVALUATION
+              {isLocked ? "🔒 LOCKED — READ ONLY" : "💾 SAVE EVALUATION"}
             </button>
           </div>
         </div>

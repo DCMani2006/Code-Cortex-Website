@@ -650,6 +650,14 @@ export async function addReview(data) {
   }
 
   if (existingRow) {
+    // Whoever scored this (team, round) first owns it — this is the
+    // authoritative check; the client also disables the form for other
+    // reviewers, but that's just UX, not enforcement.
+    const existingOwner = String(existingRow.get('Admin_Name') || '').trim();
+    const incomingOwner = String(rowData.Admin_Name || '').trim();
+    if (existingOwner && incomingOwner && existingOwner !== incomingOwner) {
+      throw new Error(`${targetRound} for this team was already scored by ${existingOwner}. Only they can edit it.`);
+    }
     existingRow.assign(rowData);
     await existingRow.save();
   } else {
