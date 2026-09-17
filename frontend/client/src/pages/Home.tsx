@@ -1029,6 +1029,193 @@ function TrackGlyph({
   );
 }
 
+const TECHHEAD_QUOTES = [
+  "Hey! I'm Aman, Tech Head @ TAM. Building cool things with AI & web! 🚀",
+  "Deploying Code Cortex 3.0 at 3 AM... server status: 200 OK 💻",
+  "Got an issue or want to build something wild? Reach out anytime! ⚡",
+  "0 compiler errors, 42 warnings (we don't speak of the warnings) 😉",
+  "Coffee converted into clean code: 100% ☕ | Hype: 100% 🔥",
+  "TAM tech stack running on pure adrenaline and good vibes ✨",
+  "Welcome to the Town Exit Portal! See you at the main event! 🌌",
+];
+
+const TERMINAL_LOGS: [string, string][] = [
+  ["sys.init()", "status: 200 OK"],
+  ["tam-cluster", "latency: 12ms"],
+  ["cortex-v3.0", "build: passed ✓"],
+  ["git push", "origin & sapphire ✓"],
+  ["ai-models", "all active ⚡"],
+];
+
+function TechHeadStation() {
+  const [quoteIdx, setQuoteIdx] = useState(0);
+  const [showQuote, setShowQuote] = useState(true);
+  const [termLogIdx, setTermLogIdx] = useState(0);
+  const [coffeeToast, setCoffeeToast] = useState(false);
+  const [wobble, setWobble] = useState(0);
+
+  const handleCharClick = (e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    setQuoteIdx((prev) => (prev + 1) % TECHHEAD_QUOTES.length);
+    setShowQuote(true);
+    setWobble((prev) => prev + 1);
+  };
+
+  const handleCoffeeClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setCoffeeToast(true);
+    setTimeout(() => setCoffeeToast(false), 1800);
+  };
+
+  const handleTerminalClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setTermLogIdx((prev) => (prev + 1) % TERMINAL_LOGS.length);
+  };
+
+  return (
+    <div className="techhead-station" role="region" aria-label="Aman Golani Tech Head Workstation">
+      {/* Top Station HUD */}
+      <div className="techhead-hud">
+        <div className="techhead-hud__tag">
+          <span className="techhead-hud__dot" />
+          <strong className="techhead-hud__title">TECH_HEAD // AMAN GOLANI</strong>
+        </div>
+        <div className="techhead-hud__status">
+          <span className="techhead-hud__badge">🟢 ONLINE</span>
+        </div>
+      </div>
+
+      {/* Main Diorama Stage */}
+      <div className="techhead-stage">
+        {/* Floating Ambient Syntax Particles */}
+        <div className="techhead-particles" aria-hidden="true">
+          <span className="th-particle p1">{"{ }"}</span>
+          <span className="th-particle p2">{"</>"}</span>
+          <span className="th-particle p3">01</span>
+          <span className="th-particle p4">⚡</span>
+          <span className="th-particle p5">λ</span>
+        </div>
+
+        {/* Speech Bubble Above Tech Head */}
+        {showQuote && (
+          <div
+            className="techhead-dialogue"
+            key={`${quoteIdx}-${wobble}`}
+            onClick={handleCharClick}
+          >
+            <span>{TECHHEAD_QUOTES[quoteIdx]}</span>
+            <div className="techhead-dialogue__arrow" />
+          </div>
+        )}
+
+        {/* Coffee Toast popup */}
+        {coffeeToast && (
+          <div className="techhead-coffee-toast">
+            <span>☕ +100 DEV ENERGY!</span>
+          </div>
+        )}
+
+        {/* Stage Content: Left Desk with Terminal & Server, Right Sprite */}
+        <div className="techhead-scene">
+          {/* Workstation Desk & Gear */}
+          <div className="techhead-workstation">
+            {/* Top of Desk: CRT Monitor & Coffee */}
+            <div className="techhead-desk-top">
+              {/* CRT Monitor */}
+              <div
+                className="techhead-crt"
+                onClick={handleTerminalClick}
+                title="Click to run next command"
+              >
+                <div className="techhead-crt__screen">
+                  <div className="techhead-crt__header">
+                    <span>TAM-OS v3.0</span>
+                    <span className="techhead-crt__led" />
+                  </div>
+                  <div className="techhead-crt__body">
+                    <div className="crt-line prompt">{`> ${TERMINAL_LOGS[termLogIdx][0]}`}</div>
+                    <div className="crt-line output">{TERMINAL_LOGS[termLogIdx][1]}</div>
+                    <div className="crt-line cursor">_</div>
+                  </div>
+                </div>
+                <div className="techhead-crt__stand" />
+              </div>
+
+              {/* Steaming Coffee Mug on Desk */}
+              <div
+                className="techhead-coffee"
+                onClick={handleCoffeeClick}
+                title="Click for coffee refill!"
+              >
+                <div className="techhead-coffee__steam" aria-hidden="true">
+                  <span className="steam s1" />
+                  <span className="steam s2" />
+                </div>
+                <span className="techhead-coffee__cup">☕</span>
+              </div>
+            </div>
+
+            {/* Wooden Desk Slab */}
+            <div className="techhead-desk-slab" />
+
+            {/* Under Desk: Legs & Server Tower on Floor with Coiled Cable */}
+            <div className="techhead-desk-under">
+              <div className="techhead-desk-leg left" />
+              {/* Mini Server Tower on Floor */}
+              <div className="techhead-server" title="TAM Cluster Server">
+                <div className="techhead-server__slots">
+                  <span className="srv-slot" />
+                  <span className="srv-slot" />
+                  <span className="srv-slot" />
+                </div>
+                <div className="techhead-server__leds">
+                  <span className="srv-led green" />
+                  <span className="srv-led cyan" />
+                  <span className="srv-led amber" />
+                </div>
+              </div>
+              <div className="techhead-cable" aria-hidden="true" />
+              <div className="techhead-desk-leg right" />
+            </div>
+          </div>
+
+          {/* Character: Aman Golani Sprite with Idle Bobbing & Shadow */}
+          <div
+            className={`techhead-character ${wobble > 0 ? "techhead-character--jump" : ""}`}
+            onClick={handleCharClick}
+            role="button"
+            tabIndex={0}
+            aria-label="Aman Golani Tech Head. Click to cycle speech quotes."
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                handleCharClick();
+              }
+            }}
+          >
+            <div className="techhead-sprite-wrap">
+              <img
+                src="/techhead_sprite.png"
+                alt="Aman Golani - TAM Tech Head Pixel Art Sprite"
+                className="techhead-sprite-img"
+                width="374"
+                height="889"
+                loading="eager"
+              />
+            </div>
+            <div className="techhead-shadow" aria-hidden="true" />
+            <div className="techhead-click-cue" aria-hidden="true">
+              <span>[CLICK ME 💬]</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Floor Grid Line */}
+        <div className="techhead-floor-grid" aria-hidden="true" />
+      </div>
+    </div>
+  );
+}
+
 export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [trackIndex, setTrackIndex] = useState(0);
@@ -2187,6 +2374,7 @@ export default function Home() {
             <a href="tel:+917045207569">
               <Phone size={17} /> +91 70452 07569
             </a>
+            <TechHeadStation />
           </div>
         </div>
         <div className="footer__bottom">
