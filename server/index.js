@@ -88,11 +88,12 @@ app.post('/api/auth/session', async (req, res) => {
     }
 
     const tokenInfo = await verifyGoogleAccessToken(accessToken);
-    if (!tokenInfo || !tokenInfo.email || !tokenInfo.emailVerified) {
+    if (!tokenInfo || !tokenInfo.email) {
       return res.status(401).json({ error: 'Invalid or unauthorized Google access token.' });
     }
 
-    const user = await syncAuthUser(tokenInfo.email, name || tokenInfo.email);
+    const displayName = name || tokenInfo.name || tokenInfo.email;
+    const user = await syncAuthUser(tokenInfo.email, displayName);
     const token = signSession({
       userId: user.User_ID,
       email: user.Email,

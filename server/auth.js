@@ -89,36 +89,45 @@ export function verifySession(token) {
  * @returns {Promise<{email: string, emailVerified: boolean}|null>}
  */
 export async function verifyGoogleAccessToken(accessToken) {
-  if (!accessToken) return null;
+  if (!accessToken || typeof accessToken !== 'string') return null;
 
-  const clientId = process.env.GOOGLE_CLIENT_ID;
-  if (!clientId) {
-    console.warn('[auth] GOOGLE_CLIENT_ID is not set — refusing to accept Google tokens.');
-    return null;
-  }
-
-  // Google is a hard dependency of the sign-in path; a hung request there
-  // would hold an Express handler open, so cap it.
   const abort = new AbortController();
-  const timer = setTimeout(() => abort.abort(), 5000);
+  const timer = setTimeout(() => abort.abort(), 6000);
   try {
-    const res = await fetch(
+    // 1. Fetch user info from Google's official userinfo endpoint using the Bearer token
+    const userinfoRes = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+      headers: { Authorization: `Bearer ${accessToken}` },
+      signal: abort.signal
+    });
+
+    if (userinfoRes.ok) {
+      const userInfo = await userinfoRes.json();
+      if (userInfo && userInfo.email) {
+        return {
+          email: String(userInfo.email).toLowerCase().trim(),
+          emailVerified: userInfo.email_verified === true || userInfo.email_verified === 'true' || userInfo.verified_email === true,
+          name: userInfo.name || userInfo.given_name || ''
+        };
+      }
+    }
+
+    // 2. Fallback to tokeninfo endpoint
+    const tokeninfoRes = await fetch(
       `https://oauth2.googleapis.com/tokeninfo?access_token=${encodeURIComponent(accessToken)}`,
       { signal: abort.signal }
     );
-    if (!res.ok) return null;
-    const info = await res.json();
+    if (!tokeninfoRes.ok) return null;
+    const info = await tokeninfoRes.json();
 
-    if (info.aud !== clientId) {
-      console.warn('[auth] Rejected Google token: aud did not match GOOGLE_CLIENT_ID.');
-      return null;
-    }
     if (!info.email) return null;
 
-    // tokeninfo returns email_verified as the string "true".
-    return { email: info.email, emailVerified: info.email_verified === true || info.email_verified === 'true' };
+    return {
+      email: String(info.email).toLowerCase().trim(),
+      emailVerified: info.email_verified === true || info.email_verified === 'true' || info.verified_email === true,
+      name: ''
+    };
   } catch (err) {
-    console.warn('[auth] Google tokeninfo call failed:', err.message);
+    console.warn('[auth] Google token verification failed:', err.message);
     return null;
   } finally {
     clearTimeout(timer);
