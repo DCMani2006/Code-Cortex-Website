@@ -11,7 +11,7 @@ import {
   getTeamMembers,
   getTeams,
   syncUserByEmail,
-  addTeamMember
+  getTeamPassword
 } from "./services/api";
 
 import type { User, Team, Submission } from "./types/database";
@@ -184,32 +184,11 @@ export default function App() {
   const [regLeaderRegNo, setRegLeaderRegNo] = useState("");
   const [regMembers, setRegMembers] = useState("");
   const [regPassword, setRegPassword] = useState("");
-  const [teamMembersList, setTeamMembersList] = useState<{name: string, regNo: string, email: string}[]>([]);
-
+  // Teams are created empty: the leader picks a size, then members join
+  // themselves with the team ID + password. Nobody's details are typed in on
+  // their behalf, which is what used to create duplicate people.
   const handleRegMembersChange = (value: string) => {
     setRegMembers(value);
-    const count = Number(value);
-    if (Number.isInteger(count) && count >= 2 && count <= 4) {
-      const requiredMembers = count - 1;
-      setTeamMembersList(prev => {
-        if (prev.length === requiredMembers) return prev;
-        const newList = [...prev];
-        while (newList.length < requiredMembers) {
-          newList.push({ name: "", regNo: "", email: "" });
-        }
-        return newList.slice(0, requiredMembers);
-      });
-    } else {
-      setTeamMembersList([]);
-    }
-  };
-
-  const handleMemberChange = (index: number, field: keyof typeof teamMembersList[0], value: string) => {
-    setTeamMembersList(prev => {
-      const newList = [...prev];
-      newList[index] = { ...newList[index], [field]: value };
-      return newList;
-    });
   };
 
   const [registrationSubmitted, setRegistrationSubmitted] =
@@ -340,11 +319,9 @@ export default function App() {
   const [teamMembers, setTeamMembers] = useState<User[]>([]);
   const [teamDetails, setTeamDetails] = useState<Team | null>(null);
 
-  const [showAddMemberForm, setShowAddMemberForm] = useState(false);
-  const [newMemberName, setNewMemberName] = useState("");
-  const [newMemberRegNo, setNewMemberRegNo] = useState("");
-  const [newMemberEmail, setNewMemberEmail] = useState("");
-  const [isAddingMember, setIsAddingMember] = useState(false);
+  const [teamPassword, setTeamPassword] = useState<string | null>(null);
+  const [showTeamPassword, setShowTeamPassword] = useState(false);
+  const [teamPasswordError, setTeamPasswordError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!teamLoggedIn || !teamIdInput.trim()) return;
@@ -364,10 +341,27 @@ export default function App() {
       })
       .catch((e) => console.error("Failed to load team details:", e));
 
+    // The team's own password, so members can pass it on without asking us.
+    // Only resolves for someone actually on this team.
+    if (loggedInUser?.User_ID) {
+      setTeamPasswordError(null);
+      getTeamPassword(teamIdInput.trim(), loggedInUser.User_ID)
+        .then((pwd) => {
+          if (active) setTeamPassword(pwd);
+        })
+        .catch((e) => {
+          if (!active) return;
+          console.error("Failed to load team password:", e);
+          setTeamPasswordError(
+            e instanceof Error ? e.message : "Could not load team password."
+          );
+        });
+    }
+
     return () => {
       active = false;
     };
-  }, [teamLoggedIn, teamIdInput]);
+  }, [teamLoggedIn, teamIdInput, loggedInUser?.User_ID]);
 
   const filteredSubmissions = submissions.filter((submission) => {
   const teamId = String(submission?.Team_ID || '').trim().toLowerCase();
@@ -670,8 +664,6 @@ const googleSignup = useGoogleLogin({
       return;
     }
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
     // External participants don't have a VIT reg number — email (already
     // captured at Google sign-in) is the only identifier we need from them.
     const leaderReg = isExternalParticipant
@@ -713,52 +705,11 @@ const googleSignup = useGoogleLogin({
       return;
     }
 
-    const seenRegNos = new Set<string>();
-    if (!isExternalParticipant) seenRegNos.add(leaderReg);
-
-    for (let i = 0; i < teamMembersList.length; i++) {
-      const m = teamMembersList[i];
-      if (!m.name.trim() || !m.email.trim() || (!isExternalParticipant && !m.regNo.trim())) {
-        showToast(`Please fill all details for Member ${i + 2}.`, "danger");
-        return;
-      }
-      if (!emailRegex.test(m.email.trim())) {
-        showToast(`Invalid Email Address for Member ${i + 2}.`, "danger");
-        return;
-      }
-      if (!isExternalParticipant) {
-        const memberReg = m.regNo.trim().toUpperCase();
-        if (!isValidRegNo(memberReg)) {
-          showToast(`Invalid Registration Number for Member ${i + 2}. Expected format eg: 20ABC1234`, "danger");
-          return;
-        }
-        if (memberReg === leaderReg) {
-          showToast(`Registration Number for Member ${i + 2} cannot be the same as the Team Leader's.`, "danger");
-          return;
-        }
-        if (seenRegNos.has(memberReg)) {
-          showToast(`Duplicate Registration Number found: ${memberReg}.`, "danger");
-          return;
-        }
-        seenRegNos.add(memberReg);
-      }
-    }
-
     setIsSubmittingTeam(true);
     try {
       const teamId =
         (isExternalParticipant ? "EC-" : "CC-") +
         Math.floor(1000 + Math.random() * 9000);
-
-      // External members don't type a reg number (that field is hidden), but
-      // the backend still needs a unique User_ID per person — mint one per
-      // member rather than sending an empty string.
-      const membersToSend = isExternalParticipant
-        ? teamMembersList.map((m) => ({
-            ...m,
-            regNo: `EXT${Math.random().toString(36).slice(2, 8).toUpperCase()}`
-          }))
-        : teamMembersList;
 
       const effectiveUserId = isExternalParticipant
         ? loggedInUser.User_ID
@@ -766,7 +717,7 @@ const googleSignup = useGoogleLogin({
           ? loggedInUser.User_ID
           : leaderReg;
 
-      await addTeam(
+      const assignedTeamId = await addTeam(
         {
           Team_ID: teamId,
           "Team_ Name": regTeamName.trim(),
@@ -779,17 +730,16 @@ const googleSignup = useGoogleLogin({
         },
         regPassword,
         effectiveUserId,
-        membersToSend,
         loggedInUser.Email
       );
 
       updateLoggedInUser({
         ...loggedInUser,
         User_ID: effectiveUserId,
-        Team_ID: teamId
+        Team_ID: assignedTeamId
       });
 
-      setNewTeamId(teamId);
+      setNewTeamId(assignedTeamId);
       setRegistrationSubmitted(true);
       showToast("Team registered successfully!", "success");
 
@@ -883,56 +833,6 @@ const googleSignup = useGoogleLogin({
 
   // =====================================================
   // TEAM LOGIN
-  // =====================================================
-
-  const handleAddMemberSubmit = async () => {
-    // Existing-team member add happens in a later session than registration,
-    // so go by the team's own stored Team_Type rather than the transient
-    // participantType picked at login — that only applies to registration.
-    const teamIsExternal = teamDetails?.Team_Type === "External";
-
-    if (!newMemberName.trim() || !newMemberEmail.trim() || (!teamIsExternal && !newMemberRegNo.trim())) {
-      showToast("Please fill in all member details.", "danger");
-      return;
-    }
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!teamIsExternal && !/^\d{2}[a-zA-Z]{3}\d{4,5}$/.test(newMemberRegNo.trim().toUpperCase())) {
-      showToast("Invalid Registration Number format. Expected e.g. 20ABC1234", "danger");
-      return;
-    }
-    if (!emailRegex.test(newMemberEmail.trim())) {
-      showToast("Invalid Email Address.", "danger");
-      return;
-    }
-
-    setIsAddingMember(true);
-    try {
-      await addTeamMember(teamIdInput.trim(), {
-        name: newMemberName.trim(),
-        regNo: teamIsExternal
-          ? `EXT${Math.random().toString(36).slice(2, 8).toUpperCase()}`
-          : newMemberRegNo.trim().toUpperCase(),
-        email: newMemberEmail.trim()
-      });
-      // refresh member list
-      const updatedMembers = await getTeamMembers(teamIdInput.trim());
-      setTeamMembers(updatedMembers);
-      
-      setNewMemberName("");
-      setNewMemberRegNo("");
-      setNewMemberEmail("");
-      setShowAddMemberForm(false);
-      showToast("Member added successfully!", "success");
-    } catch (error) {
-      console.error(error);
-      showToast(error instanceof Error ? error.message : "Failed to add member.", "danger");
-    } finally {
-      setIsAddingMember(false);
-    }
-  };
-
-  // =====================================================
-  // PROJECT SUBMISSION
   // =====================================================
 
   const handleProjectSubmit = async () => {
@@ -1125,6 +1025,14 @@ const googleSignup = useGoogleLogin({
                             🌐 EXTERNAL PARTICIPANT
                           </button>
                         </div>
+
+                        <a
+                          href={eventSiteUrl}
+                          className="d-inline-flex align-items-center gap-2 mt-4 text-decoration-none"
+                          style={{ fontSize: "11px", color: "#6b5b73", fontFamily: "var(--font-heading)" }}
+                        >
+                          ← BACK TO MAIN WEBSITE
+                        </a>
                       </>
                     ) : (
                       <>
@@ -1575,72 +1483,55 @@ const googleSignup = useGoogleLogin({
                                   )}
                                 </div>
 
-                                {/* Add Member Form & Toggle */}
-                                {teamMembers.length > 0 && teamMembers.length < 4 && (
-                                  <div className="mt-2 mb-2">
-                                    {!showAddMemberForm ? (
-                                      <button
-                                        className="btn hero-pixel-btn hero-pixel-btn--secondary w-100"
-                                        style={{ fontSize: "9px", padding: "9px 14px" }}
-                                        onClick={() => setShowAddMemberForm(true)}
-                                      >
-                                        + RECRUIT MEMBER
-                                      </button>
-                                    ) : (
-                                      <div
-                                        className="p-3 rounded border border-dark border-2 mt-2"
-                                        style={{ background: "#fdf8ea", boxShadow: "3px 3px 0px #2d1f36" }}
-                                      >
-                                        <div className="d-flex justify-content-between align-items-center mb-2">
-                                          <span className="fw-bold" style={{ fontFamily: "var(--pixel)", fontSize: "9px", color: "#2d1f36" }}>
-                                            + ADD NEW MEMBER
-                                          </span>
-                                        </div>
-                                        <input
-                                          type="text"
-                                          className="form-control mb-2"
-                                          placeholder="Full Name"
-                                          value={newMemberName}
-                                          onChange={e => setNewMemberName(e.target.value)}
-                                        />
-                                        {teamDetails?.Team_Type !== "External" && (
-                                          <input
-                                            type="text"
-                                            className="form-control mb-2"
-                                            placeholder="Reg No (e.g. 20ABC1234)"
-                                            value={newMemberRegNo}
-                                            onChange={e => setNewMemberRegNo(e.target.value)}
-                                          />
-                                        )}
-                                        <input
-                                          type="email"
-                                          className="form-control mb-3"
-                                          placeholder="Email Address"
-                                          value={newMemberEmail}
-                                          onChange={e => setNewMemberEmail(e.target.value)}
-                                        />
-                                        <div className="d-flex gap-2">
-                                          <button
-                                            className="btn hero-pixel-btn hero-pixel-btn--primary flex-grow-1"
-                                            style={{ fontSize: "9px", padding: "8px 12px", margin: 0 }}
-                                            onClick={handleAddMemberSubmit}
-                                            disabled={isAddingMember}
-                                          >
-                                            {isAddingMember ? "Adding..." : "Save Member"}
-                                          </button>
-                                          <button
-                                            className="btn btn-sm btn-outline-secondary"
-                                            style={{ fontSize: "9px", padding: "8px 12px", margin: 0 }}
-                                            onClick={() => setShowAddMemberForm(false)}
-                                            disabled={isAddingMember}
-                                          >
-                                            Cancel
-                                          </button>
-                                        </div>
-                                      </div>
-                                    )}
+                                {/* Team ID + password, shown so the team can pass
+                                    them on without having to ask anyone */}
+                                <div className="rpg-stat-card mb-3">
+                                  <div className="form-label mb-1">
+                                    INVITE YOUR TEAMMATES
                                   </div>
-                                )}
+                                  <div style={{ fontSize: "11px", color: "#443452", lineHeight: 1.6 }} className="mb-2">
+                                    Share these two with your teammates. Each of them
+                                    logs in and uses <strong>Join a Team</strong>.
+                                  </div>
+
+                                  <div className="d-flex align-items-center justify-content-between gap-2 mb-2">
+                                    <span style={{ fontSize: "10px", color: "#6b5b73" }}>TEAM ID</span>
+                                    <code style={{ fontFamily: '"IBM Plex Mono", monospace', fontSize: "13px", color: "#2d1f36" }}>
+                                      {teamIdInput || loggedInUser?.Team_ID || "—"}
+                                    </code>
+                                  </div>
+
+                                  <div className="d-flex align-items-center justify-content-between gap-2">
+                                    <span style={{ fontSize: "10px", color: "#6b5b73" }}>TEAM PASSWORD</span>
+                                    <span className="d-flex align-items-center gap-2">
+                                      <code style={{ fontFamily: '"IBM Plex Mono", monospace', fontSize: "13px", color: "#2d1f36" }}>
+                                        {teamPasswordError
+                                          ? "unavailable"
+                                          : teamPassword === null
+                                            ? "…"
+                                            : showTeamPassword
+                                              ? teamPassword
+                                              : "•".repeat(Math.max(teamPassword.length, 4))}
+                                      </code>
+                                      {teamPassword && !teamPasswordError && (
+                                        <button
+                                          type="button"
+                                          className="btn btn-sm border-0 bg-transparent p-0 fw-bold"
+                                          style={{ fontFamily: "var(--font-heading)", fontSize: "9px", color: "#6b5b73" }}
+                                          onClick={() => setShowTeamPassword(v => !v)}
+                                        >
+                                          {showTeamPassword ? "HIDE" : "SHOW"}
+                                        </button>
+                                      )}
+                                    </span>
+                                  </div>
+
+                                  {teamPasswordError && (
+                                    <div style={{ fontSize: "10px", color: "#b3261e" }} className="mt-2">
+                                      {teamPasswordError}
+                                    </div>
+                                  )}
+                                </div>
 
                               </div>
 
@@ -2066,59 +1957,18 @@ const googleSignup = useGoogleLogin({
                                 </div>
                               </div>
 
-                              {teamMembersList.length > 0 && (
-                                <>
-                                  <div className="d-flex align-items-center gap-2 mb-3">
-                                    <span className="mission-tag">STEP 03</span>
-                                    <h4 className="mb-0" style={{ fontSize: "13px" }}>PARTY MEMBERS DETAILS</h4>
-                                  </div>
-
-                                  {teamMembersList.map((member, index) => (
-                                    <div key={index} className="rpg-stat-card p-3 mb-3">
-                                      <div className="fw-bold mb-2 text-uppercase" style={{ fontSize: "11px", color: "var(--retro-teal-dark)", fontFamily: "var(--font-heading)" }}>
-                                        👤 Member {index + 2}
-                                      </div>
-                                      <div className="row g-3">
-                                        <div className={isExternalParticipant ? "col-md-6" : "col-md-4"}>
-                                          <label className="form-label" style={{ fontSize: "9px" }}>NAME</label>
-                                          <input
-                                            type="text"
-                                            className="form-control form-control-sm"
-                                            style={inputStyle}
-                                            placeholder="Full Name"
-                                            value={member.name}
-                                            onChange={(e) => handleMemberChange(index, 'name', e.target.value)}
-                                          />
-                                        </div>
-                                        {!isExternalParticipant && (
-                                          <div className="col-md-4">
-                                            <label className="form-label" style={{ fontSize: "9px" }}>REG NO</label>
-                                            <input
-                                              type="text"
-                                              className="form-control form-control-sm"
-                                              style={inputStyle}
-                                              placeholder="e.g. 21BCE1234"
-                                              value={member.regNo}
-                                              onChange={(e) => handleMemberChange(index, 'regNo', e.target.value)}
-                                            />
-                                          </div>
-                                        )}
-                                        <div className={isExternalParticipant ? "col-md-6" : "col-md-4"}>
-                                          <label className="form-label" style={{ fontSize: "9px" }}>EMAIL</label>
-                                          <input
-                                            type="email"
-                                            className="form-control form-control-sm"
-                                            style={inputStyle}
-                                            placeholder="Email Address"
-                                            value={member.email}
-                                            onChange={(e) => handleMemberChange(index, 'email', e.target.value)}
-                                          />
-                                        </div>
-                                      </div>
-                                    </div>
-                                  ))}
-                                </>
-                              )}
+                              <div className="rpg-stat-card p-3 mb-3">
+                                <div className="fw-bold mb-1 text-uppercase" style={{ fontSize: "11px", color: "var(--retro-teal-dark)", fontFamily: "var(--font-heading)" }}>
+                                  👥 How your teammates join
+                                </div>
+                                <div style={{ fontSize: "12px", color: "#443452", lineHeight: 1.6 }}>
+                                  You don't add their details here. Once the team
+                                  is registered you'll get a <strong>Team ID</strong>;
+                                  share that and the team password with your
+                                  teammates and each of them joins from their own
+                                  login using <strong>Join a Team</strong>.
+                                </div>
+                              </div>
 
                               <div className="d-flex flex-column flex-md-row justify-content-between align-items-center mt-4 gap-3 pt-3 border-top" style={{ borderColor: "#e0b3c8 !important" }}>
                                 <button

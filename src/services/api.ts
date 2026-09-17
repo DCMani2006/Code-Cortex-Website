@@ -166,9 +166,8 @@ export const addTeam = async (
   team: Team,
   password: string,
   userId: string,
-  additionalMembers: {name: string, regNo: string, email: string}[] = [],
   userEmail?: string
-): Promise<void> => {
+): Promise<string> => {
   const response = await fetch(`${API_BASE}/teams`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -181,8 +180,7 @@ export const addTeam = async (
       Team_Type: team.Team_Type,
       teamPassword: password,
       _userId: userId,
-      _userEmail: userEmail,
-      additionalMembers
+      _userEmail: userEmail
     })
   });
 
@@ -190,23 +188,32 @@ export const addTeam = async (
     const body = await response.json().catch(() => null);
     throw new Error(body?.message || 'Failed to create team');
   }
-  
+
+  // The server may hand back a different Team_ID than the one proposed (if that
+  // one was already taken), so the caller must use what comes back.
+  const data = await response.json().catch(() => null);
+  return String(data?.teamId || data?.team?.Team_ID || team.Team_ID);
 };
 
-export const addTeamMember = async (
+// Fetches a team's own password so the dashboard can show it back to the team
+// (the backend only answers for a user who is actually on that team).
+export const getTeamPassword = async (
   teamId: string,
-  memberData: { name: string, regNo: string, email: string }
-): Promise<void> => {
-  const response = await fetch(`${API_BASE}/teams/${teamId}/members`, {
+  userId: string
+): Promise<string> => {
+  const response = await fetch(`${API_BASE}/teams/${teamId}/password`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(memberData)
+    body: JSON.stringify({ userId })
   });
 
   if (!response.ok) {
     const body = await response.json().catch(() => null);
-    throw new Error(body?.error || 'Failed to add team member');
+    throw new Error(body?.error || 'Failed to fetch team password');
   }
+
+  const data = await response.json();
+  return String(data?.password ?? '');
 };
 
 

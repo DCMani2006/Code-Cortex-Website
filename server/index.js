@@ -12,10 +12,9 @@ import {
   addSubmission,
   getReviews,
   addReview,
-  linkUserToTeam,
-  addMemberToTeam
+  linkUserToTeam
 } from './googleSheets.js';
-import { saveTeamPassword, verifyTeamPassword } from './teamPasswords.js';
+import { saveTeamPassword, verifyTeamPassword, getTeamPasswords } from './teamPasswords.js';
 
 dotenv.config();
 
@@ -99,7 +98,7 @@ app.get('/api/teams', async (req, res) => {
 app.post('/api/teams', async (req, res) => {
   try {
     console.log('Create team request body:', req.body);
-    const { teamPassword, additionalMembers, ...teamData } = req.body;
+    const { teamPassword, ...teamData } = req.body;
 
     // If a teamPassword was provided, also include it in the row data so it appears in the sheet
     if (teamPassword) {
@@ -123,15 +122,18 @@ app.post('/api/teams', async (req, res) => {
       }
     }
 
-    await addTeam(teamData, additionalMembers);
+    // addTeam returns the Team_ID it actually stored, which can differ from the
+    // one proposed if that was already taken.
+    const assignedTeamId = await addTeam(teamData);
+    teamData.Team_ID = assignedTeamId;
 
-    if (teamPassword && teamData.Team_ID) {
-      saveTeamPassword(teamData.Team_ID, teamPassword);
+    if (teamPassword && assignedTeamId) {
+      saveTeamPassword(assignedTeamId, teamPassword);
     }
 
-    console.log('Team created:', teamData.Team_ID, 'Leader:', teamData.Team_Leader);
+    console.log('Team created:', assignedTeamId, 'Leader:', teamData.Team_Leader);
 
-    res.status(201).json({ message: 'Team added successfully', team: teamData });
+    res.status(201).json({ message: 'Team added successfully', team: teamData, teamId: assignedTeamId });
   } catch (error) {
     console.error('Error adding team:', error);
     res.status(400).json({ error: error.message || 'Failed to add team', message: error.message || 'Failed to add team' });
@@ -184,15 +186,32 @@ app.get('/api/teams/:teamId/members', async (req, res) => {
   }
 });
 
-app.post('/api/teams/:teamId/members', async (req, res) => {
+// The dashboard shows a team its own password so nobody has to ask for it
+// again. Requires the caller to name a user who is actually on that team, so
+// the endpoint can't be used to enumerate other teams' passwords.
+app.post('/api/teams/:teamId/password', async (req, res) => {
   try {
     const { teamId } = req.params;
-    const memberData = req.body;
-    await addMemberToTeam(teamId, memberData);
-    res.status(201).json({ success: true, message: 'Member added successfully' });
+    const { userId } = req.body;
+    if (!userId) {
+      return res.status(400).json({ error: 'Missing userId' });
+    }
+
+    const users = await getUsers();
+    const requester = users.find(u => String(u.User_ID).trim() === String(userId).trim());
+    if (!requester || String(requester.Team_ID).trim() !== String(teamId).trim()) {
+      return res.status(403).json({ error: 'You are not a member of this team.' });
+    }
+
+    const password = getTeamPasswords()[teamId];
+    if (!password) {
+      return res.status(404).json({ error: 'No password on file for this team.' });
+    }
+
+    res.json({ password });
   } catch (error) {
-    console.error('Error adding team member:', error);
-    res.status(400).json({ error: error.message || 'Failed to add team member' });
+    console.error('Error fetching team password:', error);
+    res.status(500).json({ error: 'Failed to fetch team password' });
   }
 });
 
