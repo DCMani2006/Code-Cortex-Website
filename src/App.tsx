@@ -49,16 +49,26 @@ const eventSiteUrl =
   import.meta.env.VITE_EVENT_SITE_URL ||
   (import.meta.env.DEV ? "http://localhost:3001" : "https://codecortex.tamvit.in");
 
-const RETRO_CHARACTERS = [
-  { name: "luffy", label: "Luffy // Straw Hat", sprite: "/sprites/luffy.png", pos: { top: "9%", left: "7%" }, anim: "retro-char--anim-1" },
-  { name: "zoro", label: "Zoro // Santoryu", sprite: "/sprites/zoro.png", pos: { top: "33%", left: "9%" }, anim: "retro-char--anim-2" },
-  { name: "sanji", label: "Sanji // Cook", sprite: "/sprites/sanji.png", pos: { top: "56%", left: "6%" }, anim: "retro-char--anim-3" },
-  { name: "robin", label: "Robin // Archeologist", sprite: "/sprites/robin.png", pos: { top: "78%", left: "10%" }, anim: "retro-char--anim-2" },
-  { name: "usopp", label: "Usopp // Sniper King", sprite: "/sprites/usopp.png", pos: { top: "10%", right: "8%" }, anim: "retro-char--anim-4" },
-  { name: "nami", label: "Nami // Navigator", sprite: "/sprites/nami.png", pos: { top: "34%", right: "9%" }, anim: "retro-char--anim-3" },
-  { name: "chopper", label: "Chopper // Doctor", sprite: "/sprites/chopper.png", pos: { top: "56%", right: "6%" }, anim: "retro-char--anim-1" },
-  { name: "brook", label: "Brook // Soul King", sprite: "/sprites/brook.png", pos: { top: "78%", right: "10%" }, anim: "retro-char--anim-2" },
-  { name: "franky", label: "Franky // SUUUUPER!", sprite: "/sprites/franky.png", pos: { bottom: "4%", left: "24%" }, anim: "retro-char--anim-4" },
+type RetroCharacter = {
+  name: string;
+  label: string;
+  sprite: string;
+  pos: React.CSSProperties;
+  anim: string;
+  tilt: string;
+  delay: string;
+};
+
+const RETRO_CHARACTERS: RetroCharacter[] = [
+  { name: "luffy", label: "Luffy // Straw Hat", sprite: "/sprites/luffy.png", pos: { top: "10.5%", left: "5.5%" }, tilt: "-11deg", delay: "0s", anim: "retro-char--anim-1" },
+  { name: "usopp", label: "Usopp // Sniper King", sprite: "/sprites/usopp.png", pos: { top: "15%", right: "2.5%" }, tilt: "+14deg", delay: "-1.6s", anim: "retro-char--anim-4" },
+  { name: "zoro", label: "Zoro // Santoryu", sprite: "/sprites/zoro.png", pos: { top: "27%", left: "1.8%" }, tilt: "+12deg", delay: "-3.2s", anim: "retro-char--anim-2" },
+  { name: "nami", label: "Nami // Navigator", sprite: "/sprites/nami.png", pos: { top: "37%", right: "7.5%" }, tilt: "-8deg", delay: "-0.8s", anim: "retro-char--anim-3" },
+  { name: "sanji", label: "Sanji // Cook", sprite: "/sprites/sanji.png", pos: { top: "47%", left: "7.2%" }, tilt: "-14deg", delay: "-2.4s", anim: "retro-char--anim-3" },
+  { name: "chopper", label: "Chopper // Doctor", sprite: "/sprites/chopper.png", pos: { top: "59%", right: "1.8%" }, tilt: "+9deg", delay: "-4.1s", anim: "retro-char--anim-1" },
+  { name: "robin", label: "Robin // Archeologist", sprite: "/sprites/robin.png", pos: { top: "69%", left: "2%" }, tilt: "+8deg", delay: "-1.2s", anim: "retro-char--anim-2" },
+  { name: "brook", label: "Brook // Soul King", sprite: "/sprites/brook.png", pos: { bottom: "5.5%", right: "6.5%" }, tilt: "-12deg", delay: "-2.9s", anim: "retro-char--anim-4" },
+  { name: "franky", label: "Franky // SUUUUPER!", sprite: "/sprites/franky.png", pos: { bottom: "4.5%", left: "8%" }, tilt: "+10deg", delay: "-1.9s", anim: "retro-char--anim-1" },
 ];
 
 function RetroCharactersBackground() {
@@ -68,13 +78,19 @@ function RetroCharactersBackground() {
         <div
           key={char.name}
           className={`retro-char ${char.anim}`}
-          style={{ ...char.pos }}
+          style={{
+            ...char.pos,
+            animationDelay: char.delay,
+          }}
           title={char.label}
         >
           <img
             src={char.sprite}
             alt={char.name}
             className="retro-char__img"
+            style={{
+              ["--char-tilt" as any]: char.tilt,
+            }}
             loading="eager"
           />
           <span className="retro-char__tag">{char.label}</span>
@@ -2362,6 +2378,8 @@ const googleSignup = useGoogleLogin({
           className="position-fixed top-0 start-0 w-100 h-100 overflow-auto admin-portal-wrapper"
           style={{ zIndex: 1900 }}
         >
+          <RetroCharactersBackground />
+
           {/* Admin Top Header */}
           <header className="admin-portal-header">
             <div className="container d-flex justify-content-between align-items-center flex-wrap gap-3" style={{ maxWidth: "1240px" }}>

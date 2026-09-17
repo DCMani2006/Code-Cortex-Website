@@ -609,13 +609,14 @@ h5, h6 {
   image-rendering: pixelated;
   width: clamp(42px, 3.6vw, 54px);
   height: auto;
-  filter: drop-shadow(0 4px 0 rgba(45, 31, 54, 0.22));
+  filter: drop-shadow(2.5px 3px 0 rgba(45, 31, 54, 0.28));
+  transform: rotate(var(--char-tilt, 0deg));
   transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.22s ease;
 }
 
 .retro-char:hover .retro-char__img {
-  transform: scale(1.22) translateY(-8px);
-  filter: drop-shadow(0 8px 0 rgba(45, 31, 54, 0.32));
+  transform: scale(1.22) translateY(-8px) rotate(0deg);
+  filter: drop-shadow(0 8px 0 rgba(45, 31, 54, 0.35));
 }
 
 .retro-char__tag {
