@@ -23,7 +23,8 @@ import {
   linkUserToTeam,
   getTeamPasswordFromSheet,
   removeUserFromTeam,
-  updateTeamSize
+  updateTeamSize,
+  renameTeam
 } from './googleSheets.js';
 import { saveTeamPassword, getTeamPasswords } from './teamPasswords.js';
 import {
@@ -78,6 +79,28 @@ app.set('trust proxy', 1);
 // directly regardless of this mode.
 app.use(authenticate());
 
+// Review 1 edit window: team name, team roster, and the GitHub/Figma/
+// description submission fields all lock at the same moment. Change this
+// one line if the deadline moves; nothing else needs to change.
+const REVIEW1_DEADLINE = new Date('2026-09-18T13:00:00+05:30').getTime();
+function isPastReview1Deadline() {
+  return Date.now() > REVIEW1_DEADLINE;
+}
+
+// Team_Leader is stored as "Name (regNo)" or "Name (email)" (see addTeam in
+// googleSheets.js) — there is no separate leader-user-id column, so identity
+// is checked by matching that parenthesised token against the requester's
+// own User_ID/Email.
+function isTeamLeader(team, requester) {
+  if (!team || !requester) return false;
+  const match = String(team.Team_Leader || '').match(/\(([^)]+)\)\s*$/);
+  const token = match ? match[1].trim().toLowerCase() : '';
+  if (!token) return false;
+  const uid = String(requester.User_ID || '').trim().toLowerCase();
+  const email = String(requester.Email || '').trim().toLowerCase();
+  return token === uid || token === email;
+}
+
 app.get('/', (req, res) => {
   res.json({ status: 'ok', service: 'codecortex3.0 api' });
 });
@@ -98,7 +121,10 @@ app.post('/api/auth/session', rateLimit({ windowMs: 5 * 60 * 1000, max: 30 }), a
         return res.status(401).json({ error: 'Could not verify Google sign-in. Please try again.' });
       }
       userEmail = verified.email;
-      if (!userName) userName = verified.name || verified.email;
+      // Never fall back to the email address as a name — a VIT email's local
+      // part often contains the person's registration number, so that would
+      // silently stamp the reg number into their Name field.
+      if (!userName) userName = verified.name || '';
     }
     // No accessToken at all: the client hasn't sent one (older build, or a
     // caller that only has the email/name). Falls back to trusting those
@@ -109,7 +135,7 @@ app.post('/api/auth/session', rateLimit({ windowMs: 5 * 60 * 1000, max: 30 }), a
       return res.status(400).json({ error: 'Missing email' });
     }
 
-    const user = await syncAuthUser(userEmail, userName || userEmail);
+    const user = await syncAuthUser(userEmail, userName);
     const token = signSession({ userId: user.User_ID, email: user.Email, role: 'participant' });
     res.json({ token, user });
   } catch (error) {
@@ -344,11 +370,31 @@ app.post('/api/teams/:teamId/password', async (req, res) => {
 
 // Admin: detach a member from their team, so someone who joined the wrong team
 // (or needs to be moved) can be fixed without hand-editing the sheet.
-app.post('/api/teams/:teamId/remove-member', requireAdmin(), async (req, res) => {
+// Admins can always remove a member. A team's own leader can too, but only
+// before the Review 1 deadline and never themselves (they'd need an admin
+// for that, so a team can't accidentally end up leaderless).
+app.post('/api/teams/:teamId/remove-member', rateLimit({ windowMs: 5 * 60 * 1000, max: 20 }), async (req, res) => {
   try {
     const { teamId } = req.params;
     const { userId } = req.body;
     if (!userId) return res.status(400).json({ error: 'Missing userId' });
+
+    const isAdmin = req.user?.role === 'admin';
+    if (!isAdmin) {
+      if (isPastReview1Deadline()) {
+        return res.status(403).json({ error: 'Team roster changes closed at 1:00 PM on 18 Sep 2026.' });
+      }
+      const effectiveUserId = req.user?.userId || req.body.requesterId;
+      const [teams, users] = await Promise.all([getTeams(), getUsers()]);
+      const team = teams.find(t => String(t.Team_ID).trim().toUpperCase() === String(teamId).trim().toUpperCase());
+      const requester = users.find(u => String(u.User_ID).trim() === String(effectiveUserId || '').trim());
+      if (!team || !requester || !isTeamLeader(team, requester)) {
+        return res.status(403).json({ error: 'Only the team leader or an admin can remove a member.' });
+      }
+      if (String(requester.User_ID).trim() === String(userId).trim()) {
+        return res.status(400).json({ error: 'The team leader cannot remove themselves. Ask an admin.' });
+      }
+    }
 
     const removed = await removeUserFromTeam(userId, teamId);
     if (!removed) {
@@ -358,6 +404,33 @@ app.post('/api/teams/:teamId/remove-member', requireAdmin(), async (req, res) =>
   } catch (error) {
     console.error('Error removing team member:', error);
     res.status(400).json({ error: error.message || 'Failed to remove member' });
+  }
+});
+
+// Team leader renames their own team, until the Review 1 deadline.
+app.post('/api/teams/:teamId/rename', rateLimit({ windowMs: 5 * 60 * 1000, max: 20 }), async (req, res) => {
+  try {
+    if (isPastReview1Deadline()) {
+      return res.status(403).json({ error: 'Team name changes closed at 1:00 PM on 18 Sep 2026.' });
+    }
+
+    const { teamId } = req.params;
+    const name = String(req.body.name || '').trim();
+    if (!name) return res.status(400).json({ error: 'Missing team name' });
+
+    const effectiveUserId = req.user?.userId || req.body.userId;
+    const [teams, users] = await Promise.all([getTeams(), getUsers()]);
+    const team = teams.find(t => String(t.Team_ID).trim().toUpperCase() === String(teamId).trim().toUpperCase());
+    const requester = users.find(u => String(u.User_ID).trim() === String(effectiveUserId || '').trim());
+    if (!team || !requester || !isTeamLeader(team, requester)) {
+      return res.status(403).json({ error: 'Only the team leader can rename the team.' });
+    }
+
+    const saved = await renameTeam(teamId, name);
+    res.json({ success: true, name: saved });
+  } catch (error) {
+    console.error('Error renaming team:', error);
+    res.status(400).json({ error: error.message || 'Failed to rename team' });
   }
 });
 
@@ -404,6 +477,12 @@ app.get('/api/submissions', async (req, res) => {
 
 app.post('/api/submissions', async (req, res) => {
   try {
+    const round = String(
+      req.body.Review_Round || req.body.Project_Description || ''
+    ).trim();
+    if (round.toLowerCase().includes('review 1') && isPastReview1Deadline()) {
+      return res.status(403).json({ error: 'The Review 1 submission window closed at 1:00 PM on 18 Sep 2026.' });
+    }
     await addSubmission(req.body);
     res.status(201).json({ message: 'Submission added successfully' });
   } catch (error) {
