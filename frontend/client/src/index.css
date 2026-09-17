@@ -7493,7 +7493,7 @@ body, p, span, div, li, input, textarea, select {
 
 /* Retro Arcade Window for Roadmap */
 .roadmap__window {
-  background: #ffffff !important;
+  background: #110f1e !important;
   border: 3px solid #2d1f36 !important;
   border-radius: 8px !important;
   box-shadow: 6px 6px 0px #2d1f36 !important;
@@ -7536,27 +7536,26 @@ body, p, span, div, li, input, textarea, select {
   width: 100% !important;
   overflow-x: auto !important;
   -webkit-overflow-scrolling: touch !important;
-  background: #00000000 !important;
+  background: #110f1e !important;
   display: flex !important;
   justify-content: center !important;
-  padding: clamp(16px, 3vw, 32px) !important;
+  padding: 0 !important;
 }
 
 .roadmap__pixel-map {
   width: 100% !important;
-  max-width: 1280px !important;
+  max-width: 100% !important;
   height: auto !important;
   object-fit: contain !important;
   image-rendering: pixelated !important;
   image-rendering: crisp-edges !important;
   display: block !important;
-  filter: drop-shadow(0 4px 12px rgba(45, 31, 54, 0.08)) !important;
 }
 
 @media (max-width: 768px) {
   .roadmap__viewport {
     justify-content: flex-start !important;
-    padding: 12px !important;
+    padding: 0 !important;
   }
   .roadmap__pixel-map {
     min-width: 780px !important;
@@ -7565,7 +7564,7 @@ body, p, span, div, li, input, textarea, select {
 }
 
 .roadmap__status-bar {
-  background: #fbf7ee !important;
+  background: #181428 !important;
   border-top: 2.5px solid #2d1f36 !important;
   padding: 12px 18px !important;
   display: flex !important;
@@ -7576,18 +7575,18 @@ body, p, span, div, li, input, textarea, select {
   font-family: "IBM Plex Mono", monospace !important;
   font-size: 0.78rem !important;
   font-weight: 600 !important;
-  color: #2d1f36 !important;
+  color: #fdf8ee !important;
 }
 
 .roadmap__status-pill {
   display: inline-flex !important;
   align-items: center !important;
   gap: 8px !important;
-  background: #ecfdf5 !important;
-  border: 1.5px solid #059669 !important;
+  background: rgba(16, 185, 129, 0.15) !important;
+  border: 1.5px solid #10b981 !important;
   padding: 4px 12px !important;
   border-radius: 4px !important;
-  color: #065f46 !important;
+  color: #6ee7b7 !important;
   font-weight: 700 !important;
   font-size: 0.72rem !important;
 }
@@ -7602,7 +7601,7 @@ body, p, span, div, li, input, textarea, select {
 }
 
 .roadmap__status-hint {
-  color: #6b5d75 !important;
+  color: #b8aee6 !important;
   font-size: 0.75rem !important;
   letter-spacing: 0.03em !important;
 }
