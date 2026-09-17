@@ -196,10 +196,9 @@ function Mark({ compact = false }: { compact?: boolean }) {
     <a
       className={compact ? "brand brand--compact" : "brand brand--pixel-flashy"}
       href="#home"
-      aria-label="Code cortex home"
     >
       <div className="brand-logo-frame">
-        <span className="brand-sparkle-star">✦</span>
+        <span className="brand-sparkle-star" aria-hidden="true">✦</span>
         <img src={tamWhiteLogo} alt="TAM" className="brand__tam-logo" width={135} height={135} />
       </div>
       <span className="brand__copy">
@@ -1459,7 +1458,6 @@ export default function Home() {
             className={`pixel-cassette ${musicPlaying ? "pixel-cassette--playing" : ""}`}
             onClick={toggleMusic}
             aria-pressed={musicPlaying}
-            aria-label={`SIDE A · BGM — ${musicPlaying ? "pause" : "play"} background music`}
           >
             <div className="cassette-body">
               <div className="cassette-label-strip">
@@ -1496,7 +1494,7 @@ export default function Home() {
 
       <div
         className={`menu-panel ${menuOpen ? "menu-panel--open" : ""}`}
-        aria-hidden={!menuOpen}
+        inert={!menuOpen}
       >
         <div className="menu-panel__water-bg" aria-hidden="true" />
         <div className="menu-panel__grid-overlay" aria-hidden="true" />
