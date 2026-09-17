@@ -585,6 +585,81 @@ function CampfireNightScene() {
   );
 }
 
+const GHOST_DIALOGUES = [
+  "BOO! Just kidding, I'm friendly! 👻✨",
+  "Welcome to the Citadel of VIT! 🏰",
+  "Studying arcane algorithms & AI... 📜",
+  "Legend says exams are scarier than me! 📚",
+  "Floating around since 1984! 🎓",
+  "30-hr hackathon? Spirits don't need sleep! ☕",
+  "Have you explored the 5 Dungeon Gates below? ⚔️",
+  "NAAC A++ accreditation... even ghosts approve! ⭐",
+];
+
+function CitadelGhostCompanion() {
+  const [dialogueIndex, setDialogueIndex] = useState(0);
+  const [showDialogue, setShowDialogue] = useState(true);
+  const [wobbleKey, setWobbleKey] = useState(0);
+
+  const handleGhostClick = (e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    setDialogueIndex((prev) => (prev + 1) % GHOST_DIALOGUES.length);
+    setShowDialogue(true);
+    setWobbleKey((prev) => prev + 1);
+  };
+
+  return (
+    <div
+      className={`citadel-ghost-actor ${wobbleKey > 0 ? "citadel-ghost-actor--active" : ""}`}
+      onClick={handleGhostClick}
+      onMouseEnter={() => setShowDialogue(true)}
+      role="button"
+      tabIndex={0}
+      aria-label="Interactive Citadel Ghost companion. Click to speak with the ghost."
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          handleGhostClick();
+        }
+      }}
+    >
+      {/* Speech Dialogue Bubble */}
+      {showDialogue && (
+        <div className="citadel-ghost-dialogue" key={`${dialogueIndex}-${wobbleKey}`}>
+          <span>{GHOST_DIALOGUES[dialogueIndex]}</span>
+          <div className="citadel-ghost-dialogue-arrow" />
+        </div>
+      )}
+
+      {/* Floating Ghost Body with Bob & Sway */}
+      <div className="citadel-ghost-bobber">
+        {/* Trailing Magic Sparkles */}
+        <div className="citadel-ghost-trail" aria-hidden="true">
+          <span className="ghost-sparkle sparkle-1" />
+          <span className="ghost-sparkle sparkle-2" />
+          <span className="ghost-sparkle sparkle-3" />
+        </div>
+
+        {/* Ghost Sprite */}
+        <img
+          src="/ghost_sprite.png"
+          alt="Pixel Ghost Companion"
+          className="citadel-ghost-img"
+          width="110"
+          height="104"
+          loading="eager"
+        />
+
+        {/* Interaction cue badge (shown when dialogue is hidden) */}
+        {!showDialogue && (
+          <div className="citadel-ghost-cue">
+            <span>✦ SPOOKY [CLICK]</span>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function WireframeStamp({
   words,
   size = "large",
@@ -1714,8 +1789,73 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="duo-story page-pad" data-reveal>
-          <article className="duo-card duo-card--vit">
+        <section className="citadel-courtyard-section duo-story page-pad" data-reveal>
+          {/* Top Stone Battlements */}
+          <div className="citadel-crenellations citadel-crenellations--top" aria-hidden="true">
+            {Array.from({ length: 16 }).map((_, i) => (
+              <span key={`cren-t-${i}`} className="crenellation-block" />
+            ))}
+          </div>
+
+          {/* Left Hanging Iron Lantern on Chain */}
+          <div className="citadel-lantern citadel-lantern--left" aria-hidden="true">
+            <div className="citadel-chain" />
+            <div className="citadel-lantern-body">
+              <div className="lantern-roof" />
+              <div className="lantern-glass">
+                <div className="lantern-soul-flame" />
+              </div>
+              <div className="lantern-base" />
+            </div>
+            <div className="lantern-ambient-glow" />
+          </div>
+
+          {/* Right Hanging Iron Lantern on Chain */}
+          <div className="citadel-lantern citadel-lantern--right" aria-hidden="true">
+            <div className="citadel-chain" />
+            <div className="citadel-lantern-body">
+              <div className="lantern-roof" />
+              <div className="lantern-glass">
+                <div className="lantern-soul-flame lantern-soul-flame--alt" />
+              </div>
+              <div className="lantern-base" />
+            </div>
+            <div className="lantern-ambient-glow" />
+          </div>
+
+          {/* Left Citadel Wall Banner */}
+          <div className="citadel-pennant citadel-pennant--left" aria-hidden="true">
+            <div className="pennant-rod" />
+            <div className="pennant-cloth">
+              <span className="pennant-symbol">🏰</span>
+              <span className="pennant-text">VIT</span>
+              <span className="pennant-sub">EST. 1984</span>
+              <div className="pennant-tail" />
+            </div>
+          </div>
+
+          {/* Right Citadel Wall Banner */}
+          <div className="citadel-pennant citadel-pennant--right" aria-hidden="true">
+            <div className="pennant-rod" />
+            <div className="pennant-cloth">
+              <span className="pennant-symbol">📜</span>
+              <span className="pennant-text">CITADEL</span>
+              <span className="pennant-sub">ARCHIVES</span>
+              <div className="pennant-tail" />
+            </div>
+          </div>
+
+          {/* Ambient Drifting Soul Wisps */}
+          <div className="citadel-wisps-container" aria-hidden="true">
+            <span className="citadel-wisp wisp-1" />
+            <span className="citadel-wisp wisp-2" />
+            <span className="citadel-wisp wisp-3" />
+            <span className="citadel-wisp wisp-4" />
+            <span className="citadel-wisp wisp-5" />
+          </div>
+
+          {/* The Central Box (About VIT University) */}
+          <article className="duo-card duo-card--vit citadel-central-card">
             <div>
               <div className="duo-card__top">
                 <span className="chapter-badge" style={{ marginBottom: 0 }}>🏰 CHAPTER 03 // THE CITADEL</span>
@@ -1740,6 +1880,22 @@ export default function Home() {
               </div>
             </div>
           </article>
+
+          {/* Animated Roaming Ghost Companion */}
+          <CitadelGhostCompanion />
+
+          {/* Bottom Cobblestone Wall & Ground Mist */}
+          <div className="citadel-ground-bar" aria-hidden="true">
+            <div className="citadel-cobblestones" />
+            <div className="citadel-mist-fog" />
+          </div>
+
+          {/* Bottom Stone Battlements */}
+          <div className="citadel-crenellations citadel-crenellations--bottom" aria-hidden="true">
+            {Array.from({ length: 16 }).map((_, i) => (
+              <span key={`cren-b-${i}`} className="crenellation-block" />
+            ))}
+          </div>
         </section>
 
         <section

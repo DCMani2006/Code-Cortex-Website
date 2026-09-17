@@ -6278,6 +6278,649 @@ body, p, span, div, li, input, textarea, select {
   background: #fde047;
 }
 
+/* ============================================================
+   CHAPTER 03: CITADEL COURTYARD & ROAMING GHOST COMPANION
+   ============================================================ */
+:root {
+  --ghost-orbit-x: clamp(200px, 48vw, 390px);
+  --ghost-orbit-y: clamp(180px, 25vw, 230px);
+}
+
+.citadel-courtyard-section {
+  position: relative !important;
+  background: #faf6ee !important;
+  background-image: radial-gradient(#eadbc8 1.5px, transparent 1.5px) !important;
+  background-size: 26px 26px !important;
+  border-top: 3px solid #2d1f36 !important;
+  border-bottom: 3px solid #2d1f36 !important;
+  overflow: hidden !important;
+  padding-top: clamp(100px, 12vw, 140px) !important;
+  padding-bottom: clamp(100px, 12vw, 140px) !important;
+}
+
+.citadel-central-card {
+  position: relative !important;
+  z-index: 15 !important;
+}
+
+/* Top & Bottom Stone Battlements / Crenellations */
+.citadel-crenellations {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: space-evenly;
+  pointer-events: none;
+  z-index: 5;
+}
+.citadel-crenellations--top {
+  top: 0;
+}
+.citadel-crenellations--bottom {
+  bottom: 0;
+}
+.crenellation-block {
+  width: clamp(18px, 3.2vw, 36px);
+  height: 12px;
+  background: #e2d3be;
+  border: 2px solid #2d1f36;
+  border-top: none;
+  box-shadow: 2px 2px 0px rgba(45, 31, 54, 0.14);
+}
+.citadel-crenellations--bottom .crenellation-block {
+  border-top: 2px solid #2d1f36;
+  border-bottom: none;
+}
+
+/* Hanging Antique Iron Lanterns */
+.citadel-lantern {
+  position: absolute;
+  top: 0;
+  z-index: 12;
+  pointer-events: none;
+  transform-origin: top center;
+}
+.citadel-lantern--left {
+  left: clamp(14px, 3.8vw, 64px);
+  animation: lanternSwayLeft 4.6s ease-in-out infinite alternate;
+}
+.citadel-lantern--right {
+  right: clamp(14px, 3.8vw, 64px);
+  animation: lanternSwayRight 5.2s ease-in-out infinite alternate -1.8s;
+}
+
+.citadel-chain {
+  width: 4px;
+  height: clamp(48px, 6.5vw, 84px);
+  margin: 0 auto;
+  background: repeating-linear-gradient(
+    180deg,
+    #2d1f36 0,
+    #2d1f36 6px,
+    transparent 6px,
+    transparent 9px,
+    #6b5b73 9px,
+    #6b5b73 12px
+  );
+}
+
+.citadel-lantern-body {
+  position: relative;
+  width: 38px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.lantern-roof {
+  width: 0;
+  height: 0;
+  border-left: 19px solid transparent;
+  border-right: 19px solid transparent;
+  border-bottom: 12px solid #2d1f36;
+  position: relative;
+}
+.lantern-roof::after {
+  content: "";
+  position: absolute;
+  top: -6px;
+  left: -4px;
+  width: 8px;
+  height: 6px;
+  background: #fde047;
+  border: 1.5px solid #2d1f36;
+  border-radius: 2px;
+}
+
+.lantern-glass {
+  width: 28px;
+  height: 32px;
+  background: rgba(254, 240, 138, 0.35);
+  border: 2.5px solid #2d1f36;
+  border-radius: 4px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  box-shadow: inset 0 0 8px rgba(250, 204, 21, 0.6);
+}
+
+.lantern-soul-flame {
+  width: 10px;
+  height: 14px;
+  background: #fde047;
+  border-radius: 50% 50% 35% 35%;
+  box-shadow: 0 0 10px #facc15, 0 0 18px #f59e0b;
+  animation: soulFlamePulse 1.8s ease-in-out infinite alternate;
+}
+.lantern-soul-flame--alt {
+  background: #67e8f9;
+  box-shadow: 0 0 10px #22d3ee, 0 0 18px #06b6d4;
+}
+
+.lantern-base {
+  width: 34px;
+  height: 7px;
+  background: #2d1f36;
+  border-radius: 2px;
+}
+
+.lantern-ambient-glow {
+  position: absolute;
+  top: 60%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 120px;
+  height: 120px;
+  background: radial-gradient(circle, rgba(253, 224, 71, 0.22) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+@keyframes lanternSwayLeft {
+  0% { transform: rotate(-4.5deg); }
+  100% { transform: rotate(4.5deg); }
+}
+@keyframes lanternSwayRight {
+  0% { transform: rotate(5deg); }
+  100% { transform: rotate(-4deg); }
+}
+@keyframes soulFlamePulse {
+  0% { transform: scale(0.9) translateY(1px); opacity: 0.85; }
+  100% { transform: scale(1.15) translateY(-2px); opacity: 1; }
+}
+
+/* Citadel Heraldic Wall Pennants */
+.citadel-pennant {
+  position: absolute;
+  top: clamp(90px, 12vw, 130px);
+  z-index: 8;
+  pointer-events: none;
+}
+.citadel-pennant--left {
+  left: clamp(20px, 4.5vw, 80px);
+  animation: pennantFlutter 6s ease-in-out infinite alternate;
+}
+.citadel-pennant--right {
+  right: clamp(20px, 4.5vw, 80px);
+  animation: pennantFlutter 6s ease-in-out infinite alternate -3s;
+}
+
+.pennant-rod {
+  width: 54px;
+  height: 5px;
+  background: #78350f;
+  border: 1.5px solid #2d1f36;
+  border-radius: 3px;
+  box-shadow: 1.5px 1.5px 0px #2d1f36;
+}
+
+.pennant-cloth {
+  width: 46px;
+  background: #1e1b4b;
+  border: 2px solid #2d1f36;
+  border-top: none;
+  color: #fef08a;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 4px 16px;
+  margin-left: 4px;
+  box-shadow: 3px 3px 0px rgba(45, 31, 54, 0.16);
+  position: relative;
+}
+.citadel-pennant--right .pennant-cloth {
+  background: #312e81;
+}
+
+.pennant-symbol {
+  font-size: 14px;
+  margin-bottom: 2px;
+}
+.pennant-text {
+  font-family: var(--pixel);
+  font-size: 7px;
+  letter-spacing: 0.08em;
+  color: #fef08a;
+}
+.pennant-sub {
+  font-family: var(--mono);
+  font-size: 6px;
+  letter-spacing: 0.05em;
+  color: #c7d2fe;
+}
+.pennant-tail {
+  position: absolute;
+  bottom: -9px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 23px solid transparent;
+  border-right: 23px solid transparent;
+  border-top: 10px solid #1e1b4b;
+}
+.citadel-pennant--right .pennant-tail {
+  border-top-color: #312e81;
+}
+
+@keyframes pennantFlutter {
+  0% { transform: rotate(-1.5deg) skewY(-0.5deg); }
+  100% { transform: rotate(1.5deg) skewY(0.5deg); }
+}
+
+/* Ambient Drifting Soul Wisps */
+.citadel-wisps-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 6;
+}
+
+.citadel-wisp {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(0.5px);
+  animation: wispDrift 14s ease-in-out infinite alternate;
+}
+.citadel-wisp.wisp-1 {
+  width: 10px;
+  height: 10px;
+  left: 12%;
+  top: 25%;
+  background: #67e8f9;
+  box-shadow: 0 0 12px #22d3ee, 0 0 24px rgba(34, 211, 238, 0.6);
+  animation-duration: 11s;
+}
+.citadel-wisp.wisp-2 {
+  width: 14px;
+  height: 14px;
+  right: 14%;
+  top: 35%;
+  background: #c084fc;
+  box-shadow: 0 0 14px #a855f7, 0 0 28px rgba(168, 85, 247, 0.5);
+  animation-duration: 16s;
+  animation-delay: -3s;
+}
+.citadel-wisp.wisp-3 {
+  width: 8px;
+  height: 8px;
+  left: 22%;
+  bottom: 22%;
+  background: #fde047;
+  box-shadow: 0 0 10px #facc15, 0 0 20px rgba(250, 204, 21, 0.5);
+  animation-duration: 13s;
+  animation-delay: -6s;
+}
+.citadel-wisp.wisp-4 {
+  width: 11px;
+  height: 11px;
+  right: 25%;
+  bottom: 28%;
+  background: #6ee7b7;
+  box-shadow: 0 0 12px #34d399, 0 0 22px rgba(52, 211, 153, 0.5);
+  animation-duration: 18s;
+  animation-delay: -2s;
+}
+.citadel-wisp.wisp-5 {
+  width: 9px;
+  height: 9px;
+  left: 48%;
+  top: 12%;
+  background: #f472b6;
+  box-shadow: 0 0 10px #ec4899, 0 0 20px rgba(236, 72, 153, 0.45);
+  animation-duration: 15s;
+  animation-delay: -8s;
+}
+
+@keyframes wispDrift {
+  0% { transform: translate(0, 0) scale(0.9); opacity: 0.55; }
+  50% { transform: translate(18px, -24px) scale(1.15); opacity: 0.95; }
+  100% { transform: translate(-15px, 20px) scale(0.85); opacity: 0.6; }
+}
+
+/* Cobblestone Wall & Ground Mist */
+.citadel-ground-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 38px;
+  pointer-events: none;
+  z-index: 4;
+}
+
+.citadel-cobblestones {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 16px;
+  background: repeating-linear-gradient(
+    90deg,
+    #e7dac8 0,
+    #e7dac8 22px,
+    #2d1f36 22px,
+    #2d1f36 24px,
+    #ded0be 24px,
+    #ded0be 46px,
+    #2d1f36 46px,
+    #2d1f36 48px
+  );
+  border-top: 2px solid #2d1f36;
+  opacity: 0.6;
+}
+
+.citadel-mist-fog {
+  position: absolute;
+  bottom: 8px;
+  left: 0;
+  width: 200%;
+  height: 30px;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.35) 25%,
+    rgba(255, 255, 255, 0.1) 50%,
+    rgba(255, 255, 255, 0.4) 75%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  animation: mistDrift 22s linear infinite;
+}
+
+@keyframes mistDrift {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* ============================================================
+   ROAMING GHOST COMPANION ACTOR & ORBIT
+   ============================================================ */
+.citadel-ghost-actor {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 110px;
+  height: 104px;
+  margin-left: -55px;
+  margin-top: -52px;
+  z-index: 25;
+  cursor: pointer;
+  user-select: none;
+  animation: ghostOrbitAroundBox 26s cubic-bezier(0.42, 0.05, 0.58, 0.95) infinite;
+  will-change: transform;
+}
+
+.citadel-ghost-actor:hover {
+  animation-play-state: paused;
+}
+
+/* Orbit Path Keyframe (pure translation so dialogue bubble never flips) */
+@keyframes ghostOrbitAroundBox {
+  /* Station 1: Top-Left hovering in gutter */
+  0% {
+    transform: translate(calc(-1 * var(--ghost-orbit-x)), calc(-0.95 * var(--ghost-orbit-y)));
+  }
+  15% {
+    transform: translate(0px, calc(-1.05 * var(--ghost-orbit-y)));
+  }
+  /* Station 2: Top-Right gutter */
+  30% {
+    transform: translate(calc(1 * var(--ghost-orbit-x)), calc(-0.95 * var(--ghost-orbit-y)));
+  }
+  42% {
+    transform: translate(calc(1.1 * var(--ghost-orbit-x)), 10px);
+  }
+  /* Station 3: Bottom-Right */
+  55% {
+    transform: translate(calc(0.95 * var(--ghost-orbit-x)), calc(0.95 * var(--ghost-orbit-y)));
+  }
+  68% {
+    transform: translate(0px, calc(1.05 * var(--ghost-orbit-y)));
+  }
+  /* Station 4: Bottom-Left */
+  80% {
+    transform: translate(calc(-0.95 * var(--ghost-orbit-x)), calc(0.95 * var(--ghost-orbit-y)));
+  }
+  90% {
+    transform: translate(calc(-1.1 * var(--ghost-orbit-x)), -10px);
+  }
+  /* Station 1 Return */
+  100% {
+    transform: translate(calc(-1 * var(--ghost-orbit-x)), calc(-0.95 * var(--ghost-orbit-y)));
+  }
+}
+
+/* Inner Bobber for continuous floating & tilts */
+.citadel-ghost-bobber {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  animation: ghostBobSway 3.2s ease-in-out infinite alternate;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+@keyframes ghostBobSway {
+  0% {
+    transform: translateY(-8px) rotate(-4.5deg);
+  }
+  50% {
+    transform: translateY(0px) rotate(1deg);
+  }
+  100% {
+    transform: translateY(8px) rotate(5.5deg);
+  }
+}
+
+.citadel-ghost-actor--active .citadel-ghost-bobber {
+  animation: ghostExcitedHop 0.55s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes ghostExcitedHop {
+  0% { transform: scale(1) rotate(0deg); }
+  35% { transform: scale(1.25) translateY(-16px) rotate(-12deg); }
+  70% { transform: scale(1.1) translateY(-6px) rotate(8deg); }
+  100% { transform: scale(1) translateY(0) rotate(0deg); }
+}
+
+.citadel-ghost-img {
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 6px 0 rgba(45, 31, 54, 0.24));
+  animation: ghostFaceDirection 26s cubic-bezier(0.42, 0.05, 0.58, 0.95) infinite;
+  transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.22s ease;
+}
+
+@keyframes ghostFaceDirection {
+  0%, 46% { transform: scaleX(1); }
+  52%, 86% { transform: scaleX(-1); }
+  92%, 100% { transform: scaleX(1); }
+}
+
+.citadel-ghost-actor:hover .citadel-ghost-img {
+  transform: scale(1.18) translateY(-4px);
+  filter: drop-shadow(0 10px 0 rgba(45, 31, 54, 0.32));
+}
+
+/* Interaction Prompt Cue */
+.citadel-ghost-cue {
+  margin-top: 4px;
+  background: #fef08a;
+  border: 1.5px solid #2d1f36;
+  border-radius: 4px;
+  box-shadow: 2px 2px 0px #2d1f36;
+  padding: 2px 6px;
+  font-family: var(--pixel);
+  font-size: 7.5px;
+  color: #2d1f36;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0.85;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.citadel-ghost-actor:hover .citadel-ghost-cue {
+  opacity: 1;
+  transform: scale(1.08);
+  background: #fde047;
+}
+
+/* Speech Dialogue Bubble */
+.citadel-ghost-dialogue {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(8px);
+  background: #ffffff;
+  border: 2.5px solid #2d1f36;
+  border-radius: 8px;
+  box-shadow: 3.5px 3.5px 0px #2d1f36;
+  padding: 8px 14px;
+  font-family: var(--pixel);
+  font-size: 9.5px;
+  line-height: 1.45;
+  color: #2d1f36;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 30;
+  animation: ghostDialoguePop 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.citadel-ghost-dialogue-arrow {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 7px solid transparent;
+  border-right: 7px solid transparent;
+  border-bottom: 7px solid #2d1f36;
+}
+.citadel-ghost-dialogue-arrow::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: -5px;
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-bottom: 5px solid #ffffff;
+}
+
+@keyframes ghostDialoguePop {
+  0% { transform: translateX(-50%) translateY(0px) scale(0.7); opacity: 0; }
+  100% { transform: translateX(-50%) translateY(8px) scale(1); opacity: 1; }
+}
+
+/* Trailing Magic Sparkles */
+.citadel-ghost-trail {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.ghost-sparkle {
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  background: #67e8f9;
+  border-radius: 1px;
+  box-shadow: 0 0 6px #22d3ee;
+  animation: ghostSparkleTwinkle 1.6s infinite alternate;
+}
+.ghost-sparkle.sparkle-1 {
+  top: -6px;
+  left: 10px;
+  animation-delay: 0s;
+}
+.ghost-sparkle.sparkle-2 {
+  bottom: -4px;
+  right: 8px;
+  background: #f472b6;
+  box-shadow: 0 0 6px #ec4899;
+  animation-delay: -0.5s;
+}
+.ghost-sparkle.sparkle-3 {
+  top: 40%;
+  left: -8px;
+  background: #fde047;
+  box-shadow: 0 0 6px #eab308;
+  animation-delay: -1s;
+}
+
+@keyframes ghostSparkleTwinkle {
+  0% { transform: scale(0.6) rotate(0deg); opacity: 0.3; }
+  100% { transform: scale(1.3) rotate(45deg); opacity: 1; }
+}
+
+/* Responsive Adjustments */
+@media (max-width: 992px) {
+  .citadel-pennant {
+    display: none !important;
+  }
+  .citadel-lantern--left {
+    left: 12px;
+  }
+  .citadel-lantern--right {
+    right: 12px;
+  }
+}
+
+@media (max-width: 768px) {
+  .citadel-lantern {
+    transform: scale(0.85);
+    opacity: 0.85;
+  }
+  .citadel-ghost-actor {
+    --ghost-orbit-x: clamp(115px, 42vw, 195px);
+    --ghost-orbit-y: clamp(165px, 32vh, 220px);
+    width: 88px;
+    height: 84px;
+    margin-left: -44px;
+    margin-top: -42px;
+  }
+  .citadel-ghost-dialogue {
+    white-space: nowrap;
+    font-size: 8px;
+    padding: 5px 10px;
+    transform: translateX(-50%) translateY(6px);
+  }
+}
+
 .duo-card__footer {
   position: static !important;
   margin-top: 18px !important;
